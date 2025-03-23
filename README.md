@@ -1,2 +1,2 @@
-# AplicacionesInteractivas1C25
+# Aplicaciones Interactivas 1C25
 TPO Grupo 8
