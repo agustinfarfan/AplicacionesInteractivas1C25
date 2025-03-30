@@ -8,12 +8,7 @@
             "mainClass": "com.uade.tpo.demo.DemoApplication",
             "projectName": "demo",
             "args": "",
-            "envFile": "${workspaceFolder}/.env",
-            "env": {
-                "DATABASE_USER": "root",
-                "DATABASE_PASSWORD": "admin",
-                "DATABASE_NAME" : "marketplace"
-            },
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }
