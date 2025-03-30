@@ -10,12 +10,12 @@ import lombok.Data;
 
 @Data
 @Entity
-public class Category {
+public class Categoria {
 
-    public Category() {
+    public Categoria() {
     }
 
-    public Category(String description) {
+    public Categoria(String description) {
         this.description = description;
     }
 
@@ -27,5 +27,5 @@ public class Category {
     private String description;
 
     @OneToOne(mappedBy = "category")
-    private Product product;
+    private Producto producto;
 }

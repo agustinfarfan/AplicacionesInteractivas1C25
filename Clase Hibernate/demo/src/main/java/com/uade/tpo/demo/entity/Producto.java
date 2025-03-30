@@ -11,7 +11,7 @@ import lombok.Data;
 
 @Data
 @Entity
-public class Product {
+public class Producto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,5 +21,5 @@ public class Product {
 
     @OneToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
-    private Category category;
+    private Categoria categoria;
 }

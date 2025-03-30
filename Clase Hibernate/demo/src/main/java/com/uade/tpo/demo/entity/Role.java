@@ -8,7 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToOne;
 
 @Entity
 public class Role {
@@ -20,7 +19,7 @@ public class Role {
     private String description;
 
     @ManyToMany(mappedBy = "roles")
-    private List<User> users;
+    private List<Usuario> users;
 
     // @OneToOne
     // private User user;
