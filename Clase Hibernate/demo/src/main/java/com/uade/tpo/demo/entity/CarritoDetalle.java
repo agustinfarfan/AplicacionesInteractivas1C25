@@ -9,10 +9,10 @@ import lombok.Data;
 public class CarritoDetalle {
 
 
-    public CarritoDetalle(Carrito carrito, Producto producto) {
+    public CarritoDetalle(Carrito carrito, Producto producto, int cantidad) {
         this.carrito = carrito;
         this.producto = producto;
-        this.cantidad = 1;
+        this.cantidad = cantidad;
     }
 
     @Id

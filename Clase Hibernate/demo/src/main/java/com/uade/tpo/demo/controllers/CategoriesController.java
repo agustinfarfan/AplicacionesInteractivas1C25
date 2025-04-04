@@ -49,7 +49,7 @@ public class CategoriesController {
     @PostMapping
     public ResponseEntity<Object> createCategory(@RequestBody CategoryRequest categoryRequest)
             throws CategoryDuplicateException {
-        Categoria result = categoryService.createCategory(categoryRequest.getDescription());
+        Categoria result = categoryService.createCategory(categoryRequest.getNombre());
         return ResponseEntity.created(URI.create("/categories/" + result.getId())).body(result);
     }
 }

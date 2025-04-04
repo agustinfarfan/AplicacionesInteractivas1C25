@@ -4,6 +4,7 @@ package com.uade.tpo.demo.controllers;
 import com.uade.tpo.demo.entity.Carrito;
 import com.uade.tpo.demo.entity.Categoria;
 import com.uade.tpo.demo.entity.Producto;
+import com.uade.tpo.demo.entity.dto.AddProductRequest;
 import com.uade.tpo.demo.entity.dto.CreateCartRequest;
 import com.uade.tpo.demo.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +28,16 @@ public class CartController {
     }
 
     @PostMapping("/{cartId}/addProduct")
-    public ResponseEntity<Carrito> addProductToCart(@PathVariable Long cartId, Producto producto) {
+    public ResponseEntity<Carrito> addProductToCart(@PathVariable Long cartId, @RequestBody AddProductRequest request) {
+        Carrito carrito = cartService.addProductToCart(cartId, request);
 
-
-
+        return ResponseEntity.ok(carrito);
     }
 
     @PostMapping("/{cartId}/removeProduct")
     public ResponseEntity<Page<Categoria>> removeProductFromCart(@PathVariable Long cartId, Producto producto) {
+
+        cartService.rem
 
     }
 
