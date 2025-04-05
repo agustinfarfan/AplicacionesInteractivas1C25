@@ -1,4 +1,4 @@
-package com.uade.tpo.demo.service;
+package com.uade.tpo.demo.service.cart;
 
 
 import com.uade.tpo.demo.entity.Carrito;
@@ -10,6 +10,7 @@ import com.uade.tpo.demo.exceptions.CartProductQuantityException;
 import com.uade.tpo.demo.exceptions.ResourceNotFoundException;
 import com.uade.tpo.demo.repository.CartDetailsRepository;
 import com.uade.tpo.demo.repository.CartRepository;
+import com.uade.tpo.demo.repository.ProductoRepository;
 import com.uade.tpo.demo.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,16 +22,16 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
-public class CartService {
+public class CartServiceImpl implements CartService {
 
     @Autowired
     private CartRepository cartRepository;
     @Autowired
-    private CartDetailsRepository cartDetailsRepository;
-    @Autowired
     private UsuarioRepository usuarioRepository;
     @Autowired
     private ProductoRepository productoRepository;
+    @Autowired
+    private CartDetailsRepository cartDetailsRepository;
 
     public Page<Carrito> getAllCarts(PageRequest pageable) {
         return cartRepository.findAll(pageable);
@@ -42,44 +43,61 @@ public class CartService {
 
     public Long createCart(Long userId) {
 
-        Usuario usuario = usuarioRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        Usuario usuario = usuarioRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + userId));
 
         Carrito carrito = cartRepository.save(new Carrito(usuario));
 
         return carrito.getId();
     }
 
-    public Carrito addProductToCart(Long cartId, AddProductRequest request) throws CartProductQuantityException, CartProductQuantityException {
+    public Carrito addProductToCart(Long cartId, AddProductRequest request) throws CartProductQuantityException, ResourceNotFoundException {
 
         Carrito carrito = cartRepository.findById(cartId).orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con Id: " + cartId));
-        Producto producto = productoRepository.getById(request.getProductId()).orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con Id: " + request.getProductId()));
 
-        // Quantity Validation
+        // Eliminar cuando haya clase en productoService
+        Producto producto = productoRepository.findById(request.getProductId()).orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con Id: " + request.getProductId()));;
+
+        // Validacion de cantidad
         if (request.getCantidad() <= 0) {
             throw new CartProductQuantityException();
         }
 
-        // Stock validation
+        // Validacion de stock
         if (producto.getStock() < request.getCantidad()) {
             throw new CartProductQuantityException();
         }
 
-        // See if Cart already has CartDetail with product
+        // Ver si tiene producto en carrito.
         List<CarritoDetalle> carritoDetalles = carrito.getCarritoDetalle();
         AtomicBoolean existe = new AtomicBoolean(false);
 
         carritoDetalles.forEach(carritoDetalle -> {
-            if (carritoDetalle.getProducto().getId().equals(request.getProductId())) {
-                carritoDetalle.setCantidad(carritoDetalle.getCantidad() + request.getCantidad());
+            if (carritoDetalle.tieneProducto(request.getProductId())) {
+                carritoDetalle.sumarCantidad(request.getCantidad());
+                cartDetailsRepository.save(carritoDetalle);
                 existe.set(true);
             }
         });
 
+        // Agregar carrito detalle al carrito si no existe.
         if (!existe.get()) {
-            cartDetailsRepository.save(new CarritoDetalle(carrito, producto, request.getCantidad()));
+            CarritoDetalle carritoDetalle = new CarritoDetalle(producto, request.getCantidad());
+            carrito.agregarDetalle(carritoDetalle);
+            cartRepository.save(carrito);
         }
 
+        return carrito;
     }
 
 
+    public Carrito deleteProductFromCart(Long cartId, Long productId) throws ResourceNotFoundException {
+        Carrito carrito = cartRepository.findById(cartId).orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con Id: " + cartId));
+
+        // Eliminar cuando haya clase en productoService
+        Producto producto = productoRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con Id: " + productId));;
+
+
+
+        return new Carrito(new Usuario());
+    }
 }

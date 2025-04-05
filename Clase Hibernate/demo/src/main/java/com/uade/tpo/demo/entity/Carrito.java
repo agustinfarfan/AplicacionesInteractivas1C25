@@ -24,9 +24,10 @@ public class Carrito {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<CarritoDetalle> carritoDetalle = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
@@ -39,5 +40,10 @@ public class Carrito {
     private Date updatedAt;
 
     private Date expirationDate;
+
+    public void agregarDetalle(CarritoDetalle carritoDetalle) {
+        carritoDetalle.setCarrito(this);
+        this.carritoDetalle.add(carritoDetalle);
+    }
 
 }
