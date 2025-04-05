@@ -38,7 +38,7 @@ public class CategoriasController {
         if (result.isPresent())
             return ResponseEntity.ok(result.get());
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/search")

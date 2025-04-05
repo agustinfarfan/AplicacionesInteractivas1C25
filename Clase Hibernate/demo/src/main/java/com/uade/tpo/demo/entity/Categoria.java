@@ -7,6 +7,7 @@ import java.util.List;
 
 @Data
 @Entity
+@Table(name = "categoria", uniqueConstraints = @UniqueConstraint(columnNames = "nombre"))
 public class Categoria {
 
     public Categoria() {
