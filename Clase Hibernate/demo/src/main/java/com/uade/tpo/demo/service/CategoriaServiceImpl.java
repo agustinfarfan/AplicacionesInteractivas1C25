@@ -21,13 +21,13 @@ public class CategoriaServiceImpl implements CategoriaService {
     private CategoryRepository categoryRepository;
 
     @Override
-    public Page<Categoria> getCategorias(PageRequest pageable) {
-        return categoryRepository.findAll(pageable);
+    public Page<Categoria> getCategorias(PageRequest pageRequest) {
+        return categoryRepository.findAll(pageRequest);
     }
 
     @Override
-    public Optional<Categoria> getCategoriasById(Long categoryId) {
-        return categoryRepository.findById(categoryId);
+    public Optional<Categoria> getCategoriasById(Long id) {
+        return categoryRepository.findById(id);
     }
 
     @Override
