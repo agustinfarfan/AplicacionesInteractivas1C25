@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.uade.tpo.demo.entity.Categoria;
 import com.uade.tpo.demo.entity.Producto;
 import com.uade.tpo.demo.entity.dto.ProductRequest;
-import com.uade.tpo.demo.service.CategoryService;
+import com.uade.tpo.demo.service.CategoriaService;
 import com.uade.tpo.demo.service.ProductService;
 
 @RestController
@@ -26,7 +26,7 @@ public class ProductController {
     private ProductService productService;
 
     @Autowired
-    private CategoryService categoryService;
+    private CategoriaService categoryService;
 
     @GetMapping
     public List<Producto> obtenerTodos() {
@@ -45,7 +45,7 @@ public class ProductController {
 
     @PostMapping
     public Producto crearProducto(@RequestBody ProductRequest request) {
-        Categoria categoria = categoryService.getCategoryById(request.getCategoriaId())
+        Categoria categoria = categoryService.getCategoriasById(request.getCategoriaId())
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada con id: " + request.getCategoriaId()));
 
         Producto producto = new Producto();
@@ -60,7 +60,7 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public Producto actualizarProducto(@PathVariable Long id, @RequestBody ProductRequest request) {
-        Categoria categoria = categoryService.getCategoryById(request.getCategoriaId())
+        Categoria categoria = categoryService.getCategoriasById(request.getCategoriaId())
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada con id: " + request.getCategoriaId()));
 
         Producto productoActualizado = new Producto();
