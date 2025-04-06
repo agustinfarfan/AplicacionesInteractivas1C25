@@ -124,8 +124,9 @@ public class CartServiceImpl implements CartService {
         carritoDetalles.forEach(carritoDetalle -> {
             if (carritoDetalle.tieneProducto(request.getProductId())) {
 
-                if (carritoDetalle.getCantidad() < request.getCantidad()) {
+                if (carritoDetalle.getCantidad() < request.getCantidad().intValue()) {
                     cartDetailsRepository.delete(carritoDetalle);
+                    carrito.getCarritoDetalle().remove(carritoDetalle);
                 } else {
                     carritoDetalle.ajustarCantidad(-request.getCantidad());
                     cartDetailsRepository.save(carritoDetalle);
