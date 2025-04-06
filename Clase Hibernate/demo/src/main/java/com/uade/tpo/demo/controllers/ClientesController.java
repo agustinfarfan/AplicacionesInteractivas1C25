@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.*;
 import com.uade.tpo.demo.entity.Categoria;
 import com.uade.tpo.demo.entity.Cliente;
 import com.uade.tpo.demo.entity.dto.CategoriaRequest;
+import com.uade.tpo.demo.entity.dto.ClienteRequest;
 import com.uade.tpo.demo.exceptions.CategoriaNotFoundExcepcion;
+import com.uade.tpo.demo.exceptions.ClienteDuplicadoExcepcion;
+import com.uade.tpo.demo.exceptions.ClienteNotFoundExcepcion;
 import com.uade.tpo.demo.exceptions.CategoriaDuplicadaExcepcion;
 import com.uade.tpo.demo.service.CategoriaService;
 import com.uade.tpo.demo.service.ClienteService;
@@ -35,43 +38,33 @@ public class ClientesController {
     }
 
     @GetMapping("/{clienteId}")
-    public ResponseEntity<Cliente> getClienteById(@PathVariable Long clienteId) {
+    public ResponseEntity<Cliente> getClienteById(@PathVariable Long clienteId) throws ClienteNotFoundExcepcion {
         Optional<Cliente> result = clienteService.getClienteById(clienteId);
-        if (result.isPresent())
-            return ResponseEntity.ok(result.get());
-
-        return ResponseEntity.notFound().build();
+        return result.map(ResponseEntity::ok).orElseThrow(ClienteNotFoundExcepcion::new);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Categoria>> searchCategoriaByNombre(@PathVariable String categoryName) 
-            throws CategoriaNotFoundExcepcion {
-        List<Categoria> result = categoriaService.searchCategoriaByNombre(categoryName);
-        if (!result.isEmpty())
-            return ResponseEntity.ok(result);
-
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<List<Cliente>> searchClienteByRazonSocial(@RequestParam String razonSocial) {
+        List<Cliente> clientes = clienteService.getClientesByRazonSocial(razonSocial);
+        return ResponseEntity.ok(clientes);
     }
 
     @PostMapping
-    public ResponseEntity<Object> createCategoria(@RequestBody CategoriaRequest categoriaRequest)
-            throws CategoriaDuplicadaExcepcion {
-
-                System.out.println("Dentro de createCategoria CategoriasController nombre: " + categoriaRequest.getNombre());
-        Categoria result = categoriaService.createCategoria(categoriaRequest.getNombre());
-        return ResponseEntity.created(URI.create("/categories/" + result.getId())).body(result);
+    public ResponseEntity<Object> createCliente(@RequestBody ClienteRequest clienteRequest) throws ClienteDuplicadoExcepcion {
+                Cliente result = clienteService.createCliente(clienteRequest);
+                return ResponseEntity.created(URI.create("/clientes/" + result.getId())).body(result);
     }
     
-    @DeleteMapping("/{categoryId}")
-    public ResponseEntity<Object> delCategoriaById(@PathVariable Long categoryId)
-            throws CategoriaNotFoundExcepcion {
-                categoriaService.delCategoriaById(categoryId);
+    @DeleteMapping("/{clienteId}")
+    public ResponseEntity<Object> deleteCliente(@PathVariable Long clienteId)
+            throws ClienteNotFoundExcepcion {
+                clienteService.deleteClienteById(clienteId);
                 return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{categoryId}")
-    public ResponseEntity<Categoria> actualizarCategoria(@PathVariable Long categoryId, @RequestBody CategoriaRequest categoriaRequest)
-            throws CategoriaNotFoundExcepcion {
-        return ResponseEntity.ok(categoriaService.updateCategoria(categoryId,categoriaRequest.getNombre(),categoriaRequest.getDescripcion()));
+    @PutMapping("/{clienteId}")
+    public ResponseEntity<Cliente> actualizarCliente(@PathVariable Long clienteId, @RequestBody ClienteRequest clienteRequest)
+            throws ClienteNotFoundExcepcion {
+        return ResponseEntity.ok(clienteService.updateCliente(clienteId,clienteRequest));
     }
 }
