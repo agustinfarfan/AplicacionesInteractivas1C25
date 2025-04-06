@@ -5,15 +5,15 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PublicacionService {
-    List<Publicacion> getAllPublicaciones();
+    public List<Publicacion> getAllPublicaciones();
 
-    Optional<Publicacion> getPublicacionById(Long id);
+    public Optional<Publicacion> getPublicacionById(Long id);
 
-    Publicacion updateEstado(Long id, String nuevoEstado);
+    public Publicacion updateEstado(Long id, String nuevoEstado);
 
-    Publicacion updateVisible(Long id, boolean visible);
+    public Publicacion updateVisible(Long id, boolean visible);
 
-    Publicacion createPublicacion(Publicacion publicacion);
+    public Publicacion createPublicacion(Publicacion publicacion);
     
-    void deletePublicacion(Long id);
+    public void deletePublicacion(Long id);
 }

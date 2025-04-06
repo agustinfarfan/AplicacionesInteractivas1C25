@@ -33,7 +33,7 @@ public class PedidoController {
     public ResponseEntity<Pedido> createPedido(@RequestBody PedidoRequest pedidoRequest) {
         Pedido pedido = new Pedido();
         pedido.setCantidad(pedidoRequest.getCantidad());
-        pedido.setId(pedidoRequest.());
+        pedido.setId(pedidoRequest.getUserId());
         
         Pedido newPedido = pedidoService.createPedido(pedido);
         return ResponseEntity.created(URI.create("/pedidos/" + newPedido.getId())).body(newPedido);

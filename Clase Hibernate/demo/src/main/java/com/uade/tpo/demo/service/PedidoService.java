@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PedidoService {
-    List<Pedido> getAllPedidos();
+    public List<Pedido> getAllPedidos();
 
-    Optional<Pedido> getPedidoById(Long id);
+    public Optional<Pedido> getPedidoById(Long id);
 
-    Pedido createPedido(Pedido pedido);
+    public Pedido createPedido(Pedido pedido);
     
-    void deletePedido(Long id);
+    public void deletePedido(Long id);
 }
