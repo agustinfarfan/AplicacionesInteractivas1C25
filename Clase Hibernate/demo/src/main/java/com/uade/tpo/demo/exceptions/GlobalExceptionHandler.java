@@ -13,5 +13,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
-    // You can handle other exceptions here too
+//    @ExceptionHandler(CartProductQuantityException.class)
+//    public ResponseEntity<?> handleCartProuctQuantity(CartProductQuantityException ex) {
+//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+//    }
+
 }

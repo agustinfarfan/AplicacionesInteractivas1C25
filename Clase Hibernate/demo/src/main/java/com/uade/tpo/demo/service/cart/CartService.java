@@ -1,19 +1,18 @@
 package com.uade.tpo.demo.service.cart;
 
 import com.uade.tpo.demo.entity.Carrito;
-import com.uade.tpo.demo.entity.dto.AddProductRequest;
+import com.uade.tpo.demo.entity.dto.CartProductRequest;
+import com.uade.tpo.demo.entity.dto.CarritoDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-
-import java.util.Optional;
 
 public interface CartService {
 
 
-    public Page<Carrito> getAllCarts(PageRequest pageable);
-    public Optional<Carrito> getCartById(Long cartId);
+    public Page<CarritoDTO> getAllCarts(PageRequest pageable);
+    public CarritoDTO getCartById(Long cartId);
     public Long createCart(Long userId);
-    public Carrito addProductToCart(Long cartId, AddProductRequest request);
-    public Carrito deleteProductFromCart(Long cartId, Long productId);
-
+    public CarritoDTO addProductToCart(Long cartId, CartProductRequest request);
+    public CarritoDTO deleteProductFromCart(Long cartId, CartProductRequest request);
+    public Boolean deleteCartById(Long cartId);
 }
