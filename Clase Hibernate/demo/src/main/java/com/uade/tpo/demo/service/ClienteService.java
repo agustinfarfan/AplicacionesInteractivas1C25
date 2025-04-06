@@ -1,8 +1,9 @@
 package com.uade.tpo.demo.service;
 
-import com.uade.tpo.demo.entity.Categoria;
-import com.uade.tpo.demo.exceptions.CategoriaNotFoundExcepcion;
-import com.uade.tpo.demo.exceptions.CategoriaDuplicadaExcepcion;
+import com.uade.tpo.demo.entity.Cliente;
+import com.uade.tpo.demo.entity.dto.ClienteRequest;
+import com.uade.tpo.demo.exceptions.ClienteDuplicadoExcepcion;
+import com.uade.tpo.demo.exceptions.ClienteNotFoundExcepcion;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,16 +12,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 public interface ClienteService {
-    Page<Categoria> getCategorias(PageRequest pageRequest);
 
-    Optional<Categoria> getCategoriasById(Long categoryId);
+    Page<Cliente> getClientes(PageRequest pageRequest);
 
-    Categoria createCategoria(String nombre) throws CategoriaDuplicadaExcepcion;
+    Optional<Cliente> getClienteById(Long id);
 
-    void delCategoriaById(Long categoryId) throws CategoriaNotFoundExcepcion;
+    Cliente createCliente(ClienteRequest request) throws ClienteDuplicadoExcepcion;
 
-    //CREO QUE LA EXCEPCION DA ACA NO HACE FALTA POR EL .ok y .noContent() EN EL CONTROLADOR
-    public List<Categoria> searchCategoriaByNombre(String nombre) throws CategoriaNotFoundExcepcion;
+    Cliente updateCliente(Long id, ClienteRequest request) throws ClienteNotFoundExcepcion;
 
-    Categoria updateCategoria(Long id, String nombre, String descripcion) throws CategoriaNotFoundExcepcion;
+    void deleteClienteById(Long id) throws ClienteNotFoundExcepcion;
+
+    List<Cliente> getClientesByRazonSocial(String razonSocial);
 }

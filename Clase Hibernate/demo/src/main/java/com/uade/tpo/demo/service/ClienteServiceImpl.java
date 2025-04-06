@@ -3,66 +3,70 @@ package com.uade.tpo.demo.service;
 import java.util.List;
 import java.util.Optional;
 
-import com.uade.tpo.demo.entity.Categoria;
+import com.uade.tpo.demo.entity.Cliente;
+import com.uade.tpo.demo.entity.dto.ClienteRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import com.uade.tpo.demo.exceptions.CategoriaDuplicadaExcepcion;
-import com.uade.tpo.demo.exceptions.CategoriaNotFoundExcepcion;
-import com.uade.tpo.demo.repository.CategoryRepository;
+import com.uade.tpo.demo.exceptions.ClienteDuplicadoExcepcion;
+import com.uade.tpo.demo.exceptions.ClienteNotFoundExcepcion;
+import com.uade.tpo.demo.repository.ClienteRepository;
 
 
 @Service
 public class ClienteServiceImpl implements ClienteService {
 
     @Autowired
-    private CategoryRepository categoryRepository;
+    private ClienteRepository clienteRepository;
 
     @Override
-    public Page<Categoria> getCategorias(PageRequest pageable) {
-        return categoryRepository.findAll(pageable);
+    public Page<Cliente> getClientes(PageRequest pageRequest) {
+        return clienteRepository.findAll(pageRequest);
     }
 
     @Override
-    public Optional<Categoria> getCategoriasById(Long categoryId) {
-        return categoryRepository.findById(categoryId);
+    public Optional<Cliente> getClienteById(Long id) {
+        return clienteRepository.findById(id);
     }
 
     @Override
-    public Categoria createCategoria(String nombre) throws CategoriaDuplicadaExcepcion {        
-        List<Categoria> categories = categoryRepository.findByNombre(nombre);
-        if (categories.isEmpty())
-            return categoryRepository.save(new Categoria(nombre));
-        throw new CategoriaDuplicadaExcepcion();
+    public Cliente createCliente(ClienteRequest request) throws ClienteDuplicadoExcepcion {
+        if(clienteRepository.findByCuil(request.getCuil()) == null){
+            return clienteRepository.save(new Cliente(request.getRazonSocial(),request.getCuil()));
+        }else{
+            throw new ClienteDuplicadoExcepcion();
+        }
     }
 
     @Override
-    public void delCategoriaById(Long categoryId) throws CategoriaNotFoundExcepcion {
-        Categoria categoria = categoryRepository.findById(categoryId).orElseThrow(CategoriaNotFoundExcepcion::new);
-        categoryRepository.delete(categoria);
+    public Cliente updateCliente(Long id, ClienteRequest request) throws ClienteNotFoundExcepcion {
+        Cliente cliente = clienteRepository.findById(id).orElseThrow(ClienteNotFoundExcepcion::new);
+
+        if (request.getRazonSocial() != null) cliente.setRazonSocial(request.getRazonSocial());
+        if (request.getCalle() != null) cliente.setCalle(request.getCalle());
+        if (request.getAltura() != null) cliente.setAltura(request.getAltura());
+        if (request.getCodigoPostal() != null) cliente.setCodigoPostal(request.getCodigoPostal());
+        if (request.getLocalidad() != null) cliente.setLocalidad(request.getLocalidad());
+        if (request.getProvincia() != null) cliente.setProvincia(request.getProvincia());
+
+        return clienteRepository.save(cliente);
     }
 
     @Override
-    public List<Categoria> searchCategoriaByNombre(String nombre) throws CategoriaNotFoundExcepcion {
-        List<Categoria> categorias = categoryRepository.findByNombre(nombre);
-        if (categorias.isEmpty())
-            throw new CategoriaNotFoundExcepcion();
-        return categorias;
+    public void deleteClienteById(Long id) throws ClienteNotFoundExcepcion {
+        Cliente cliente = clienteRepository.findById(id).orElseThrow(ClienteNotFoundExcepcion::new);
+        clienteRepository.delete(cliente);
     }
 
     @Override
-    public Categoria updateCategoria(Long id, String nombre, String descripcion)
-            throws CategoriaNotFoundExcepcion {
-
-        Categoria categoria = categoryRepository.findById(id).orElseThrow(CategoriaNotFoundExcepcion::new);
-
-        if (nombre != null) categoria.setNombre(nombre);
-        if (descripcion != null) categoria.setDescripcion(descripcion);
-
-        return categoryRepository.save(categoria);
+    public List<Cliente> getClientesByRazonSocial(String razonSocial) {
+        return clienteRepository.findByRazonSocialContainingIgnoreCase(razonSocial);
     }
+
+    
 
     
 }
