@@ -54,8 +54,6 @@ public class CategoriasController {
     @PostMapping
     public ResponseEntity<Object> createCategoria(@RequestBody CategoriaRequest categoriaRequest)
             throws CategoriaDuplicadaExcepcion {
-
-                System.out.println("Dentro de createCategoria CategoriasController nombre: " + categoriaRequest.getNombre());
         Categoria result = categoriaService.createCategoria(categoriaRequest.getNombre());
         return ResponseEntity.created(URI.create("/categories/" + result.getId())).body(result);
     }
