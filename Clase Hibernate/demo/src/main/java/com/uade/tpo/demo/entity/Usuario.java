@@ -25,9 +25,9 @@ public class Usuario {
 
     private TipoUsuario tipoUsuario;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "cliente_id")
-    private Cliente clienteId;
+    private Cliente cliente;
 
     @Min(0)
     @Max(10)
