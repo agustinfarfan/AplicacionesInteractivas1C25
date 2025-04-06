@@ -1,18 +1,24 @@
 package com.uade.tpo.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.uade.tpo.demo.entity.dto.CarritoDTO;
 import com.uade.tpo.demo.enums.EstadoCarrito;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
-@Data
+@Getter
+@Setter
 @Entity
 public class Carrito {
+
+    public Carrito() {}
 
     public Carrito(Usuario usuario) {
         this.usuario = usuario;
@@ -27,23 +33,36 @@ public class Carrito {
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<CarritoDetalle> carritoDetalle = new ArrayList<>();
+    @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CarritoDetalle> carritoDetalle = new HashSet<CarritoDetalle>();
 
     @Enumerated(EnumType.STRING)
     private EstadoCarrito estado;
 
     @CreationTimestamp
-    private Date fechaCreacion;
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
-    private Date expirationDate;
+    private LocalDateTime expirationDate;
 
     public void agregarDetalle(CarritoDetalle carritoDetalle) {
-        carritoDetalle.setCarrito(this);
         this.carritoDetalle.add(carritoDetalle);
+        carritoDetalle.setCarrito(this);
+    }
+
+    public double getTotal() {
+        return carritoDetalle.stream().mapToDouble(CarritoDetalle::obtenerSubTotal).sum();
+    }
+
+    public CarritoDTO getDTO() {
+        return CarritoDTO.builder()
+                .carritoDetalle(this.carritoDetalle.stream()
+                        .map(CarritoDetalle::getDTO)
+                        .toList())
+                .total(this.getTotal())
+                .build();
     }
 
 }

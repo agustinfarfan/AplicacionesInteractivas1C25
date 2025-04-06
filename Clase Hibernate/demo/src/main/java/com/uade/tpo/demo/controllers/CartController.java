@@ -1,12 +1,11 @@
 package com.uade.tpo.demo.controllers;
 
 
-import com.uade.tpo.demo.entity.Carrito;
-import com.uade.tpo.demo.entity.dto.AddProductRequest;
+import com.uade.tpo.demo.entity.dto.CartProductRequest;
+import com.uade.tpo.demo.entity.dto.CarritoDTO;
 import com.uade.tpo.demo.entity.dto.CreateCartRequest;
-import com.uade.tpo.demo.exceptions.CartProductQuantityException;
-import com.uade.tpo.demo.exceptions.ResourceNotFoundException;
 import com.uade.tpo.demo.service.cart.CartService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,22 +25,32 @@ public class CartController {
         return ResponseEntity.ok(carritoId);
     }
 
-    @PostMapping("/{cartId}/addProduct")
-    public ResponseEntity<Carrito> addProductToCart(@PathVariable Long cartId, @RequestBody AddProductRequest request) throws
-            CartProductQuantityException,
-            ResourceNotFoundException
-            {
-        Carrito carrito = cartService.addProductToCart(cartId, request);
+    @GetMapping("/{cartId}")
+    public ResponseEntity<CarritoDTO> getCartById(@PathVariable Long cartId) {
+        CarritoDTO result = cartService.getCartById(cartId);
 
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/{cartId}/addProduct")
+    public ResponseEntity<CarritoDTO> addProductToCart(@PathVariable Long cartId, @RequestBody CartProductRequest request) {
+        CarritoDTO carrito = cartService.addProductToCart(cartId, request);
         return ResponseEntity.ok(carrito);
     }
 
     @PostMapping("/{cartId}/removeProduct")
-    public ResponseEntity<Carrito> removeProductFromCart(@PathVariable Long cartId, @RequestBody Long productoId) {
+    public ResponseEntity<CarritoDTO> removeProductFromCart(
+            @PathVariable Long cartId,
+            @Valid @RequestBody CartProductRequest request) {
 
-        Carrito carrito = cartService.deleteProductFromCart(cartId, productoId);
-
+        CarritoDTO carrito = cartService.deleteProductFromCart(cartId, request);
         return ResponseEntity.ok(carrito);
+    }
+
+    @DeleteMapping("/{cartId}")
+    public ResponseEntity<String> deleteCart(@PathVariable Long cartId) {
+        cartService.deleteCartById(cartId);
+        return ResponseEntity.ok("Cart deleted succesfully.");
     }
 
 }

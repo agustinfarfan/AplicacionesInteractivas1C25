@@ -34,8 +34,8 @@ public class Categoria {
     @JoinColumn(name = "categoriaPadreId")
     private Categoria categoriaPadre;
 
-    @OneToMany(mappedBy = "categoria")
-    private List<Producto> productos;
+//    @OneToMany(mappedBy = "categoria")
+//    private List<Producto> productos;
 
     @OneToMany(mappedBy = "categoriaPadre")
     private List<Categoria> subcategorias;

@@ -1,13 +1,16 @@
 package com.uade.tpo.demo.entity;
 
 
+import com.uade.tpo.demo.entity.dto.CarritoDetalleDTO;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @Entity
 public class CarritoDetalle {
 
+    public CarritoDetalle() {}
 
     public CarritoDetalle(Producto producto, int cantidad) {
         this.producto = producto;
@@ -36,8 +39,16 @@ public class CarritoDetalle {
         return producto.getId().equals(productoId);
     }
 
-    public void sumarCantidad(int cantidad) {
+    public void ajustarCantidad(int cantidad) {
         this.cantidad += cantidad;
     }
 
+    public CarritoDetalleDTO getDTO() {
+        return CarritoDetalleDTO.builder()
+                .nombre_producto(producto.getNombre())
+                .cantidad(this.cantidad)
+                .precio_unitario(producto.getPrecio())
+                .subtotal(this.obtenerSubTotal())
+                .build();
+    }
 }
