@@ -27,10 +27,14 @@ public class SecurityConfig {
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
                                 .csrf(AbstractHttpConfigurer::disable)
-                                .authorizeHttpRequests(req -> req.requestMatchers("/api/v1/auth/**")
-                                                .permitAll()
-                                                .anyRequest()
-                                                .authenticated())
+                                .authorizeHttpRequests(req -> req
+                                                        .requestMatchers("/api/v1/auth/**").permitAll()
+                                                        .requestMatchers("/cart").permitAll()
+                                                        .requestMatchers("/productos").permitAll()
+                                                        .requestMatchers("/Orders").permitAll()
+                                                        .requestMatchers("/categories").permitAll() // solo usuarios autenticados con rol USER
+                                                        .anyRequest().authenticated() 
+                                                )
                                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                                 .authenticationProvider(authenticationProvider)
                                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

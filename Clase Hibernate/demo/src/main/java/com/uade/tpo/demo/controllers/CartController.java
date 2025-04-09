@@ -32,13 +32,13 @@ public class CartController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/{cartId}/addProduct")
+    @PutMapping("/{cartId}/addProduct")
     public ResponseEntity<CarritoDTO> addProductToCart(@PathVariable Long cartId, @RequestBody CartProductRequest request) {
         CarritoDTO carrito = cartService.addProductToCart(cartId, request);
         return ResponseEntity.ok(carrito);
     }
 
-    @PostMapping("/{cartId}/removeProduct")
+    @PutMapping("/{cartId}/removeProduct")
     public ResponseEntity<CarritoDTO> removeProductFromCart(
             @PathVariable Long cartId,
             @Valid @RequestBody CartProductRequest request) {
