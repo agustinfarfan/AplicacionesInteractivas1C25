@@ -7,20 +7,26 @@ import com.uade.tpo.demo.entity.Producto;
 import com.uade.tpo.demo.entity.User;
 import com.uade.tpo.demo.entity.dto.CartProductRequest;
 import com.uade.tpo.demo.entity.dto.CarritoDTO;
+import com.uade.tpo.demo.enums.Role;
 import com.uade.tpo.demo.exceptions.CartProductQuantityException;
 import com.uade.tpo.demo.exceptions.ResourceNotFoundException;
 import com.uade.tpo.demo.repository.CartDetailsRepository;
 import com.uade.tpo.demo.repository.CartRepository;
 import com.uade.tpo.demo.repository.ProductoRepository;
 import com.uade.tpo.demo.repository.UserRepository;
+import com.uade.tpo.demo.service.ProductService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -35,6 +41,8 @@ public class CartServiceImpl implements CartService {
     private ProductoRepository productoRepository;
     @Autowired
     private CartDetailsRepository cartDetailsRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     public Page<CarritoDTO> getAllCarts(PageRequest pageable) {
         Page<CarritoDTO> carritoDTOs = cartRepository.findAll(pageable).map(Carrito::getDTO);
@@ -47,18 +55,18 @@ public class CartServiceImpl implements CartService {
     }
 
     @Transactional
-    public Long createCart(Long userId) {
+    public Long createCart(String email) {
 
-        User User = UserRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User no encontrado con id: " + userId));
+        User user = UserRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
 
-        Optional<Carrito> carritoViejo = cartRepository.findByUserId(userId);
+        Optional<Carrito> carritoViejo = cartRepository.findByUserId(user.getId());
 
         // Si User tenia carrito creado, lo elimina.
         if (carritoViejo.isPresent()) {
             cartRepository.delete(carritoViejo.get());
         }
 
-        Carrito carrito = cartRepository.save(new Carrito(User));
+        Carrito carrito = cartRepository.save(new Carrito(user));
 
         return carrito.getId();
     }
@@ -67,9 +75,15 @@ public class CartServiceImpl implements CartService {
     public CarritoDTO addProductToCart(Long cartId, CartProductRequest request) throws CartProductQuantityException, ResourceNotFoundException {
 
         Carrito carrito = cartRepository.findById(cartId).orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con Id: " + cartId));
-
-        // Eliminar cuando haya clase en productoService
         Producto producto = productoRepository.findById(request.getProductId()).orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con Id: " + request.getProductId()));;
+
+        // Validacion de autenticacion
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+
+        if (user.getRole() != Role.VENDOR && !Objects.equals(user.getId(), carrito.getUser().getId())) {
+            throw new AccessDeniedException("User is not the owner of this cart.");
+        }
 
         // Validacion de cantidad
         if (request.getCantidad() <= 0) {
@@ -112,11 +126,15 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public CarritoDTO deleteProductFromCart(Long cartId, CartProductRequest request) throws ResourceNotFoundException {
         Carrito carrito = cartRepository.findById(cartId).orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con Id: " + cartId));
+        Producto producto = productoRepository.findById(request.getProductId()).orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con Id: " + request.getProductId()));;
 
-        // Eliminar cuando haya clase en productoService
-        Producto producto = productoRepository
-                .findById(request.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con Id: " + request.getProductId()));;
+        // Validacion de autenticacion
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+
+        if (user.getRole() != Role.VENDOR && !Objects.equals(user.getId(), carrito.getUser().getId())) {
+            throw new AccessDeniedException("User is not the owner of this cart.");
+        }
 
         List<CarritoDetalle> carritoDetalles = cartDetailsRepository.findByCartId(cartId);
         AtomicBoolean existe = new AtomicBoolean(false);
@@ -128,7 +146,7 @@ public class CartServiceImpl implements CartService {
                     cartDetailsRepository.delete(carritoDetalle);
                     carrito.getCarritoDetalle().remove(carritoDetalle);
                 } else {
-                    carritoDetalle.ajustarCantidad(-request.getCantidad());
+                    carritoDetalle.ajustarCantidad(-Math.abs(request.getCantidad()));
                     cartDetailsRepository.save(carritoDetalle);
                 }
 
@@ -148,6 +166,17 @@ public class CartServiceImpl implements CartService {
 
     @Transactional
     public Boolean deleteCartById(Long cartId) {
+
+        Carrito carrito = cartRepository.findById(cartId).orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
+
+        // Validacion de autenticacion
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+
+        if (user.getRole() != Role.VENDOR && !Objects.equals(user.getId(), carrito.getUser().getId())) {
+            throw new AccessDeniedException("User is not the owner of this cart.");
+        }
+
         cartRepository.deleteById(cartId);
         return true;
     }
