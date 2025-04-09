@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.uade.tpo.demo.entity.dto.CarritoDTO;
 import com.uade.tpo.demo.enums.EstadoCarrito;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
