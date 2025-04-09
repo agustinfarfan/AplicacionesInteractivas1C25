@@ -4,7 +4,7 @@ package com.uade.tpo.demo.service.cart;
 import com.uade.tpo.demo.entity.Carrito;
 import com.uade.tpo.demo.entity.CarritoDetalle;
 import com.uade.tpo.demo.entity.Producto;
-import com.uade.tpo.demo.entity.Usuario;
+import com.uade.tpo.demo.entity.User;
 import com.uade.tpo.demo.entity.dto.CartProductRequest;
 import com.uade.tpo.demo.entity.dto.CarritoDTO;
 import com.uade.tpo.demo.exceptions.CartProductQuantityException;
@@ -12,7 +12,7 @@ import com.uade.tpo.demo.exceptions.ResourceNotFoundException;
 import com.uade.tpo.demo.repository.CartDetailsRepository;
 import com.uade.tpo.demo.repository.CartRepository;
 import com.uade.tpo.demo.repository.ProductoRepository;
-import com.uade.tpo.demo.repository.UsuarioRepository;
+import com.uade.tpo.demo.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,7 +30,7 @@ public class CartServiceImpl implements CartService {
     @Autowired
     private CartRepository cartRepository;
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UserRepository UserRepository;
     @Autowired
     private ProductoRepository productoRepository;
     @Autowired
@@ -49,16 +49,16 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public Long createCart(Long userId) {
 
-        Usuario usuario = usuarioRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con id: " + userId));
+        User User = UserRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User no encontrado con id: " + userId));
 
         Optional<Carrito> carritoViejo = cartRepository.findByUserId(userId);
 
-        // Si usuario tenia carrito creado, lo elimina.
+        // Si User tenia carrito creado, lo elimina.
         if (carritoViejo.isPresent()) {
             cartRepository.delete(carritoViejo.get());
         }
 
-        Carrito carrito = cartRepository.save(new Carrito(usuario));
+        Carrito carrito = cartRepository.save(new Carrito(User));
 
         return carrito.getId();
     }

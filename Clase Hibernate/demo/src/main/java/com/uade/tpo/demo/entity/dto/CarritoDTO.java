@@ -1,7 +1,7 @@
 package com.uade.tpo.demo.entity.dto;
 
 import com.uade.tpo.demo.entity.CarritoDetalle;
-import com.uade.tpo.demo.entity.Usuario;
+import com.uade.tpo.demo.entity.User;
 import com.uade.tpo.demo.enums.EstadoCarrito;
 import lombok.Builder;
 import lombok.Data;

@@ -20,8 +20,8 @@ public class Carrito {
 
     public Carrito() {}
 
-    public Carrito(Usuario usuario) {
-        this.usuario = usuario;
+    public Carrito(User User) {
+        this.User = User;
         this.estado = EstadoCarrito.ACTIVO;
     }
 
@@ -30,8 +30,8 @@ public class Carrito {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "usuario_id")
-    private Usuario usuario;
+    @JoinColumn(name = "User_id")
+    private User User;
 
     @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CarritoDetalle> carritoDetalle = new HashSet<CarritoDetalle>();

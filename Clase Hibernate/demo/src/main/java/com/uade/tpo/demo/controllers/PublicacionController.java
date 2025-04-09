@@ -2,10 +2,10 @@ package com.uade.tpo.demo.controllers;
 
 import com.uade.tpo.demo.entity.Producto;
 import com.uade.tpo.demo.entity.Publicacion;
-import com.uade.tpo.demo.entity.Usuario;
+import com.uade.tpo.demo.entity.User;
 import com.uade.tpo.demo.entity.dto.PublicacionRequest;
 import com.uade.tpo.demo.repository.ProductoRepository;
-import com.uade.tpo.demo.repository.UsuarioRepository;
+import com.uade.tpo.demo.repository.UserRepository;
 import com.uade.tpo.demo.service.PublicacionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +27,7 @@ public class PublicacionController {
     private ProductoRepository productoRepository;
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UserRepository usuarioRepository;
 
     @GetMapping
     public ResponseEntity<List<Publicacion>> getAllPublicaciones() {
@@ -44,7 +44,7 @@ public class PublicacionController {
     public ResponseEntity<Publicacion> createPublicacion(@RequestBody PublicacionRequest publicacionRequest) {
         Producto producto = productoRepository.findById(publicacionRequest.getProductoId())
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-        Usuario vendedor = usuarioRepository.findById(publicacionRequest.getVendedorId())
+        User vendedor = usuarioRepository.findById(publicacionRequest.getVendedorId())
                 .orElseThrow(() -> new RuntimeException("Vendedor no encontrado"));
 
         Publicacion publicacion = new Publicacion();

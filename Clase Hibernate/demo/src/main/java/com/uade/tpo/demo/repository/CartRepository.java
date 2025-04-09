@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface CartRepository extends JpaRepository<Carrito, Long> {
 
-    @Query(value = "select c from Carrito c where c.usuario.id = ?1 and c.estado = 'ACTIVO' ")
+    @Query(value = "select c from Carrito c where c.User.id = ?1 and c.estado = 'ACTIVO' ")
     Optional<Carrito> findByUserId(Long id);
 
     void deleteAllByExpirationDateBefore(LocalDateTime date);
