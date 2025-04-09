@@ -11,7 +11,7 @@ public interface CartService {
 
     public Page<CarritoDTO> getAllCarts(PageRequest pageable);
     public CarritoDTO getCartById(Long cartId);
-    public Long createCart(Long userId);
+    public Long createCart(String email);
     public CarritoDTO addProductToCart(Long cartId, CartProductRequest request);
     public CarritoDTO deleteProductFromCart(Long cartId, CartProductRequest request);
     public Boolean deleteCartById(Long cartId);

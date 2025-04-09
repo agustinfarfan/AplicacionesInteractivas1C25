@@ -5,9 +5,12 @@ import com.uade.tpo.demo.entity.dto.CartProductRequest;
 import com.uade.tpo.demo.entity.dto.CarritoDTO;
 import com.uade.tpo.demo.entity.dto.CreateCartRequest;
 import com.uade.tpo.demo.service.cart.CartService;
+import io.jsonwebtoken.Jwt;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,10 +21,9 @@ public class CartController {
     private CartService cartService;
 
     @PostMapping("/create")
-    public ResponseEntity<Long> createCart(@RequestBody CreateCartRequest request) {
-
-        Long carritoId = cartService.createCart(request.getUserId());
-
+    public ResponseEntity<Long> createCart() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Long carritoId = cartService.createCart(email);
         return ResponseEntity.ok(carritoId);
     }
 
