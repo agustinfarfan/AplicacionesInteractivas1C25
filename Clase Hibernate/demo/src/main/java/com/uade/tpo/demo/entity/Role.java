@@ -19,7 +19,7 @@ public class Role {
     private String description;
 
     @ManyToMany(mappedBy = "roles")
-    private List<Usuario> users;
+    private List<User> users;
 
     // @OneToOne
     // private User user;

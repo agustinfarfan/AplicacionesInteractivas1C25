@@ -21,8 +21,8 @@ public class Transaccion {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "pedido_id")
-    private Pedido pedido;
+    @JoinColumn(name = "Order_id")
+    private Order Order;
 
     @ManyToOne
     @JoinColumn(name = "metodo_de_pago_id")

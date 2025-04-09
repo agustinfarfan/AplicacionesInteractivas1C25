@@ -5,15 +5,15 @@ import lombok.Data;
 
 @Data
 @Entity
-public class DetallePedido {
+public class DetalleOrder {
 
-    public DetallePedido() {
+    public DetalleOrder() {
     }
 
-    public DetallePedido(int cantidad, double precioUnitario, Pedido pedido, Producto producto) {
+    public DetalleOrder(int cantidad, double precioUnitario, Order Order, Producto producto) {
         this.cantidad = cantidad;
         this.precioUnitario = precioUnitario;
-        this.pedido = pedido;
+        this.Order = Order;
         this.producto = producto;
     }
 
@@ -28,8 +28,8 @@ public class DetallePedido {
     private double precioUnitario;
 
     @ManyToOne
-    @JoinColumn(name = "pedido_id")
-    private Pedido pedido;
+    @JoinColumn(name = "Order_id")
+    private Order Order;
 
     @ManyToOne
     @JoinColumn(name = "producto_id")

@@ -40,5 +40,5 @@ public class Cliente {
 
     @OneToMany(mappedBy = "cliente")
     @JsonIgnore
-    private List<Usuario> usuarios;
+    private List<User> Users;
 }

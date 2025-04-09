@@ -1,6 +1,6 @@
 package com.uade.tpo.demo.enums;
 
-public enum TipoUsuario {
+public enum TipoUser {
     COMPRADOR,
     VENDEDOR
 }

@@ -11,7 +11,7 @@ import lombok.Data;
 
 @Entity
 @Data
-public class Pedido {
+public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,5 +21,5 @@ public class Pedido {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private Usuario user;
+    private User user;
 }
