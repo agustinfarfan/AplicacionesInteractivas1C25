@@ -22,4 +22,10 @@ public class Publicacion {
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date fechaPublicacion;
+
+    @Column(nullable = false)
+    private String estado;
+
+    @Column(nullable = false)
+    private boolean visible;
 }

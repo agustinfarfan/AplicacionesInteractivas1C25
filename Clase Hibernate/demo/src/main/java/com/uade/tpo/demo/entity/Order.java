@@ -17,7 +17,7 @@ public class Order {
     private Long id;
 
     @Column
-    private Long count;
+    private Long cantidad;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
