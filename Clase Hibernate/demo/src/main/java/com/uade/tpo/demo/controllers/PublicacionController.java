@@ -4,7 +4,7 @@ import com.uade.tpo.demo.entity.Producto;
 import com.uade.tpo.demo.entity.Publicacion;
 import com.uade.tpo.demo.entity.User;
 import com.uade.tpo.demo.entity.dto.PublicacionRequest;
-import com.uade.tpo.demo.repository.ProductoRepository;
+import com.uade.tpo.demo.repository.ProductRepository;
 import com.uade.tpo.demo.repository.UserRepository;
 import com.uade.tpo.demo.service.PublicacionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ public class PublicacionController {
     private PublicacionService publicacionService;
 
     @Autowired
-    private ProductoRepository productoRepository;
+    private ProductRepository productoRepository;
 
     @Autowired
     private UserRepository usuarioRepository;

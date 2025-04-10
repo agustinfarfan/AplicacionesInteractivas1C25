@@ -13,10 +13,10 @@ public interface OrderService {
 
     public Optional<Order> getOrderById(Long id);
 
-    public Order createOrder(Order Order);
+    public Order createOrder(Long cartId);
 
-    public OrderRequest addProductToOrder(Long orderId, CartProductRequest request);
-    public OrderRequest deleteProductFromOrder(Long orderId, CartProductRequest request);
-    
+//    public OrderRequest addProductToOrder(Long orderId, CartProductRequest request);
+//    public OrderRequest deleteProductFromOrder(Long orderId, CartProductRequest request);
+
     public void deleteOrder(Long id);
 }

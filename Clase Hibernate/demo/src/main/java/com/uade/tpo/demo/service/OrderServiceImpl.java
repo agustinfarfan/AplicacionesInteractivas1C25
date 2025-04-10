@@ -11,11 +11,9 @@ import com.uade.tpo.demo.entity.dto.OrderRequest;
 import com.uade.tpo.demo.enums.Role;
 import com.uade.tpo.demo.exceptions.CartProductQuantityException;
 import com.uade.tpo.demo.exceptions.ResourceNotFoundException;
-import com.uade.tpo.demo.repository.OrderDetailsRepository;
-import com.uade.tpo.demo.repository.OrderRepository;
-import com.uade.tpo.demo.repository.ProductRepository;
-import com.uade.tpo.demo.repository.UserRepository;
+import com.uade.tpo.demo.repository.*;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,6 +37,17 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private CartRepository cartRepository;
+
+    @Autowired
+    private CartDetailsRepository cartDetailsRepository;
+
+    @Autowired
+    private OrderDetailsRepository orderDetailsRepository;
+
+
+
     @Override
     public List<Order> getAllOrders() {
         return OrderRepository.findAll();
@@ -50,8 +59,26 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order createOrder(Order Order) {
-        return OrderRepository.save(Order);
+    @Transactional
+    public Order createOrder(Long cartId) {
+
+        Carrito carrito = cartRepository.findById(cartId).orElseThrow(() -> new ResourceNotFoundException("Cart not found by ID: " + cartId));
+
+        double total = carrito.getTotal();
+
+        Order order = new Order(total, carrito.getUser());
+
+        Order orderCreated = OrderRepository.save(order);
+
+        List<CarritoDetalle> carritoDetalles = cartDetailsRepository.findByCartId(cartId);
+
+        carritoDetalles.forEach(carritoDetalle -> {
+            OrderDetails orderDetails = new OrderDetails(carritoDetalle.getProducto(), carritoDetalle.getCantidad());
+            orderDetailsRepository.save(orderDetails);
+        });
+
+
+        return orderCreated;
     }
 
     @Override
@@ -59,61 +86,61 @@ public class OrderServiceImpl implements OrderService {
         OrderRepository.deleteById(id);
     }
 
-    @Override
-    public OrderRequest addProductToOrder(Long orderId, CartProductRequest request) {
-        Order order = OrderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Orden no encontrado con Id: " + orderId));
-        Producto producto = productoRepository.findById(request.getProductId()).orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con Id: " + request.getProductId()));;
-
-        // Validacion de autenticacion
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
-
-        if (user.getRole() != Role.VENDOR && !Objects.equals(user.getId(), order.getUser().getId())) {
-            throw new AccessDeniedException("User is not the owner of this cart.");
-        }
-
-        // Validacion de cantidad
-        if (request.getCantidad() <= 0) {
-            throw new CartProductQuantityException();
-        }
-
-        // Validacion de stock
-        if (producto.getStock() < request.getCantidad()) {
-            throw new CartProductQuantityException();
-        }
-
-        // Ver si tiene producto en carrito.
-        List<OrderDetails> orderDetails = OrderDetailsRepository.findByOrderId(orderId);
-        AtomicBoolean existe = new AtomicBoolean(false);
-
-        orderDetails.forEach(carritoDetalle -> {
-            if (carritoDetalle.tieneProducto(request.getProductId())) {
-
-                carritoDetalle.ajustarCantidad(request.getCantidad());
-                cartDetailsRepository.save(carritoDetalle);
-
-                carrito.setExpirationDate(LocalDateTime.now().plusDays(30));
-                cartRepository.save(carrito);
-
-                existe.set(true);
-            }
-        });
-
-        // Agregar carrito detalle al carrito si no existe.
-        if (!existe.get()) {
-            CarritoDetalle carritoDetalle = new CarritoDetalle(producto, request.getCantidad());
-            carrito.agregarDetalle(carritoDetalle);
-            carrito.setExpirationDate(LocalDateTime.now().plusDays(30));
-            cartRepository.save(carrito);
-        }
-
-        return carrito.getDTO();
-    }
-
-    @Override
-    public OrderRequest deleteProductFromOrder(Long orderId, CartProductRequest request) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteProductFromOrder'");
-    }
+//    @Override
+//    public OrderRequest addProductToOrder(Long orderId, CartProductRequest request) {
+//        Order order = OrderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Orden no encontrado con Id: " + orderId));
+//        Producto producto = productoRepository.findById(request.getProductId()).orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con Id: " + request.getProductId()));;
+//
+//        // Validacion de autenticacion
+//        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+//        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+//
+//        if (user.getRole() != Role.VENDOR && !Objects.equals(user.getId(), order.getUser().getId())) {
+//            throw new AccessDeniedException("User is not the owner of this cart.");
+//        }
+//
+//        // Validacion de cantidad
+//        if (request.getCantidad() <= 0) {
+//            throw new CartProductQuantityException();
+//        }
+//
+//        // Validacion de stock
+//        if (producto.getStock() < request.getCantidad()) {
+//            throw new CartProductQuantityException();
+//        }
+//
+//        // Ver si tiene producto en carrito.
+//        List<OrderDetails> orderDetails = OrderDetailsRepository.findByOrderId(orderId);
+//        AtomicBoolean existe = new AtomicBoolean(false);
+//
+//        orderDetails.forEach(carritoDetalle -> {
+//            if (carritoDetalle.tieneProducto(request.getProductId())) {
+//
+//                carritoDetalle.ajustarCantidad(request.getCantidad());
+//                cartDetailsRepository.save(carritoDetalle);
+//
+//                carrito.setExpirationDate(LocalDateTime.now().plusDays(30));
+//                cartRepository.save(carrito);
+//
+//                existe.set(true);
+//            }
+//        });
+//
+//        // Agregar carrito detalle al carrito si no existe.
+//        if (!existe.get()) {
+//            CarritoDetalle carritoDetalle = new CarritoDetalle(producto, request.getCantidad());
+//            carrito.agregarDetalle(carritoDetalle);
+//            carrito.setExpirationDate(LocalDateTime.now().plusDays(30));
+//            cartRepository.save(carrito);
+//        }
+//
+//        return carrito.getDTO();
+//    }
+//
+//    @Override
+//    public OrderRequest deleteProductFromOrder(Long orderId, CartProductRequest request) {
+//        // TODO Auto-generated method stub
+//        throw new UnsupportedOperationException("Unimplemented method 'deleteProductFromOrder'");
+//    }
 }
 

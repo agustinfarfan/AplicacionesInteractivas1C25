@@ -36,12 +36,9 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody OrderRequest OrderRequest) {
-        Order Order = new Order();
-        Order.setCantidad(OrderRequest.getCantidad());
-        Order.setId(OrderRequest.getUserId());
-        
-        Order newOrder = OrderService.createOrder(Order);
+    public ResponseEntity<Order> createOrder(@RequestBody Long cartId) {
+
+        Order newOrder = OrderService.createOrder(cartId);
         return ResponseEntity.created(URI.create("/Orders/" + newOrder.getId())).body(newOrder);
     }
 
@@ -51,20 +48,20 @@ public class OrderController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{orderId}/addProduct")
-    public ResponseEntity<OrderRequest> addProductToCart(@PathVariable Long orderId, @RequestBody CartProductRequest request) {
-        OrderRequest order = OrderService.addProductToOrder(orderId, request);
-        return ResponseEntity.ok(order);
-    }
-
-    @PutMapping("/{orderId}/removeProduct")
-    public ResponseEntity<CarritoDTO> removeProductFromCart(
-            @PathVariable Long orderId,
-            @Valid @RequestBody CartProductRequest request) {
-
-        CarritoDTO carrito = cartService.deleteProductFromCart(cartId, request);
-        return ResponseEntity.ok(carrito);
-    }
+//    @PutMapping("/{orderId}/addProduct")
+//    public ResponseEntity<OrderRequest> addProductToCart(@PathVariable Long orderId, @RequestBody CartProductRequest request) {
+//        OrderRequest order = OrderService.addProductToOrder(orderId, request);
+//        return ResponseEntity.ok(order);
+//    }
+//
+//    @PutMapping("/{orderId}/removeProduct")
+//    public ResponseEntity<CarritoDTO> removeProductFromCart(
+//            @PathVariable Long orderId,
+//            @Valid @RequestBody CartProductRequest request) {
+//
+//        CarritoDTO carrito = cartService.deleteProductFromCart(cartId, request);
+//        return ResponseEntity.ok(carrito);
+//    }
 
 
 }
