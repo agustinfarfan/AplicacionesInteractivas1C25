@@ -9,14 +9,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Data
 @Entity
-@Table(name = "categoria", uniqueConstraints = @UniqueConstraint(columnNames = "nombre"))
-public class Categoria {
+@Table(name = "category", uniqueConstraints = @UniqueConstraint(columnNames = "name"))
+public class Category {
 
-    public Categoria() {
+    public Category() {
     }
 
-    public Categoria(String nombre) {
-        this.nombre = nombre;
+    public Category(String name) {
+        this.name = name;
     }
 
     @Id
@@ -24,12 +24,12 @@ public class Categoria {
     private Long id;
 
     @Column
-    private String nombre;
+    private String name;
 
     @Column(columnDefinition = "TEXT")
-    private String descripcion;
+    private String description;
 
-    @OneToMany(mappedBy = "categoria")
+    @OneToMany(mappedBy = "category")
     @JsonIgnore
     private List<Producto> productos;
 }

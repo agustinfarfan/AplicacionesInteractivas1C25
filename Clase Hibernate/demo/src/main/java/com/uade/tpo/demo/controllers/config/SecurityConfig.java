@@ -57,6 +57,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT,"/categories/**").hasAnyAuthority(Role.VENDOR.name())
                         .requestMatchers(HttpMethod.DELETE,"/categories/**").hasAnyAuthority(Role.VENDOR.name())
 
+                        // Clientes
+                        .requestMatchers(HttpMethod.GET,"/clientes/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/clientes/**").hasAnyAuthority(Role.VENDOR.name())
+                        .requestMatchers(HttpMethod.PUT,"/clientes/**").hasAnyAuthority(Role.VENDOR.name())
+                        .requestMatchers(HttpMethod.DELETE,"/clientes/**").hasAnyAuthority(Role.VENDOR.name())
+
                         // Admin
                         .requestMatchers("admin/**").hasAnyAuthority(Role.VENDOR.name())
 
