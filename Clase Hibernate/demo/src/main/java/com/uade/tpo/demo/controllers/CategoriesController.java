@@ -10,21 +10,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.uade.tpo.demo.entity.Categoria;
-import com.uade.tpo.demo.entity.dto.CategoriaRequest;
-import com.uade.tpo.demo.exceptions.CategoriaNotFoundExcepcion;
-import com.uade.tpo.demo.exceptions.CategoriaDuplicadaExcepcion;
-import com.uade.tpo.demo.service.CategoriaService;
+import com.uade.tpo.demo.entity.Category;
+import com.uade.tpo.demo.entity.dto.CategoriesRequest;
+import com.uade.tpo.demo.exceptions.CategoryNotFoundException;
+import com.uade.tpo.demo.exceptions.CategoryDuplicatedException;
+import com.uade.tpo.demo.service.CategoryService;
 
 @RestController
 @RequestMapping("categories")
-public class CategoriasController {
+public class CategoriesController {
 
     @Autowired
-    private CategoriaService categoriaService;
+    private CategoryService categoriaService;
 
     @GetMapping
-    public ResponseEntity<Page<Categoria>> getCategories(
+    public ResponseEntity<Page<Category>> getCategories(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
         if (page == null || size == null)
@@ -33,8 +33,8 @@ public class CategoriasController {
     }
 
     @GetMapping("/{categoryId}")
-    public ResponseEntity<Categoria> getCategoryById(@PathVariable Long categoryId) {
-        Optional<Categoria> result = categoriaService.getCategoriasById(categoryId);
+    public ResponseEntity<Category> getCategoryById(@PathVariable Long categoryId) {
+        Optional<Category> result = categoriaService.getCategoriasById(categoryId);
         if (result.isPresent())
             return ResponseEntity.ok(result.get());
 
@@ -42,9 +42,9 @@ public class CategoriasController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Categoria>> searchCategoriaByNombre(@PathVariable String categoryName) 
-            throws CategoriaNotFoundExcepcion {
-        List<Categoria> result = categoriaService.searchCategoriaByNombre(categoryName);
+    public ResponseEntity<List<Category>> searchCategoriaByNombre(@PathVariable String categoryName) 
+            throws CategoryNotFoundException {
+        List<Category> result = categoriaService.searchCategoriaByNombre(categoryName);
         if (!result.isEmpty())
             return ResponseEntity.ok(result);
 
@@ -52,22 +52,22 @@ public class CategoriasController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createCategoria(@RequestBody CategoriaRequest categoriaRequest)
-            throws CategoriaDuplicadaExcepcion {
-        Categoria result = categoriaService.createCategoria(categoriaRequest.getNombre());
+    public ResponseEntity<Object> createCategoria(@RequestBody CategoriesRequest categoriaRequest)
+            throws CategoryDuplicatedException {
+        Category result = categoriaService.createCategoria(categoriaRequest.getNombre());
         return ResponseEntity.created(URI.create("/categories/" + result.getId())).body(result);
     }
     
     @DeleteMapping("/{categoryId}")
     public ResponseEntity<Object> delCategoriaById(@PathVariable Long categoryId)
-            throws CategoriaNotFoundExcepcion {
+            throws CategoryNotFoundException {
                 categoriaService.delCategoriaById(categoryId);
                 return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{categoryId}")
-    public ResponseEntity<Categoria> actualizarCategoria(@PathVariable Long categoryId, @RequestBody CategoriaRequest categoriaRequest)
-            throws CategoriaNotFoundExcepcion {
+    public ResponseEntity<Category> actualizarCategoria(@PathVariable Long categoryId, @RequestBody CategoriesRequest categoriaRequest)
+            throws CategoryNotFoundException {
         return ResponseEntity.ok(categoriaService.updateCategoria(categoryId,categoriaRequest.getNombre(),categoriaRequest.getDescripcion()));
     }
 }

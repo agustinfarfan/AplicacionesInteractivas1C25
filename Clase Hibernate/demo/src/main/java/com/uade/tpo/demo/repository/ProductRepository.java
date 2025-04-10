@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.uade.tpo.demo.entity.Producto;
 
 public interface ProductRepository extends JpaRepository<Producto, Long> {
-    List<Producto> findByCategoriaId(Long categoriaId);
+    List<Producto> findByCategoryId(Long categoriaId);
 }

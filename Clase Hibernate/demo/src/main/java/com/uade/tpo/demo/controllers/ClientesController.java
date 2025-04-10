@@ -10,15 +10,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.uade.tpo.demo.entity.Categoria;
+import com.uade.tpo.demo.entity.Category;
 import com.uade.tpo.demo.entity.Cliente;
-import com.uade.tpo.demo.entity.dto.CategoriaRequest;
+import com.uade.tpo.demo.entity.dto.CategoriesRequest;
 import com.uade.tpo.demo.entity.dto.ClienteRequest;
-import com.uade.tpo.demo.exceptions.CategoriaNotFoundExcepcion;
+import com.uade.tpo.demo.exceptions.CategoryNotFoundException;
 import com.uade.tpo.demo.exceptions.ClienteDuplicadoExcepcion;
 import com.uade.tpo.demo.exceptions.ClienteNotFoundExcepcion;
-import com.uade.tpo.demo.exceptions.CategoriaDuplicadaExcepcion;
-import com.uade.tpo.demo.service.CategoriaService;
+import com.uade.tpo.demo.exceptions.CategoryDuplicatedException;
+import com.uade.tpo.demo.service.CategoryService;
 import com.uade.tpo.demo.service.ClienteService;
 
 @RestController

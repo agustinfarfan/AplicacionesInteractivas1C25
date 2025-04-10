@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.uade.tpo.demo.entity.Categoria;
+import com.uade.tpo.demo.entity.Category;
 import com.uade.tpo.demo.entity.Producto;
 import com.uade.tpo.demo.entity.dto.ProductRequest;
-import com.uade.tpo.demo.service.CategoriaService;
+import com.uade.tpo.demo.service.CategoryService;
 import com.uade.tpo.demo.service.ProductService;
 
 @RestController
@@ -26,7 +26,7 @@ public class ProductController {
     private ProductService productService;
 
     @Autowired
-    private CategoriaService categoryService;
+    private CategoryService categoryService;
 
     @GetMapping
     public List<Producto> obtenerTodos() {
@@ -45,7 +45,7 @@ public class ProductController {
 
     @PostMapping
     public Producto crearProducto(@RequestBody ProductRequest request) {
-        Categoria categoria = categoryService.getCategoriasById(request.getCategoriaId())
+        Category categoria = categoryService.getCategoriasById(request.getCategoriaId())
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada con id: " + request.getCategoriaId()));
 
         Producto producto = new Producto();
@@ -53,14 +53,14 @@ public class ProductController {
         producto.setDescription(request.getDescription());
         producto.setPrecio(request.getPrecio());
         producto.setStock(request.getStock());
-        producto.setCategoria(categoria);
+        producto.setCategory(categoria);
 
         return productService.crearProducto(producto);
     }
 
     @PutMapping("/{id}")
     public Producto actualizarProducto(@PathVariable Long id, @RequestBody ProductRequest request) {
-        Categoria categoria = categoryService.getCategoriasById(request.getCategoriaId())
+        Category categoria = categoryService.getCategoriasById(request.getCategoriaId())
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada con id: " + request.getCategoriaId()));
 
         Producto productoActualizado = new Producto();
@@ -68,7 +68,7 @@ public class ProductController {
         productoActualizado.setDescription(request.getDescription());
         productoActualizado.setPrecio(request.getPrecio());
         productoActualizado.setStock(request.getStock());
-        productoActualizado.setCategoria(categoria);
+        productoActualizado.setCategory(categoria);
 
         return productService.actualizarProducto(id, productoActualizado);
     }
