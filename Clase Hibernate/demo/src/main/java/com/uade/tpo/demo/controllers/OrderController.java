@@ -1,9 +1,15 @@
 package com.uade.tpo.demo.controllers;
 
 import com.uade.tpo.demo.entity.Order;
+import com.uade.tpo.demo.entity.dto.CarritoDTO;
+import com.uade.tpo.demo.entity.dto.CartProductRequest;
 import com.uade.tpo.demo.entity.dto.OrderRequest;
 import com.uade.tpo.demo.service.OrderService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.jaxb.SpringDataJaxb.OrderDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,6 +50,23 @@ public class OrderController {
         OrderService.deleteOrder(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{orderId}/addProduct")
+    public ResponseEntity<OrderRequest> addProductToCart(@PathVariable Long orderId, @RequestBody CartProductRequest request) {
+        OrderRequest order = OrderService.addProductToOrder(orderId, request);
+        return ResponseEntity.ok(order);
+    }
+
+    @PutMapping("/{orderId}/removeProduct")
+    public ResponseEntity<CarritoDTO> removeProductFromCart(
+            @PathVariable Long orderId,
+            @Valid @RequestBody CartProductRequest request) {
+
+        CarritoDTO carrito = cartService.deleteProductFromCart(cartId, request);
+        return ResponseEntity.ok(carrito);
+    }
+
+
 }
 
 

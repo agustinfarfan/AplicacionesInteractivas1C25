@@ -12,7 +12,7 @@ import com.uade.tpo.demo.exceptions.CartProductQuantityException;
 import com.uade.tpo.demo.exceptions.ResourceNotFoundException;
 import com.uade.tpo.demo.repository.CartDetailsRepository;
 import com.uade.tpo.demo.repository.CartRepository;
-import com.uade.tpo.demo.repository.ProductoRepository;
+import com.uade.tpo.demo.repository.ProductRepository;
 import com.uade.tpo.demo.repository.UserRepository;
 import com.uade.tpo.demo.service.ProductService;
 import jakarta.transaction.Transactional;
@@ -38,7 +38,7 @@ public class CartServiceImpl implements CartService {
     @Autowired
     private UserRepository UserRepository;
     @Autowired
-    private ProductoRepository productoRepository;
+    private ProductRepository productoRepository;
     @Autowired
     private CartDetailsRepository cartDetailsRepository;
     @Autowired
