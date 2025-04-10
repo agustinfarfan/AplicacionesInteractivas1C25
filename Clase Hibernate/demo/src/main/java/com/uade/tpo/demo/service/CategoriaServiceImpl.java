@@ -32,7 +32,7 @@ public class CategoriaServiceImpl implements CategoryService {
 
     @Override
     public Category createCategoria(String nombre) throws CategoryDuplicatedException {        
-        List<Category> categories = categoryRepository.findByNombre(nombre);
+        List<Category> categories = categoryRepository.findByName(nombre);
         if (categories.isEmpty())
             return categoryRepository.save(new Category(nombre));
         throw new CategoryDuplicatedException();
@@ -46,7 +46,7 @@ public class CategoriaServiceImpl implements CategoryService {
 
     @Override
     public List<Category> searchCategoriaByNombre(String nombre) throws CategoryNotFoundException {
-        List<Category> categorias = categoryRepository.findByNombre(nombre);
+        List<Category> categorias = categoryRepository.findByName(nombre);
         if (categorias.isEmpty())
             throw new CategoryNotFoundException();
         return categorias;
