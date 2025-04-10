@@ -3,63 +3,63 @@ package com.uade.tpo.demo.service;
 import java.util.List;
 import java.util.Optional;
 
-import com.uade.tpo.demo.entity.Categoria;
+import com.uade.tpo.demo.entity.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import com.uade.tpo.demo.exceptions.CategoriaDuplicadaExcepcion;
-import com.uade.tpo.demo.exceptions.CategoriaNotFoundExcepcion;
+import com.uade.tpo.demo.exceptions.CategoryDuplicatedException;
+import com.uade.tpo.demo.exceptions.CategoryNotFoundException;
 import com.uade.tpo.demo.repository.CategoryRepository;
 
 
 @Service
-public class CategoriaServiceImpl implements CategoriaService {
+public class CategoriaServiceImpl implements CategoryService {
 
     @Autowired
     private CategoryRepository categoryRepository;
 
     @Override
-    public Page<Categoria> getCategorias(PageRequest pageRequest) {
+    public Page<Category> getCategorias(PageRequest pageRequest) {
         return categoryRepository.findAll(pageRequest);
     }
 
     @Override
-    public Optional<Categoria> getCategoriasById(Long id) {
+    public Optional<Category> getCategoriasById(Long id) {
         return categoryRepository.findById(id);
     }
 
     @Override
-    public Categoria createCategoria(String nombre) throws CategoriaDuplicadaExcepcion {        
-        List<Categoria> categories = categoryRepository.findByNombre(nombre);
+    public Category createCategoria(String nombre) throws CategoryDuplicatedException {        
+        List<Category> categories = categoryRepository.findByNombre(nombre);
         if (categories.isEmpty())
-            return categoryRepository.save(new Categoria(nombre));
-        throw new CategoriaDuplicadaExcepcion();
+            return categoryRepository.save(new Category(nombre));
+        throw new CategoryDuplicatedException();
     }
 
     @Override
-    public void delCategoriaById(Long categoryId) throws CategoriaNotFoundExcepcion {
-        Categoria categoria = categoryRepository.findById(categoryId).orElseThrow(CategoriaNotFoundExcepcion::new);
+    public void delCategoriaById(Long categoryId) throws CategoryNotFoundException {
+        Category categoria = categoryRepository.findById(categoryId).orElseThrow(CategoryNotFoundException::new);
         categoryRepository.delete(categoria);
     }
 
     @Override
-    public List<Categoria> searchCategoriaByNombre(String nombre) throws CategoriaNotFoundExcepcion {
-        List<Categoria> categorias = categoryRepository.findByNombre(nombre);
+    public List<Category> searchCategoriaByNombre(String nombre) throws CategoryNotFoundException {
+        List<Category> categorias = categoryRepository.findByNombre(nombre);
         if (categorias.isEmpty())
-            throw new CategoriaNotFoundExcepcion();
+            throw new CategoryNotFoundException();
         return categorias;
     }
 
     @Override
-    public Categoria updateCategoria(Long id, String nombre, String descripcion)
-            throws CategoriaNotFoundExcepcion {
+    public Category updateCategoria(Long id, String nombre, String descripcion)
+            throws CategoryNotFoundException {
 
-        Categoria categoria = categoryRepository.findById(id).orElseThrow(CategoriaNotFoundExcepcion::new);
+                Category categoria = categoryRepository.findById(id).orElseThrow(CategoryNotFoundException::new);
 
-        if (nombre != null) categoria.setNombre(nombre);
-        if (descripcion != null) categoria.setDescripcion(descripcion);
+        if (nombre != null) categoria.setName(nombre);
+        if (descripcion != null) categoria.setDescription(descripcion);
 
         return categoryRepository.save(categoria);
     }
