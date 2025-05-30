@@ -1,18 +1,26 @@
-
 package com.uade.tpo.demo.service;
 
+import com.uade.tpo.demo.entity.Category;
+import com.uade.tpo.demo.exceptions.CategoryNotFoundException;
+import com.uade.tpo.demo.exceptions.CategoryDuplicatedException;
+
+import java.util.List;
 import java.util.Optional;
 
-import com.uade.tpo.demo.entity.Categoria;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
-import com.uade.tpo.demo.exceptions.CategoryDuplicateException;
-
 public interface CategoryService {
-    public Page<Categoria> getCategories(PageRequest pageRequest);
+    Page<Category> getCategorias(PageRequest pageRequest);
 
-    public Optional<Categoria> getCategoryById(Long categoryId);
+    Optional<Category> getCategoriasById(Long categoryId);
 
-    public Categoria createCategory(String description) throws CategoryDuplicateException;
+    Category createCategoria(String nombre) throws CategoryDuplicatedException;
+
+    void delCategoriaById(Long categoryId) throws CategoryNotFoundException;
+
+    //CREO QUE LA EXCEPCION DA ACA NO HACE FALTA POR EL .ok y .noContent() EN EL CONTROLADOR
+    public List<Category> searchCategoriaByNombre(String nombre) throws CategoryNotFoundException;
+
+    Category updateCategoria(Long id, String nombre, String descripcion) throws CategoryNotFoundException;
 }

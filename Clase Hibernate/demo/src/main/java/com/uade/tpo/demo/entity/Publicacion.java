@@ -17,9 +17,15 @@ public class Publicacion {
 
     @ManyToOne
     @JoinColumn(name = "vendedor_id", referencedColumnName = "id", nullable = false)
-    private Usuario vendedor;
+    private User vendedor;
 
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date fechaPublicacion;
+
+    @Column(nullable = false)
+    private String estado;
+
+    @Column(nullable = false)
+    private boolean visible;
 }

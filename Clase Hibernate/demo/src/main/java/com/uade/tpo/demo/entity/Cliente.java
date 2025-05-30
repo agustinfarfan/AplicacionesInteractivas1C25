@@ -1,11 +1,24 @@
 package com.uade.tpo.demo.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
-import java.util.Set;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+@Data
 @Entity
+@Table(name = "cliente", uniqueConstraints = @UniqueConstraint(columnNames = "cuil"))
 public class Cliente {
+
+    public Cliente() {
+    }
+
+    public Cliente(String razonSocial, String cuil){
+        this.razonSocial = razonSocial;
+        this.cuil = cuil;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,7 +30,7 @@ public class Cliente {
 
     private String calle;
 
-    private int altura;
+    private String altura;
 
     private String codigoPostal;
 
@@ -25,7 +38,7 @@ public class Cliente {
 
     private String provincia;
 
-    //@OneToMany
-    //@JoinColumn(name = "usuario_id")
-    //private Set<Usuario> usuarios;
+    @OneToMany(mappedBy = "cliente")
+    @JsonIgnore
+    private List<User> Users;
 }
