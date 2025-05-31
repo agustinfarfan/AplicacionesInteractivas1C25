@@ -4,10 +4,7 @@ import Home from './../pages/tienda/Home';
 
 const useTiendaRoute = () => {
   return (
-    <Route path="/" element={<Home />}>
-
-    </Route>
-   
+    <Route path="/" element={<Home />} />
   )
 }
 
