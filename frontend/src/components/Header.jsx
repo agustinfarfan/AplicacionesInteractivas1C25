@@ -17,6 +17,8 @@ const Header = () => {
     { name: 'Contact', href: '#'}
   ]
 
+  const isLoggedIn = true; // Temporal hasta implementar el fetch para verificar el estado de autenticación
+
   return (
     <>
       <nav className="bg-white shadow-md fixed w-full z-10">
@@ -48,8 +50,19 @@ const Header = () => {
             <div className=" items-center">
               <div className="hidden md:flex md:flex-row md:items-center md:justify-center gap-4 h-full">
                 <ButtonIcon href={"carrito"} imgSrc={carritoIcono}/>
-                <ButtonLink href={"/admin/login"} nombre={"Iniciar Sesión"} />
-                <ButtonLink href={"/admin/login"} nombre={"Registarse"} />
+                { isLoggedIn ? (
+                  <div className="relative">
+                    <button className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                      <img className="h-8 w-8 rounded-full" src="https://tailwindflex.com/images/avatar/avatar-1.jpg" alt="Perfil"/>
+                    </button>
+                  </div>
+                ):(
+                  <>
+                    <ButtonLink href={"/admin/login"} nombre={"Iniciar Sesión"} />
+                    <ButtonLink href={"/admin/login"} nombre={"Registarse"} />
+                  </>
+                )}
+                
               </div>
               <div className="flex items-center h-full md:hidden">
                 <button type="button" className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500" aria-expanded="false">
