@@ -5,10 +5,13 @@ import Button from './buttons/Button';
 import ButtonLink from './buttons/ButtonLink';
 import ButtonIcon from './buttons/ButtonIcon';
 import carritoIcono from './../assets/carritoIcono.png';
+import UserProfileSidebar from './UserProfileSidebar';
 
 const Header = () => {
 
   const [current, setCurrent] = useState('Home');
+
+  const [showProfile, setShowProfile] = useState(false);
 
   const tabs = [
     { name: 'Home', href: '#'},
@@ -52,9 +55,10 @@ const Header = () => {
                 <ButtonIcon href={"carrito"} imgSrc={carritoIcono}/>
                 { isLoggedIn ? (
                   <div className="relative">
-                    <button className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <button onClick={() => setShowProfile(true)} className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                       <img className="h-8 w-8 rounded-full" src="https://tailwindflex.com/images/avatar/avatar-1.jpg" alt="Perfil"/>
                     </button>
+                    {showProfile && <UserProfileSidebar onClose={() => setShowProfile(false)} />}
                   </div>
                 ):(
                   <>
