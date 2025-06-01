@@ -11,10 +11,10 @@ const Header = () => {
   const [current, setCurrent] = useState('Home');
 
   const tabs = [
-    { name: 'Home', href: '#'},
-    { name: 'About', href: '#'},
-    { name: 'Services', href: '#'},
-    { name: 'Contact', href: '#'}
+    { name: 'Home', href: '/'},
+    { name: 'Categorias', href: '#'},
+    { name: 'Sobre nosotros', href: '#'},
+    { name: 'Contactactanos', href: '#'}
   ]
 
   return (
@@ -23,10 +23,10 @@ const Header = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <a href="#" className="flex-shrink-0 flex items-center">
-                <img className="h-8 w-auto" src="https://tailwindflex.com/images/logo.svg" alt="Logo" />
-                <span className="ml-2 text-xl font-bold text-gray-800">Company</span>
-              </a>
+              <Link to="/" className="flex-shrink-0 flex items-center">
+                <img className="h-8 w-8" src="https://tailwindflex.com/images/logo.svg" alt="Logo" />
+                <span className="ml-2 text-xl font-bold text-gray-800">SanaSana</span>
+              </Link>
               <div className="hidden md:ml-6 md:flex md:space-x-8">
                 {
                   tabs.map((tab) => (
