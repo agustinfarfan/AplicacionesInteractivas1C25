@@ -23,3 +23,4 @@ export const fetchProducts = async () => {
     const data = await response.json();
     return data;
 }
+
