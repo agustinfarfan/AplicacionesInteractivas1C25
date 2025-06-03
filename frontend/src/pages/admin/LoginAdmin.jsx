@@ -53,6 +53,15 @@ const LoginAdmin = () => {
         <button type="submit" className="bg-blue-500 text-white p-2 rounded">
           Iniciar sesión
         </button>
+        <p className="text-sm text-center mt-2">
+  ¿No tenés cuenta?{" "}
+  <button
+    onClick={() => navigate("/admin/register")}
+    className="text-blue-500 underline"
+  >
+    Crear cuenta
+  </button>
+</p>
       </form>
     </div>
   );
