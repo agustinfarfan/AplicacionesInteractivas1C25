@@ -5,10 +5,13 @@ import Button from './buttons/Button';
 import ButtonLink from './buttons/ButtonLink';
 import ButtonIcon from './buttons/ButtonIcon';
 import carritoIcono from './../assets/carritoIcono.png';
+import UserProfileSidebar from './UserProfileSidebar';
 
 const Header = () => {
 
   const [current, setCurrent] = useState('Home');
+
+  const [showProfile, setShowProfile] = useState(false);
 
   const tabs = [
     { name: 'Home', href: '/'},
@@ -16,6 +19,8 @@ const Header = () => {
     { name: 'Sobre nosotros', href: '#'},
     { name: 'Contactactanos', href: '#'}
   ]
+
+  const isLoggedIn = true; // Temporal hasta implementar el fetch para verificar el estado de autenticación
 
   return (
     <>
@@ -48,8 +53,20 @@ const Header = () => {
             <div className=" items-center">
               <div className="hidden md:flex md:flex-row md:items-center md:justify-center gap-4 h-full">
                 <ButtonIcon href={"carrito"} imgSrc={carritoIcono}/>
-                <ButtonLink href={"/admin/login"} nombre={"Iniciar Sesión"} />
-                <ButtonLink href={"/admin/login"} nombre={"Registarse"} />
+                { isLoggedIn ? (
+                  <div className="relative">
+                    <button onClick={() => setShowProfile(true)} className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                      <img className="h-8 w-8 rounded-full" src="https://tailwindflex.com/images/avatar/avatar-1.jpg" alt="Perfil"/>
+                    </button>
+                    {showProfile && <UserProfileSidebar onClose={() => setShowProfile(false)} />}
+                  </div>
+                ):(
+                  <>
+                    <ButtonLink href={"/admin/login"} nombre={"Iniciar Sesión"} />
+                    <ButtonLink href={"/admin/login"} nombre={"Registarse"} />
+                  </>
+                )}
+                
               </div>
               <div className="flex items-center h-full md:hidden">
                 <button type="button" className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500" aria-expanded="false">
