@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom';
 import Home from './../pages/tienda/Home';
+import Contact from './../pages/tienda/Contact';
 import Button from './buttons/Button';
 import ButtonLink from './buttons/ButtonLink';
 import ButtonIcon from './buttons/ButtonIcon';
@@ -16,8 +17,8 @@ const Header = () => {
   const tabs = [
     { name: 'Home', href: '/'},
     { name: 'Categorias', href: '#'},
-    { name: 'Sobre nosotros', href: '#'},
-    { name: 'Contactactanos', href: '#'}
+    { name: 'Sobre nosotros', href: '/about'},
+    { name: 'Contactactanos', href:'contacto'}
   ]
 
   const isLoggedIn = true; // Temporal hasta implementar el fetch para verificar el estado de autenticación

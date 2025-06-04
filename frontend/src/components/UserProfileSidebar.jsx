@@ -62,7 +62,7 @@ const UserProfileSidebar = ({ onClose }) => {
             </summary>
             <div className="mt-2 ml-6 flex flex-col gap-1 text-sm">
                 <Link to="/admin/categories">Categorías</Link>
-                <Link to="/admin/productss">Productos</Link>
+                <Link to="/admin/products">Productos</Link>
                 <Link to="/admin/clients">Clientes</Link>
             </div>
         </details>
