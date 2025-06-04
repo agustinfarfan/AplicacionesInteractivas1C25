@@ -5,7 +5,13 @@ import Resumen from '../../components/Resumen';
 
 const Checkout = () => {
 
+  const [nombre, setNombre] = useState('');
+  const [apellido, setApellido] = useState('');
+  const [email, setEmail] = useState('')
+  
   const [pasoActivo, setPaso] = useState(1);
+  const [envioActivo, setEnvio] = useState("Envio")
+
 
   const pasos = [
     {
@@ -18,6 +24,21 @@ const Checkout = () => {
       titulo: "Metodo de Pago"
     },
   ];
+
+  const metodosDeEnvio = [
+    {
+      nombre: "Envio",
+      descripcion: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, mollitia nisi tempore veritatis aspernatur"
+    },
+    {
+      nombre: "En Sucursal",
+      descripcion: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, mollitia nisi tempore veritatis aspernatur"
+    },
+    {
+      nombre: "Express",
+      descripcion: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, mollitia nisi tempore veritatis aspernatur"
+    }
+  ]
 
   return (
     <>
@@ -62,7 +83,7 @@ const Checkout = () => {
                           }
                           >{paso.titulo}</span>
                         </div>
-                    </li>
+                      </li>
                     ))
                   }
                 </ol>
@@ -71,52 +92,108 @@ const Checkout = () => {
 
             <p className="mt-4 text-gray-600">Por favor, rellene el formulario para poder completar su compra.</p>
             <form className="mt-6">
-              <div className='flex flex-row gap-3 mb-6'>
-                <div className="flex-1/2">
-                  <label className="block text-gray-800 font-bold mb-2" for="name">
-                    Nombre
-                  </label>
-                  <input className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="name" type="text" placeholder="John" />
-                </div>
-                <div className=" flex-1/2">
-                  <label className="block text-gray-800 font-bold mb-2" for="name">
-                    Apellido
-                  </label>
-                  <input className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="name" type="text" placeholder="Doe" />
-                </div>
-              </div>
 
-              <div className="mb-6">
-                <label className="block text-gray-800 font-bold mb-2" for="email">
-                  Email
-                </label>
-                <input className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="email" placeholder="johndoe@example.com" />
-              </div>
-              <div className="mb-6">
-                <label className="block text-gray-800 font-bold mb-2" for="card_number">
-                  Card Number
-                </label>
-                <input className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="card_number" type="text" placeholder="**** **** **** 1234" />
-              </div>
-              <div className="mb-6">
-                <label className="block text-gray-800 font-bold mb-2" for="expiration_date">
-                  Expiration Date
-                </label>
-                <input className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="expiration_date" type="text" placeholder="MM / YY" />
-              </div>
-              <div className="mb-6">
-                <label className="block text-gray-800 font-bold mb-2" for="cvv">
-                  CVV
-                </label>
-                <input className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="cvv" type="text" placeholder="***" />
-              </div>
-              <button className="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
-                Submit
-              </button>
+              {pasoActivo === 1 && (
+                <>
+                  <div className='flex flex-row gap-3 mb-6'>
+                    <div className="flex-1/2">
+                      <label className="block text-gray-800 font-bold mb-2" for="name">
+                        Nombre
+                      </label>
+                      <input value={nombre} onChange={(e) => setNombre(e.target.value)} className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="name" type="text" placeholder="John" />
+                    </div>
+                    <div className=" flex-1/2">
+                      <label className="block text-gray-800 font-bold mb-2" for="name">
+                        Apellido
+                      </label>
+                      <input value={apellido} onChange={(e) => setApellido(e.target.value)} className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="name" type="text" placeholder="Doe" />
+                    </div>
+                  </div>
+
+                  <div className="mb-6">
+                    <label className="block text-gray-800 font-bold mb-2" for="email">
+                      Email
+                    </label>
+                    <input value={email} onChange={(e) => setEmail(e.target.value)} className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="email" placeholder="johndoe@example.com" />
+                  </div>
+
+                  <div className='flex w-full justify-end mt-12'>
+                    <div className='w-1/3'>
+                      <Button nombre={"Siguiente"} onClick={() => setPaso(pasoActivo + 1)} />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {pasoActivo === 2 && (
+                <>
+                  <div className='flex flex-row gap-5'>
+                    {metodosDeEnvio.map((metodo) => (
+                      <div
+                        key={metodo.nombre}
+                        className={
+                          'flex-1 rounded-md shadow-md h-60 border-2 p-4 cursor-pointer transition ' +
+                          (envioActivo === metodo.nombre
+                            ? ' border-indigo-400 bg-indigo-50'
+                            : 'border-gray-100 hover:border-indigo-300')
+                        }
+                        onClick={() => setEnvio(metodo.nombre)}
+                      >
+                        <h3 className="text-lg font-bold mb-2">{metodo.nombre}</h3>
+                        <p className="text-gray-600">{metodo.descripcion}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className='flex w-full justify-end mt-12'>
+                    <div className='w-1/3'>
+                      <Button nombre={"Siguiente"} onClick={() => setPaso(pasoActivo + 1)} />
+
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {pasoActivo === 3 && (
+                <>
+                  <div className="mb-6">
+                    <label className="block text-gray-800 font-bold mb-2" for="card_number">
+                      Card Number
+                    </label>
+                    <input className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="card_number" type="text" placeholder="**** **** **** 1234" />
+                  </div>
+
+                  <div className='flex flex-row gap-3 mb-6'>
+                    <div className="flex-1/2">
+                      <label className="block text-gray-800 font-bold mb-2" for="expiration_date">
+                        Expiration Date
+                      </label>
+                      <input className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="expiration_date" type="text" placeholder="MM / YY" />
+                    </div>
+                    <div className="flex-1/2">
+                      <label className="block text-gray-800 font-bold mb-2" for="cvv">
+                        CVV
+                      </label>
+                      <input className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="cvv" type="text" placeholder="***" />
+                    </div>
+                  </div>
+
+                  <div className='flex w-full justify-end mt-12'>
+                    <div className='w-1/3'>
+                      <Button nombre={"Finalizar Compra"} onClick={() => console.log("xd")} />
+                    </div>
+                  </div>
+                </>
+              )}
+
+
+
+
+
             </form>
           </div>
           <div className='md:w-1/3 w-full h-80 shadow-md border-gray-100 p-4 border-2 rounded-md justify-between flex flex-col'>
-            <Resumen/>
+            <Resumen />
           </div>
         </div>
       </div>
