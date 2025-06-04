@@ -5,6 +5,7 @@ import useFetch from '../../hooks/useFetch'
 import { fetchProducts } from '../../services/backendApi';
 import { fetchCart } from '../../services/carritoService';
 import Loading from '../../components/Loading';
+import Resumen from '../../components/Resumen';
 
 const Carrito = () => {
 
@@ -67,7 +68,7 @@ const Carrito = () => {
     </>
   ) : data && data.cantidad === 0 ? (
     <div className='flex h-full w-full justify-center items-center'>
-        <h1 className='text-3xl font-bold mb-5'>No hay productos en el carrito</h1>
+      <h1 className='text-3xl font-bold mb-5'>No hay productos en el carrito</h1>
     </div>
   ) : (
     <>
@@ -102,28 +103,8 @@ const Carrito = () => {
 
           </div>
           <div className='md:w-1/3 w-full h-80 shadow-md border-gray-100 p-4 border-2 rounded-md justify-between flex flex-col'>
-            <h2 className='text-2xl font-bold mb-5'>Resumen del pedido</h2>
-            <div className='flex flex-col gap-2 justify-between h-full pb-10'>
-              <div className='flex flex-col gap-2'>
-                <div className='flex flex-row justify-between'>
-                  <p className='text-lg font-medium'>Subtotal: </p>
-                  <p className='text-lg font-medium'>$0.00</p>
-                </div>
-                <div className='flex flex-row justify-between'>
-                  <p className='text-lg font-medium'>Envío: </p>
-                  <p className='text-lg font-medium'>$0.00</p>
-                </div>
-                <div className='flex flex-row justify-between'>
-                  <p className='text-lg font-medium'>Impuestos: </p>
-                  <p className='text-lg font-medium'>$0.00</p>
-                </div>
-              </div>
-              <div className='flex flex-row justify-between border-t-2 border-zinc-200 pt-3'>
-                <p className='text-lg font-medium '>Total: </p>
-                <p className='text-lg font-medium'>$0.00</p>
-              </div>
-            </div>
-            <div className=''>
+            <Resumen />
+            <div className='mt-5'>
               <Button onClick={handleIngresarCheckout} nombre={"Proceder al Checkout"} />
             </div>
           </div>
