@@ -1,28 +1,44 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const CategoriasAdmin = () => {
-  // 1. Estado de categorías (lista mutable)
-  const [categorias, setCategorias] = useState([
-    { id: 1, nombre: "Medio interno", descripcion: "Reactivos químicos para laboratorio" },
-    { id: 2, nombre: "Hematología", descripcion: "Equipos de medición y análisis" },
-    { id: 3, nombre: "Química clínica", descripcion: "Guantes, jeringas, tubos, etc." },
-    { id: 4, nombre: "Microbiología", descripcion: "Reactivos para cultivos y pruebas de aislamiento" },
-    { id: 5, nombre: "Serología", descripcion: "Kits y reactivos para pruebas serológicas" },
-  ]);
-
-  // 2. Estado de búsqueda
+  // —————————— Estados ——————————
+  const [categorias, setCategorias] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // 3. Estados para modal (crear/editar)
+  // (modales, edición, eliminación, etc. siguen igual)
   const [showModal, setShowModal] = useState(false);
   const [activeCat, setActiveCat] = useState(null);
   const [formName, setFormName] = useState("");
   const [formDesc, setFormDesc] = useState("");
-
-  // 4. Estado para confirmación de eliminación
   const [deleteCat, setDeleteCat] = useState(null);
 
-  // 5. Abrir modal en “Agregar”
+  // —————————— Cargar categorías al montar ——————————
+  useEffect(() => {
+    const loadCategorias = async () => {
+      try {
+        const resp = await fetch("http://localhost:4002/categories");
+        if (!resp.ok) throw new Error("Error al listar categorías");
+
+        const data = await resp.json();          // por ejemplo: { content: [ {id, name, description}, … ], … }
+        const rawArray = data.content || data;   // si viene con paginación, usamos data.content; sino data es array
+
+        // Mapear cada objeto a la forma { id, nombre, descripcion }
+        const mapped = rawArray.map((c) => ({
+          id: c.id,
+          nombre: c.name,
+          descripcion: c.description,
+        }));
+
+        setCategorias(mapped);
+      } catch (error) {
+        console.error("No se pudieron cargar categorías:", error);
+      }
+    };
+
+    loadCategorias();
+  }, []);
+
+  // —————————— Manejo de creación/edición (igual que antes) ——————————
   const openAddModal = () => {
     setActiveCat(null);
     setFormName("");
@@ -30,7 +46,6 @@ const CategoriasAdmin = () => {
     setShowModal(true);
   };
 
-  // 6. Abrir modal en “Editar”
   const openEditModal = (cat) => {
     setActiveCat(cat);
     setFormName(cat.nombre);
@@ -38,56 +53,111 @@ const CategoriasAdmin = () => {
     setShowModal(true);
   };
 
-  // 7. Guardar ya sea “Agregar” o “Editar”
-  const handleSave = () => {
+  const handleSave = async () => {
     if (formName.trim() === "") {
       alert("El nombre no puede estar vacío");
       return;
     }
 
-    if (activeCat) {
-      // MODO “EDITAR”
-      setCategorias((prev) =>
-        prev.map((c) =>
-          c.id === activeCat.id
-            ? { ...c, nombre: formName, descripcion: formDesc }
-            : c
-        )
-      );
-    } else {
-      // MODO “CREAR”
-      const newId =
-        categorias.length > 0
-          ? Math.max(...categorias.map((c) => c.id)) + 1
-          : 1;
-      const nuevaCat = { id: newId, nombre: formName, descripcion: formDesc };
-      setCategorias((prev) => [...prev, nuevaCat]);
-    }
+    const token = localStorage.getItem("token");
+    const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
 
-    // Cerrar modal y resetear formulario
-    setFormName("");
-    setFormDesc("");
-    setActiveCat(null);
-    setShowModal(false);
+
+    try {
+      let resp;
+      if (activeCat) {
+        // Editar → PUT /categories/{id} enviando { name, description }
+        resp = await fetch(`http://localhost:4002/categories/${activeCat.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", ...authHeader },
+          body: JSON.stringify({
+            nombre: formName,
+            descripcion: formDesc,
+          }),
+        });
+      } else {
+        // Crear → POST /categories enviando { name, description }
+        resp = await fetch("http://localhost:4002/categories", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...authHeader },
+          body: JSON.stringify({
+            nombre: formName,
+            descripcion: formDesc
+          }),
+        });
+      }
+
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw new Error(`Error al guardar: ${text}`);
+      }
+
+      // Tras guardar, recargamos la lista completa desde el backend:
+      await loadCategoriasBackend();
+
+      setFormName("");
+      setFormDesc("");
+      setActiveCat(null);
+      setShowModal(false);
+    } catch (error) {
+      console.error("Error en guardar categoría:", error);
+      alert("Hubo un error al guardar. Revisa la consola.");
+    }
   };
 
-  // 8. Filtrar categorías para la tabla
+  // Función auxiliar para recargar el arreglo de categories tras crear/editar/eliminar
+  const loadCategoriasBackend = async () => {
+    try {
+      const resp = await fetch("http://localhost:4002/categories");
+      if (!resp.ok) throw new Error("Error al listar categorías");
+      const data = await resp.json();
+      const rawArray = data.content || data;
+      const mapped = rawArray.map((c) => ({
+        id: c.id,
+        nombre: c.name,
+        descripcion: c.description,
+      }));
+      setCategorias(mapped);
+    } catch (error) {
+      console.error("No se pudieron recargar categorías:", error);
+    }
+  };
+
+  const confirmDelete = async () => {
+
+    const token = localStorage.getItem("token");
+    const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
+
+    try {
+      const resp = await fetch(`http://localhost:4002/categories/${deleteCat.id}`, {
+        method: "DELETE",
+        headers:{...authHeader}
+      });
+      if (resp.status === 204) {
+        // Después de borrar, recargamos lista
+        await loadCategoriasBackend();
+      } else {
+        const text = await resp.text();
+        throw new Error(`Error al eliminar: ${text}`);
+      }
+    } catch (error) {
+      console.error("Error en eliminar categoría:", error);
+      alert("Hubo un error al eliminar. Revisa la consola.");
+    } finally {
+      setDeleteCat(null);
+    }
+  };
+
+  // —————————— Filtrado local (ya no hay excepción porque `categorias` siempre es array) ——————————
   const filteredCategorias = categorias.filter((cat) =>
     cat.nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // 9. Confirmar eliminación
-  const confirmDelete = () => {
-    setCategorias((prev) => prev.filter((c) => c.id !== deleteCat.id));
-    setDeleteCat(null);
-  };
-
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      {/* ———————— Título ———————— */}
       <h1 className="text-2xl font-semibold mb-6">Administración de Categorías</h1>
 
-      {/* ———————— Barra de búsqueda ———————— */}
+      {/* Barra de búsqueda */}
       <div className="mb-4">
         <input
           type="text"
@@ -98,7 +168,7 @@ const CategoriasAdmin = () => {
         />
       </div>
 
-      {/* ———————— Tabla de categorías ———————— */}
+      {/* Tabla de categorías */}
       <div className="overflow-x-auto bg-white shadow-md rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">
           {/* Encabezado */}
@@ -130,15 +200,12 @@ const CategoriasAdmin = () => {
             {filteredCategorias.length > 0 ? (
               filteredCategorias.map((cat, idx) => (
                 <tr key={cat.id} className={idx % 2 === 0 ? "" : "bg-gray-50"}>
-                  {/* Nombre */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                     {cat.nombre}
                   </td>
-                  {/* Descripción */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {cat.descripcion}
                   </td>
-                  {/* Acciones */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-2">
                     <button
                       onClick={() => openEditModal(cat)}
@@ -169,7 +236,7 @@ const CategoriasAdmin = () => {
         </table>
       </div>
 
-      {/* ———————— Botón “Agregar categoría” ———————— */}
+      {/* Botón “Agregar categoría” */}
       <div className="mt-6">
         <button
           onClick={openAddModal}
@@ -179,10 +246,9 @@ const CategoriasAdmin = () => {
         </button>
       </div>
 
-      {/* ———————————————— MODAL CREAR / EDITAR ———————————————— */}
+      {/* Modal “Crear / Editar” (igual que antes) */}
       {showModal && (
         <>
-          {/* Backdrop semitransparente */}
           <div
             onClick={() => {
               setFormName("");
@@ -192,16 +258,11 @@ const CategoriasAdmin = () => {
             }}
             className="fixed inset-0 bg-black/30 z-40"
           />
-
-          {/* Caja del modal */}
           <div className="fixed inset-0 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-              {/* Título dinámico */}
               <h2 className="text-xl font-semibold mb-4">
                 {activeCat ? "Editar categoría" : "Crear nueva categoría"}
               </h2>
-
-              {/* Input Nombre */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Nombre
@@ -214,8 +275,6 @@ const CategoriasAdmin = () => {
                   placeholder="Ingrese el nombre"
                 />
               </div>
-
-              {/* Input Descripción */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Descripción
@@ -228,8 +287,6 @@ const CategoriasAdmin = () => {
                   rows={3}
                 />
               </div>
-
-              {/* Botones “Cancelar” y “Guardar” */}
               <div className="flex justify-end gap-2">
                 <button
                   onClick={() => {
@@ -254,33 +311,26 @@ const CategoriasAdmin = () => {
         </>
       )}
 
-      {/* ———————————————— MODAL CONFIRMACIÓN ELIMINAR ———————————————— */}
+      {/* Modal “Confirmar Eliminar” (igual que antes) */}
       {deleteCat && (
         <>
-          {/* Backdrop semitransparente */}
           <div
             onClick={() => setDeleteCat(null)}
             className="fixed inset-0 bg-black/30 z-40"
           />
-
-          {/* Caja del modal de confirmación */}
           <div className="fixed inset-0 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
-              {/* Mensaje con nombre en negrita */}
               <p className="text-base text-gray-800 mb-4">
                 ¿Seguro que desea eliminar la categoría{" "}
                 <span className="font-semibold">{deleteCat.nombre}</span>?
               </p>
-
               <div className="flex justify-end gap-2">
-                {/* Cancelar */}
                 <button
                   onClick={() => setDeleteCat(null)}
                   className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
                 >
                   Cancelar
                 </button>
-                {/* Confirmar eliminar */}
                 <button
                   onClick={confirmDelete}
                   className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
