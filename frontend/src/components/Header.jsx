@@ -7,6 +7,7 @@ import ButtonLink from './buttons/ButtonLink';
 import ButtonIcon from './buttons/ButtonIcon';
 import carritoIcono from './../assets/carritoIcono.png';
 import UserProfileSidebar from './UserProfileSidebar';
+import LogoSanaSana from '../assets/SanaSanaTransparenteLogo.png'
 
 const Header = () => {
 
@@ -30,7 +31,7 @@ const Header = () => {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Link to="/" className="flex-shrink-0 flex items-center">
-                <img className="h-8 w-8" src="https://tailwindflex.com/images/logo.svg" alt="Logo" />
+                <img className="h-8 w-8" src={LogoSanaSana} alt="Logo" />
                 <span className="ml-2 text-xl font-bold text-gray-800">SanaSana</span>
               </Link>
               <div className="hidden md:ml-6 md:flex md:space-x-8">

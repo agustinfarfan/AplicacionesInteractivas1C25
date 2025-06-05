@@ -56,7 +56,7 @@ const Carrito = () => {
 
   return loading ? (
     <>
-      <div className='flex h-full w-full justify-center items-center'>
+      <div className='flex h-screen w-full justify-center items-center'>
         <Loading />
       </div>
     </>
