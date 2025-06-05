@@ -1,8 +1,7 @@
-// src/pages/admin/LoginAdmin.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const LoginAdmin = () => {
+const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,11 +22,17 @@ const LoginAdmin = () => {
         return res.json();
       })
       .then((data) => {
-        localStorage.setItem("token", data.accessToken); // guardamos el token
-        navigate("/"); // vamos a Home
+        localStorage.setItem("token", data.accessToken);
+        localStorage.setItem("role", data.role); // Guarda el rol que devuelve el backend
+
+        if (data.role === "ADMIN") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/");
+        }
       })
       .catch((err) => {
-        setError(err.message); // mostramos el error
+        setError(err.message);
       });
   };
 
@@ -54,17 +59,17 @@ const LoginAdmin = () => {
           Iniciar sesión
         </button>
         <p className="text-sm text-center mt-2">
-  ¿No tenés cuenta?{" "}
-  <button
-    onClick={() => navigate("/admin/register")}
-    className="text-blue-500 underline"
-  >
-    Crear cuenta
-  </button>
-</p>
+          ¿No tenés cuenta?{" "}
+          <button
+            onClick={() => navigate("/auth/register")}
+            className="text-blue-500 underline"
+          >
+            Crear cuenta
+          </button>
+        </p>
       </form>
     </div>
   );
 };
 
-export default LoginAdmin;
+export default Login;

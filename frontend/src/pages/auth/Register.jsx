@@ -1,8 +1,7 @@
-// src/pages/admin/RegisterAdmin.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const RegisterAdmin = () => {
+const Register = () => {
   const navigate = useNavigate();
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
@@ -24,7 +23,7 @@ const RegisterAdmin = () => {
         return res.json();
       })
       .then(() => {
-        navigate("/admin/login"); // volver al login
+        navigate("/auth/login"); // volver al login
       })
       .catch((err) => setError(err.message));
   };
@@ -63,7 +62,7 @@ const RegisterAdmin = () => {
 
       <div className="mt-4 text-center">
         <button
-          onClick={() => navigate("/admin/login")}
+          onClick={() => navigate("/auth/login")}
           className="text-blue-600 hover:underline"
         >
           ¿Ya tenés cuenta? Iniciar sesión
@@ -73,4 +72,4 @@ const RegisterAdmin = () => {
   );
 };
 
-export default RegisterAdmin;
+export default Register;
