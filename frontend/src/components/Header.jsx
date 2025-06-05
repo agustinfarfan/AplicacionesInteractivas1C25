@@ -12,7 +12,7 @@ import LogoSanaSana from '../assets/SanaSanaTransparenteLogo.png'
 const Header = () => {
 
   const [current, setCurrent] = useState('Home');
-
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [showProfile, setShowProfile] = useState(false);
 
   const tabs = [
