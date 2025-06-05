@@ -1,9 +1,13 @@
 import React, { useState } from 'react'
 import Button from '../../components/buttons/Button'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Resumen from '../../components/Resumen';
 
 const Checkout = () => {
+
+  const navigate = useNavigate();
+
+  const [resumenActivo, setResumenActivo] = useState(true);
 
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
@@ -12,6 +16,16 @@ const Checkout = () => {
   const [pasoActivo, setPaso] = useState(1);
   const [envioActivo, setEnvio] = useState("Envio")
 
+  const handleCheckoutFormulario = (e) => {
+    // Validar datos.
+    e.preventDefault();
+
+    if (true) {
+      navigate("success");  
+    } else {
+      navigate("failure");
+    }
+  }
 
   const pasos = [
     {
@@ -45,22 +59,22 @@ const Checkout = () => {
       <div className='max-w-7xl mx-4 md:mx-auto mt-10'>
         <h1 className='text-3xl font-bold mb-5'>Checkout</h1>
 
-        <div className='flex flex-col md:flex-row gap-3'>
+        <div className='flex flex-col-reverse md:flex-row gap-3'>
           <div className='md:w-2/3 w-full shadow-md rounded-md border-gray-100 border-2 p-4'>
 
             {/* Pasos */}
             <div className="mb-10">
               <nav aria-label="Progress">
-                <ol role="list" className="space-y-4 md:flex md:space-x-8 md:space-y-0">
+                <ol role="list" className="space-y-4 flex md:space-x-8 md:space-y-0">
                   {
                     pasos.map((paso, index) => (
-                      <li key={index} className="md:flex-1">
+                      <li key={index} className="flex-1">
                         <div
                           className={
                             "group cursor-pointer flex flex-col py-2 pl-4 md:pb-0 md:pl-0 md:pt-4 " +
                             (pasoActivo === index + 1
-                              ? "border-l-4 border-indigo-600 md:border-l-0 md:border-t-4"
-                              : "border-l-4 border-gray-200 hover:border-gray-300 md:border-l-0 md:border-t-4")
+                              ? "border-indigo-600 border-t-4"
+                              : "border-gray-200 hover:border-gray-300 border-t-4")
                           }
                           aria-current={pasoActivo === index + 1 ? "step" : undefined}
                           onClick={() => setPaso(index + 1)}
@@ -91,19 +105,19 @@ const Checkout = () => {
             </div>
 
             <p className="mt-4 text-gray-600">Por favor, rellene el formulario para poder completar su compra.</p>
-            <form className="mt-6">
+            <form onSubmit={handleCheckoutFormulario} className="mt-6">
 
               {pasoActivo === 1 && (
                 <>
                   <div className='flex flex-row gap-3 mb-6'>
                     <div className="flex-1/2">
-                      <label className="block text-gray-800 font-bold mb-2" for="name">
+                      <label className="block text-gray-800 font-bold mb-2" htmlFor="name">
                         Nombre
                       </label>
                       <input value={nombre} onChange={(e) => setNombre(e.target.value)} className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="name" type="text" placeholder="John" />
                     </div>
                     <div className=" flex-1/2">
-                      <label className="block text-gray-800 font-bold mb-2" for="name">
+                      <label className="block text-gray-800 font-bold mb-2" htmlFor="name">
                         Apellido
                       </label>
                       <input value={apellido} onChange={(e) => setApellido(e.target.value)} className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="name" type="text" placeholder="Doe" />
@@ -111,7 +125,7 @@ const Checkout = () => {
                   </div>
 
                   <div className="mb-6">
-                    <label className="block text-gray-800 font-bold mb-2" for="email">
+                    <label className="block text-gray-800 font-bold mb-2" htmlFor="email">
                       Email
                     </label>
                     <input value={email} onChange={(e) => setEmail(e.target.value)} className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="email" placeholder="johndoe@example.com" />
@@ -157,7 +171,7 @@ const Checkout = () => {
               {pasoActivo === 3 && (
                 <>
                   <div className="mb-6">
-                    <label className="block text-gray-800 font-bold mb-2" for="card_number">
+                    <label className="block text-gray-800 font-bold mb-2" htmlFor="card_number">
                       Card Number
                     </label>
                     <input className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="card_number" type="text" placeholder="**** **** **** 1234" />
@@ -165,13 +179,13 @@ const Checkout = () => {
 
                   <div className='flex flex-row gap-3 mb-6'>
                     <div className="flex-1/2">
-                      <label className="block text-gray-800 font-bold mb-2" for="expiration_date">
+                      <label className="block text-gray-800 font-bold mb-2" htmlFor="expiration_date">
                         Expiration Date
                       </label>
                       <input className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="expiration_date" type="text" placeholder="MM / YY" />
                     </div>
                     <div className="flex-1/2">
-                      <label className="block text-gray-800 font-bold mb-2" for="cvv">
+                      <label className="block text-gray-800 font-bold mb-2" htmlFor="cvv">
                         CVV
                       </label>
                       <input className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="cvv" type="text" placeholder="***" />
@@ -180,7 +194,9 @@ const Checkout = () => {
 
                   <div className='flex w-full justify-end mt-12'>
                     <div className='w-1/3'>
-                      <Button nombre={"Finalizar Compra"} onClick={() => console.log("xd")} />
+                      <button type='submit' className="w-full bg-indigo-600 px-4 py-2 rounded-md text-white text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Finalizar Compra
+                      </button>
                     </div>
                   </div>
                 </>
@@ -192,8 +208,13 @@ const Checkout = () => {
 
             </form>
           </div>
-          <div className='md:w-1/3 w-full h-80 shadow-md border-gray-100 p-4 border-2 rounded-md justify-between flex flex-col'>
-            <Resumen />
+          
+          <div className={`md:w-1/3 w-full h-fit shadow-md border-gray-100 p-4 border-2 rounded-md justify-between ${resumenActivo ? "flex flex-col" : "flex flex-row"
+            }`}>
+            <Resumen activo={resumenActivo}/>
+            <button className='block md:hidden border' onClick={() => setResumenActivo(!resumenActivo)}>
+              cerrar
+            </button>
           </div>
         </div>
       </div>

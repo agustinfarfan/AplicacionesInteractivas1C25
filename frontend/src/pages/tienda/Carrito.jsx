@@ -23,35 +23,17 @@ const Carrito = () => {
     },
     {
       id: 2,
-      name: 'Auriculares Bluetooth',
-      description: 'Auriculares inalámbricos con cancelación de ruido.',
-      price: 250.00
+      name: 'Producto de ejemplo',
+      description: 'Descripción del producto de ejemplo',
+      price: 100.00
     },
-    {
-      id: 3,
-      name: 'Teclado Mecánico',
-      description: 'Teclado mecánico retroiluminado RGB.',
-      price: 180.00
-    },
-    {
-      id: 4,
-      name: 'Mouse Gamer',
-      description: 'Mouse óptico de alta precisión para gaming.',
-      price: 90.00
-    },
-    {
-      id: 5,
-      name: 'Monitor 24"',
-      description: 'Monitor LED Full HD de 24 pulgadas.',
-      price: 320.00
-    }
   ];
 
   const handleIngresarCheckout = (e) => {
 
     // Aca se valida si es posible ingresar al checkout
 
-    navigate("/checkout");
+    navigate("checkout");
   }
 
   return loading ? (
