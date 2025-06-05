@@ -85,8 +85,6 @@ const UserProfileSidebar = ({ onClose, onLogout }) => {
           Para revisar
         </Link>
       </div>
-<<<<<<< HEAD
-=======
         <details className="group mt-6">
             <summary className="flex items-center justify-between cursor-pointer px-4 py-2 text-sm text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50">
             <span className="flex items-center gap-2">
@@ -101,7 +99,6 @@ const UserProfileSidebar = ({ onClose, onLogout }) => {
                 <Link to="/admin/clients">Clientes</Link>
             </div>
         </details>
->>>>>>> 6fa0712ee73713c627d57f027010a98909f91a2c
 
       {/* Menú desplegable de Configuración (para todos los logueados) */}
       <details className="group mt-6">
