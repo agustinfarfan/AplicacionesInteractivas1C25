@@ -7,7 +7,7 @@ const TiendaLayout = () => {
   return (
     <>
     <Header/>
-    <div className='h-svh py-20'>
+      <div className='h-vh min-h-screen py-20 bg-gray-50'>
         <Outlet/>
     </div>
     <Footer/>
