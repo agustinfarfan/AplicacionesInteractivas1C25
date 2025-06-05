@@ -85,42 +85,23 @@ const UserProfileSidebar = ({ onClose, onLogout }) => {
           Para revisar
         </Link>
       </div>
-        <details className="group mt-6">
-            <summary className="flex items-center justify-between cursor-pointer px-4 py-2 text-sm text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50">
-            <span className="flex items-center gap-2">
-                <HiOutlineCog className="text-lg" />
-                Configuracion
-            </span>
-            
-            </summary>
-            <div className="mt-2 ml-6 flex flex-col gap-1 text-sm">
-                <Link to="/admin/categories">Categorías</Link>
-                <Link to="/admin/products">Productos</Link>
-                <Link to="/admin/clients">Clientes</Link>
-            </div>
-        </details>
-
-      {/* Menú desplegable de Configuración (para todos los logueados) */}
       <details className="group mt-6">
         <summary className="flex items-center justify-between cursor-pointer px-4 py-2 text-sm text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50">
-          <span className="flex gap-2 items-center">
-            <HiOutlineCog className="text-lg text-indigo-600" />
-            Configuración
+          <span className="flex items-center gap-2">
+            <HiOutlineCog className="text-lg" />
+            Configuracion
           </span>
-          <HiChevronDown className="h-4 w-4 transition-transform duration-200 group-open:rotate-180" />
+
         </summary>
         <div className="mt-2 ml-6 flex flex-col gap-1 text-sm">
-          <Link to="/admin/categories" className="text-gray-600 hover:text-indigo-600">
-            Categorías
-          </Link>
-          <Link to="/admin/productos" className="text-gray-600 hover:text-indigo-600">
-            Productos
-          </Link>
-          <Link to="/admin/clientes" className="text-gray-600 hover:text-indigo-600">
-            Clientes
-          </Link>
+          <Link to="/admin/categories">Categorías</Link>
+          <Link to="/admin/products">Productos</Link>
+          <Link to="/admin/clients">Clientes</Link>
         </div>
       </details>
+
+      {/* Menú desplegable de Configuración (para todos los logueados) */}
+      
 
       {/* Botón “Cerrar sesión” al final */}
       <button
