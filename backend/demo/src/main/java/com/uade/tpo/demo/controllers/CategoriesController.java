@@ -17,6 +17,7 @@ import com.uade.tpo.demo.exceptions.CategoryDuplicatedException;
 import com.uade.tpo.demo.service.CategoryService;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("categories")
 public class CategoriesController {
 

@@ -22,8 +22,30 @@ const Header = () => {
     { name: 'Contactactanos', href:'contacto'}
   ]
 
-  const isLoggedIn = true; // Temporal hasta implementar el fetch para verificar el estado de autenticación
+  // // Cada vez que cambie localStorage (login/logout), queremos reflejarlo
+  // useEffect(() => {
+  //   // Al montar, chequeamos si hay token
+  //   setLoggedIn(isLoggedIn());
 
+
+  //   // También nos suscribimos a cambios de localStorage (si el usuario cierra sesión en otra pestaña)
+  //   const handleStorageChange = () => {
+  //     setLoggedIn(isLoggedIn());
+  //   };
+  //   window.addEventListener("storage", handleStorageChange);
+
+  //   return () => {
+  //     window.removeEventListener("storage", handleStorageChange);
+  //   };
+  // }, []);
+
+  // // Función para cerrar sesión (borrar token y volver al landing)
+  // const handleLogout = () => {
+  //   localStorage.removeItem("token");
+  //   setLoggedIn(false);
+  //   navigate("/");
+  // };
+  
   return (
     <>
       <nav className="bg-white shadow-md fixed w-full z-10">
