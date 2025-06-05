@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Home from './../pages/tienda/Home';
 import Contact from './../pages/tienda/Contact';
 import Button from './buttons/Button';
@@ -10,6 +10,8 @@ import UserProfileSidebar from './UserProfileSidebar';
 import LogoSanaSana from '../assets/SanaSanaTransparenteLogo.png'
 
 const Header = () => {
+
+  const navigate = useNavigate();
 
   const [current, setCurrent] = useState('Home');
   const [isLoggedIn, setIsLoggedIn] = useState(true);
@@ -39,12 +41,12 @@ const Header = () => {
   //   };
   // }, []);
 
-  // // Función para cerrar sesión (borrar token y volver al landing)
-  // const handleLogout = () => {
-  //   localStorage.removeItem("token");
-  //   setLoggedIn(false);
-  //   navigate("/");
-  // };
+   // Función para cerrar sesión (borrar token y volver al landing)
+   const handleLogout = () => {
+     localStorage.removeItem("token");
+     setIsLoggedIn(false);
+    navigate("/");
+  };
   
   return (
     <>
@@ -82,12 +84,12 @@ const Header = () => {
                     <button onClick={() => setShowProfile(true)} className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                       <img className="h-8 w-8 rounded-full" src="https://tailwindflex.com/images/avatar/avatar-1.jpg" alt="Perfil"/>
                     </button>
-                    {showProfile && <UserProfileSidebar onClose={() => setShowProfile(false)} />}
+                    {showProfile && <UserProfileSidebar onLogout={handleLogout} onClose={() => setShowProfile(false)} />}
                   </div>
                 ):(
                   <>
-                    <ButtonLink href={"/admin/login"} nombre={"Iniciar Sesión"} />
-                    <ButtonLink href={"/admin/login"} nombre={"Registarse"} />
+                    <ButtonLink href={"/auth/login"} nombre={"Iniciar Sesión"} />
+                      <ButtonLink href={"/auth/register"} nombre={"Registarse"} />
                   </>
                 )}
                 

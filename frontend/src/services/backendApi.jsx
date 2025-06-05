@@ -23,4 +23,23 @@ export const fetchProducts = async () => {
     const data = await response.json();
     return data;
 }
+export const loginAdmin = async (email, password) => {
+  const endpoint = `${BACKEND_CONFIG.BASE_URL}/auth/login`;
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      accept: 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Credenciales incorrectas');
+  }
+
+  const data = await response.json();
+  return data; // debería contener el token
+};
 
