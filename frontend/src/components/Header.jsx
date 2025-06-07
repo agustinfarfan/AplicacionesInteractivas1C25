@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import Home from './../pages/tienda/Home';
 import Contact from './../pages/tienda/Contact';
@@ -8,13 +8,14 @@ import ButtonIcon from './buttons/ButtonIcon';
 import carritoIcono from './../assets/carritoIcono.png';
 import UserProfileSidebar from './UserProfileSidebar';
 import LogoSanaSana from '../assets/SanaSanaTransparenteLogo.png'
+import { isLoggedIn } from '../utils/auth';
 
 const Header = () => {
 
   const navigate = useNavigate();
 
   const [current, setCurrent] = useState('Home');
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [loggedIn, setIsLoggedIn] = useState();
   const [showProfile, setShowProfile] = useState(false);
 
   const tabs = [
@@ -24,22 +25,25 @@ const Header = () => {
     { name: 'Contactactanos', href:'contacto'}
   ]
 
-  // // Cada vez que cambie localStorage (login/logout), queremos reflejarlo
-  // useEffect(() => {
-  //   // Al montar, chequeamos si hay token
-  //   setLoggedIn(isLoggedIn());
+  // Cada vez que cambie localStorage (login/logout), queremos reflejarlo
+  useEffect(() => {
+    
+    console.log(isLoggedIn());
+    
+    // Al montar, chequeamos si hay token
+    setIsLoggedIn(isLoggedIn());
 
 
-  //   // También nos suscribimos a cambios de localStorage (si el usuario cierra sesión en otra pestaña)
-  //   const handleStorageChange = () => {
-  //     setLoggedIn(isLoggedIn());
-  //   };
-  //   window.addEventListener("storage", handleStorageChange);
+    // También nos suscribimos a cambios de localStorage (si el usuario cierra sesión en otra pestaña)
+    const handleStorageChange = () => {
+      setIsLoggedIn(isLoggedIn());
+    };
+    window.addEventListener("storage", handleStorageChange);
 
-  //   return () => {
-  //     window.removeEventListener("storage", handleStorageChange);
-  //   };
-  // }, []);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
 
    // Función para cerrar sesión (borrar token y volver al landing)
    const handleLogout = () => {
@@ -79,7 +83,7 @@ const Header = () => {
             <div className=" items-center">
               <div className="hidden md:flex md:flex-row md:items-center md:justify-center gap-4 h-full">
                 <ButtonIcon href={"carrito"} imgSrc={carritoIcono}/>
-                { isLoggedIn ? (
+                { loggedIn ? (
                   <div className="relative">
                     <button onClick={() => setShowProfile(true)} className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                       <img className="h-8 w-8 rounded-full" src="https://tailwindflex.com/images/avatar/avatar-1.jpg" alt="Perfil"/>

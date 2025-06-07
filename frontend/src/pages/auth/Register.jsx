@@ -8,21 +8,26 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
-    fetch("http://localhost:8080/api/v1/auth/register", {
+    await fetch("http://localhost:4002/api/v1/auth/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ nombre, email, password }),
+      body: JSON.stringify({
+        firstname: nombre,
+        lastname: nombre,
+        email: email,
+        password: password,
+        role: 'USER'
+      }),
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Error al registrar");
-        return res.json();
-      })
-      .then(() => {
+      .then(async (response) => {
+
+        if (!response.ok) throw new Error("Error al registrar");
+
         navigate("/auth/login"); // volver al login
       })
       .catch((err) => setError(err.message));

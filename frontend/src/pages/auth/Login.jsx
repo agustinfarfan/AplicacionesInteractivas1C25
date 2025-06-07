@@ -7,23 +7,24 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    fetch("http://localhost:8080/api/v1/auth/authenticate", {
+    await fetch("http://localhost:4002/api/v1/auth/authenticate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ email, password }),
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Credenciales inválidas");
-        return res.json();
-      })
-      .then((data) => {
-        localStorage.setItem("token", data.accessToken);
-        localStorage.setItem("role", data.role); // Guarda el rol que devuelve el backend
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Credenciales inválidas");
+
+        const data = await response.json();
+
+        console.log(data);
+        
+        localStorage.setItem("token", data.access_token);
 
         if (data.role === "ADMIN") {
           navigate("/admin/dashboard");

@@ -1,5 +1,7 @@
 // src/utils/auth.js
 
+import { jwtDecode } from "jwt-decode";
+
 /**
  * Toma un JWT (string) y devuelve un arreglo con las autoridades/roles.
  * Asume que el payload (segunda parte del JWT) tiene una propiedad
@@ -34,5 +36,13 @@ export function isVendor() {
  * Devuelve true si hay un token almacenado (no necesariamente vendor).
  */
 export function isLoggedIn() {
-  return Boolean(localStorage.getItem("token"));
+
+  try {
+    const token = localStorage.getItem("token");
+    jwtDecode(token);
+    return true;
+  } catch (error) {
+    return false;
+  }
+
 }
