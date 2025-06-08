@@ -10,11 +10,14 @@ const AdminLayout = () => {
 
     const { user, loading } = useAuth();
 
+    console.log(user);
+    
+
     return loading ? (
         <>
             <Loading></Loading>
         </>
-    ) : user ? (
+    ) : user && user.role == "VENDOR" ? (
         <>
             <Header />
             <div className="h-screen pt-20">

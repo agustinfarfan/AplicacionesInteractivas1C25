@@ -37,7 +37,7 @@ public class AuthenticationService {
                                 .build();
 
                 repository.save(user);
-                
+
                 cartService.createCart(request.getEmail());
 
                 var jwtToken = jwtService.generateToken(user);
