@@ -37,7 +37,7 @@ const Carrito = () => {
     setLoading(true);
 
     console.log(productoId);
-    
+
 
     addProductoToCart({ userId: user.user_id, productoId: productoId, cantidad: 1 })
       .then((data) => {
@@ -99,7 +99,7 @@ const Carrito = () => {
         <p>{JSON.stringify(error)}</p>
       </div>
     </>
-  ) : data && data.cantidad === 0 ? (
+  ) : data && data.carritoDetalle.length === 0 ? (
     <div className='flex h-full w-full justify-center items-center'>
       <h1 className='text-3xl font-bold mb-5'>No hay productos en el carrito</h1>
     </div>
@@ -138,7 +138,7 @@ const Carrito = () => {
 
           </div>
           <div className='md:w-1/3 w-full h-80 shadow-md border-gray-100 p-4 border-2 rounded-md justify-between flex flex-col'>
-            <Resumen />
+            <Resumen data={data} />
             <div className='mt-5'>
               <Button onClick={handleIngresarCheckout} nombre={"Proceder al Checkout"} />
             </div>

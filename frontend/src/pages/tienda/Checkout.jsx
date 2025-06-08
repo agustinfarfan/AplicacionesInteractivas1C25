@@ -1,29 +1,122 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Button from '../../components/buttons/Button'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import Resumen from '../../components/Resumen';
+import { useAuth } from '../../context/AuthContext';
+import { fetchCart, finalizeCart } from '../../services/carritoService';
+import Loading from '../../components/Loading';
 
 const Checkout = () => {
 
   const navigate = useNavigate();
+  const { user, loadingUser } = useAuth();
+
+  const [loading, setLoading] = useState(true);
+  const [data, setCart] = useState(null);
+  const [error, setError] = useState(null);
+
 
   const [resumenActivo, setResumenActivo] = useState(true);
 
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
-  const [email, setEmail] = useState('')
-  
+  const [email, setEmail] = useState('');
+  const [envioActivo, setEnvio] = useState("Envio");
+  const [tarjeta, setTarjeta] = useState('');
+  const [expirationDate, setexpirationDate] = useState('');
+  const [CVV, setCVV] = useState('')
   const [pasoActivo, setPaso] = useState(1);
-  const [envioActivo, setEnvio] = useState("Envio")
+
+
+  useEffect(() => {
+    if (!loadingUser && user) {
+      fetchCart({ id: user.user_id })
+        .then((data) => {
+          setCart(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError(err);
+          setLoading(false);
+        });
+    }
+
+  }, [user, loadingUser])
+
+  // Funciones de validación por paso
+  const validarPaso1 = () => {
+    if (!nombre.trim() || !apellido.trim() || !email.trim()) {
+      alert("Por favor complete nombre, apellido y email.");
+      return false;
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      alert("Ingrese un email válido.");
+      return false;
+    }
+    return true;
+  };
+
+  const validarPaso2 = () => {
+    if (!envioActivo) {
+      alert("Seleccione un método de envío.");
+      return false;
+    }
+    return true;
+  };
+
+  const handleExpirationChange = (e) => {
+    let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+    if (value.length > 2) {
+      value = value.slice(0, 2) + '/' + value.slice(2, 4);
+    }
+    if (value.length > 5) {
+      value = value.slice(0, 5);
+    }
+    setexpirationDate(value);
+  };
 
   const handleCheckoutFormulario = (e) => {
-    // Validar datos.
     e.preventDefault();
 
-    if (true) {
-      navigate("success");  
-    } else {
-      navigate("failure");
+
+    if (pasoActivo === 1 && !validarPaso1()) return;
+    if (pasoActivo === 2 && !validarPaso2()) return;
+
+    // Paso 3: Validar datos de pago
+    if (pasoActivo === 3) {
+      if (!tarjeta.trim() || !expirationDate.trim() || !CVV.trim()) {
+        alert("Por favor complete todos los datos de la tarjeta.");
+        return;
+      }
+      // Validación básica de tarjeta y CVV
+      if (!/^\d{16}$/.test(tarjeta.replace(/\s/g, ""))) {
+        alert("Ingrese un número de tarjeta válido (16 dígitos).");
+        return;
+      }
+      if (!/^\d{2}\/\d{2}$/.test(expirationDate)) {
+        alert("Ingrese una fecha de expiración válida (MM/YY).");
+        return;
+      }
+      if (!/^\d{3,4}$/.test(CVV)) {
+        alert("Ingrese un CVV válido (3 o 4 dígitos).");
+        return;
+      }
+
+      setLoading(true);
+      // Se crea orden en base de datos.
+      finalizeCart({ userId: user.user_id })
+        .then((data) => {
+          setLoading(false);
+
+          // Si todo está bien, navegar a success
+          navigate("success");
+        })
+        .catch((err) => {
+          setError(err);
+          setLoading(false);
+          navigate("failure");
+        });
+
     }
   }
 
@@ -54,7 +147,22 @@ const Checkout = () => {
     }
   ]
 
-  return (
+  return loading ? (
+    <>
+      <div className='flex h-screen w-full justify-center items-center'>
+        <Loading />
+      </div>
+    </>
+  ) : error ? (
+    <>
+      <div className='flex h-full w-full justify-center items-center flex-col'>
+        <h1 className='text-3xl font-bold mb-5'>Error al cargar los productos</h1>
+        <p>{JSON.stringify(error)}</p>
+      </div>
+    </>
+  ) : data && data.carritoDetalle.length === 0 ? (
+    <Navigate to={"/carrito"}/>
+  ) : (
     <>
       <div className='max-w-7xl mx-4 md:mx-auto mt-10'>
         <h1 className='text-3xl font-bold mb-5'>Checkout</h1>
@@ -133,7 +241,10 @@ const Checkout = () => {
 
                   <div className='flex w-full justify-end mt-12'>
                     <div className='w-1/3'>
-                      <Button nombre={"Siguiente"} onClick={() => setPaso(pasoActivo + 1)} />
+                      <Button nombre={"Siguiente"} onClick={(e) => {
+                        e.preventDefault();
+                        if (validarPaso1()) setPaso(2);
+                      }} />
                     </div>
                   </div>
                 </>
@@ -161,7 +272,10 @@ const Checkout = () => {
 
                   <div className='flex w-full justify-end mt-12'>
                     <div className='w-1/3'>
-                      <Button nombre={"Siguiente"} onClick={() => setPaso(pasoActivo + 1)} />
+                      <Button nombre={"Siguiente"} onClick={(e) => {
+                        e.preventDefault();
+                        if (validarPaso2()) setPaso(3);
+                      }} />
 
                     </div>
                   </div>
@@ -172,23 +286,23 @@ const Checkout = () => {
                 <>
                   <div className="mb-6">
                     <label className="block text-gray-800 font-bold mb-2" htmlFor="card_number">
-                      Card Number
+                      Número de tarjeta
                     </label>
-                    <input className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="card_number" type="text" placeholder="**** **** **** 1234" />
+                    <input value={tarjeta} onChange={(e) => setTarjeta(e.target.value)} className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="card_number" type="text" placeholder="**** **** **** 1234" />
                   </div>
 
                   <div className='flex flex-row gap-3 mb-6'>
                     <div className="flex-1/2">
                       <label className="block text-gray-800 font-bold mb-2" htmlFor="expiration_date">
-                        Expiration Date
+                        Dia de expiración
                       </label>
-                      <input className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="expiration_date" type="text" placeholder="MM / YY" />
+                      <input value={expirationDate} onChange={handleExpirationChange} maxLength={5} className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="expiration_date" type="text" placeholder="MM / YY" />
                     </div>
                     <div className="flex-1/2">
                       <label className="block text-gray-800 font-bold mb-2" htmlFor="cvv">
                         CVV
                       </label>
-                      <input className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="cvv" type="text" placeholder="***" />
+                      <input value={CVV} onChange={(e) => setCVV(e.target.value)} className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="cvv" type="text" placeholder="***" />
                     </div>
                   </div>
 
@@ -202,16 +316,12 @@ const Checkout = () => {
                 </>
               )}
 
-
-
-
-
             </form>
           </div>
-          
+
           <div className={`md:w-1/3 w-full h-fit shadow-md border-gray-100 p-4 border-2 rounded-md justify-between ${resumenActivo ? "flex flex-col" : "flex flex-row"
             }`}>
-            <Resumen activo={resumenActivo}/>
+            <Resumen data={data} activo={resumenActivo} />
             <button className='block md:hidden border' onClick={() => setResumenActivo(!resumenActivo)}>
               cerrar
             </button>

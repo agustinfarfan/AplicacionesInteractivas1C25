@@ -4,6 +4,7 @@ package com.uade.tpo.demo.controllers;
 import com.uade.tpo.demo.entity.dto.CartProductRequest;
 import com.uade.tpo.demo.entity.dto.CarritoDTO;
 import com.uade.tpo.demo.entity.dto.CreateCartRequest;
+import com.uade.tpo.demo.entity.dto.OrderDTO;
 import com.uade.tpo.demo.service.cart.CartService;
 import io.jsonwebtoken.Jwt;
 import jakarta.validation.Valid;
@@ -29,7 +30,6 @@ public class CartController {
 
     @GetMapping
     public ResponseEntity<CarritoDTO> getCart(@PathVariable("id") Long userId) {
-        System.out.println(userId);
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         CarritoDTO result = cartService.getCartByEmail(userId, email);
 
@@ -51,6 +51,13 @@ public class CartController {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         CarritoDTO carrito = cartService.deleteProductFromCart(userId, email, request);
         return ResponseEntity.ok(carrito);
+    }
+
+    @PostMapping("/finalize")
+    public ResponseEntity<OrderDTO> createCart(@PathVariable("id") Long userId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        OrderDTO orden = cartService.finalizeCart(userId, email);
+        return ResponseEntity.ok(orden);
     }
 
     @DeleteMapping

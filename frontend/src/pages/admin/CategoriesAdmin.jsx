@@ -30,6 +30,7 @@ const CategoriasAdmin = () => {
         }));
 
         setCategorias(mapped);
+        
       } catch (error) {
         console.error("No se pudieron cargar categorías:", error);
       }
@@ -148,8 +149,14 @@ const CategoriasAdmin = () => {
     }
   };
 
+  const categoriasMock = [{
+    id: 1,
+    nombre: "Microbiologia",
+    descripcion: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dolor, dignissimos."
+  }]
+
   // —————————— Filtrado local (ya no hay excepción porque `categorias` siempre es array) ——————————
-  const filteredCategorias = categorias.filter((cat) =>
+  const filteredCategorias = categoriasMock.filter((cat) =>
     cat.nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
 

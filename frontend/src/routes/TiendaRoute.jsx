@@ -7,6 +7,7 @@ import NotFound from "../pages/tienda/notFound";
 import Contact from "../pages/tienda/Contact";
 import About from "../pages/tienda/About";
 import Success from "../pages/tienda/Success";
+import Failure from './../pages/tienda/Failure';
 
 
 const useTiendaRoute = () => {
@@ -20,7 +21,7 @@ const useTiendaRoute = () => {
         <Route path="checkout">
           <Route index element={<Checkout />} />
           <Route path="success" element={<Success />} />
-          <Route path="failure" element={<Success />} />
+          <Route path="failure" element={<Failure />} />
         </Route>     
       </Route>
 
