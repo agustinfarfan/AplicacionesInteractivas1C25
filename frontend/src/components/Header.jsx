@@ -9,10 +9,12 @@ import carritoIcono from './../assets/carritoIcono.png';
 import UserProfileSidebar from './UserProfileSidebar';
 import LogoSanaSana from '../assets/SanaSanaTransparenteLogo.png'
 import { isLoggedIn } from '../utils/auth';
+import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
 
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const [current, setCurrent] = useState('Home');
   const [loggedIn, setIsLoggedIn] = useState();
@@ -47,8 +49,8 @@ const Header = () => {
 
    // Función para cerrar sesión (borrar token y volver al landing)
    const handleLogout = () => {
-     localStorage.removeItem("token");
-     setIsLoggedIn(false);
+    logout(); 
+    setIsLoggedIn(false);
     navigate("/");
   };
   

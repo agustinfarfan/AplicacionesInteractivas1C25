@@ -12,8 +12,6 @@ const Carrito = () => {
   const navigate = useNavigate();
   const { data, loading, error } = useFetch(() => fetchCart({ id: 3 }));
 
-
-
   const productoMock = [
     {
       id: 1,

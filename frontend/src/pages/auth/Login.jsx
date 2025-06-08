@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -22,10 +25,8 @@ const Login = () => {
 
         const data = await response.json();
 
-        console.log(data);
+        login(data.access_token);
         
-        localStorage.setItem("token", data.access_token);
-
         if (data.role === "ADMIN") {
           navigate("/admin/dashboard");
         } else {

@@ -1,12 +1,11 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import AuthLayout from "../layouts/AuthLayout";
 import CategoriesAdmin from "../pages/admin/CategoriesAdmin";
-import ProductList from "../components/ProductList";
 import ProductsAdmin from "../pages/admin/ProductsAdmin";
+import AdminLayout from "../layouts/AdminLayout";
 
 const useAdminRoute = () => {
   return (
-    <Route path="admin" element={<AuthLayout />}>
+    <Route path="admin" element={<AdminLayout />}>
       
       {/*Cuando entras a admin/categories te muestra lo que este en CategoriesAdmin.jsx*/}
       <Route path="categories" element={<CategoriesAdmin />} />
