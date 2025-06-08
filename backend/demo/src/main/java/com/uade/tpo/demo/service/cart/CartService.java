@@ -10,9 +10,9 @@ public interface CartService {
 
 
     public Page<CarritoDTO> getAllCarts(PageRequest pageable);
-    public CarritoDTO getCartById(Long cartId);
+    public CarritoDTO getCartByEmail(Long userId, String email);
     public Long createCart(String email);
-    public CarritoDTO addProductToCart(Long cartId, CartProductRequest request);
-    public CarritoDTO deleteProductFromCart(Long cartId, CartProductRequest request);
-    public Boolean deleteCartById(Long cartId);
+    public CarritoDTO addProductToCart(Long userId, String email, CartProductRequest request);
+    public CarritoDTO deleteProductFromCart(Long userId, String email, CartProductRequest request);
+    public Boolean deleteCartById(Long userId, String email);
 }

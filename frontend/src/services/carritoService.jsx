@@ -3,23 +3,28 @@ export const BACKEND_CONFIG = {
     BASE_URL: "http://localhost:4002",
     headers: {
         accept: "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_REACT_APP_JWT_TOKEN || ""}`,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
     }
 }
 
 export const fetchCart = async ({ id }) => {
-    const endpoint = `${BACKEND_CONFIG.BASE_URL}/cart/${id}`;
+    console.log(id);
+    const endpoint = `${BACKEND_CONFIG.BASE_URL}/user/${id}/cart`;
 
     const response = await fetch(endpoint, {
         method: "GET",
         headers: BACKEND_CONFIG.headers,
     });
 
+    
     if (!response.ok) {
         throw new Error("Error fetching", { cause: response.statusText });
     }
 
     const data = await response.json();
+
+    console.log(data);
+    
     return data;
 }
 
@@ -42,43 +47,52 @@ export const createCart = async ({ userId }) => {
     return data;
 }
 
-export const addProductoToCart = async ({ cartId, productId, cantidad }) => {
-    const endpoint = `${BACKEND_CONFIG.BASE_URL}/cart/${cartId}/addProduct`;
+export const addProductoToCart = async ({ userId, productoId, cantidad }) => {
+  const endpoint = `http://localhost:4002/user/${userId}/cart/addProduct`;
 
-    const response = await fetch(endpoint, {
-        method: "POST",
-        headers: BACKEND_CONFIG.headers,
-        body: {
-            "productId": productId,
-            "cantidad": cantidad
-        },
-    });
+  const response = await fetch(endpoint, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("token")}`
+    },
+    body: JSON.stringify({
+      productId: productoId,
+      cantidad: cantidad,
+    }),
+  });
 
-    if (!response.ok) {
-        throw new Error("Error fetching", { cause: response.statusText });
-    }
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error ${response.status}: ${errorText}`);
+  }
 
-    const data = await response.json();
-    return data;
-}
+  const data = await response.json();
+  return data;
+};
 
-export const deleteProductoFromCart = async ({ cartId, productId }) => {
-    const endpoint = `${BACKEND_CONFIG.BASE_URL}/cart/${cartId}/removeProduct`;
+export const deleteProductoFromCart = async ({ userId, productoId, cantidad }) => {
+    const endpoint = `http://localhost:4002/user/${userId}/cart/removeProduct`;
 
-    const response = await fetch(endpoint, {
-        method: "DELETE",
-        headers: BACKEND_CONFIG.headers,
-        body: {
-            "productId": productId
-        },
-    });
+  const response = await fetch(endpoint, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("token")}`,
+    },
+    body: JSON.stringify({
+      productId: productoId,
+      cantidad: cantidad,
+    }),
+  });
 
-    if (!response.ok) {
-        throw new Error("Error fetching", { cause: response.statusText });
-    }
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error ${response.status}: ${errorText}`);
+  }
 
-    const data = await response.json();
-    return data;
+  const data = await response.json();
+  return data;
 }
 
 

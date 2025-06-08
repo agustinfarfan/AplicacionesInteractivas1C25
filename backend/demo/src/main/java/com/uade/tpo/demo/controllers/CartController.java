@@ -14,44 +14,49 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("cart")
+@RequestMapping("user/{id}/cart")
 public class CartController {
 
     @Autowired
     private CartService cartService;
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<Long> createCart() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Long carritoId = cartService.createCart(email);
         return ResponseEntity.ok(carritoId);
     }
 
-    @GetMapping("/{cartId}")
-    public ResponseEntity<CarritoDTO> getCartById(@PathVariable Long cartId) {
-        CarritoDTO result = cartService.getCartById(cartId);
+    @GetMapping
+    public ResponseEntity<CarritoDTO> getCart(@PathVariable("id") Long userId) {
+        System.out.println(userId);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        CarritoDTO result = cartService.getCartByEmail(userId, email);
 
         return ResponseEntity.ok(result);
     }
 
-    @PutMapping("/{cartId}/addProduct")
-    public ResponseEntity<CarritoDTO> addProductToCart(@PathVariable Long cartId, @RequestBody CartProductRequest request) {
-        CarritoDTO carrito = cartService.addProductToCart(cartId, request);
+    @PutMapping("/addProduct")
+    public ResponseEntity<CarritoDTO> addProductToCart(@PathVariable("id") Long userId, @RequestBody CartProductRequest request) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        CarritoDTO carrito = cartService.addProductToCart(userId, email, request);
         return ResponseEntity.ok(carrito);
     }
 
-    @PutMapping("/{cartId}/removeProduct")
+    @PutMapping("/removeProduct")
     public ResponseEntity<CarritoDTO> removeProductFromCart(
-            @PathVariable Long cartId,
+            @PathVariable("id") Long userId,
             @Valid @RequestBody CartProductRequest request) {
 
-        CarritoDTO carrito = cartService.deleteProductFromCart(cartId, request);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        CarritoDTO carrito = cartService.deleteProductFromCart(userId, email, request);
         return ResponseEntity.ok(carrito);
     }
 
-    @DeleteMapping("/{cartId}")
-    public ResponseEntity<String> deleteCart(@PathVariable Long cartId) {
-        cartService.deleteCartById(cartId);
+    @DeleteMapping
+    public ResponseEntity<String> deleteCart(@PathVariable("id") Long userId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        cartService.deleteCartById(userId, email);
         return ResponseEntity.ok("Cart deleted succesfully.");
     }
 

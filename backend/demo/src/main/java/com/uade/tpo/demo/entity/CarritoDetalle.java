@@ -45,7 +45,9 @@ public class CarritoDetalle {
 
     public CarritoDetalleDTO getDTO() {
         return CarritoDetalleDTO.builder()
+                .producto_id(producto.getId())
                 .nombre_producto(producto.getNombre())
+                .descripcion(producto.getDescription())
                 .cantidad(this.cantidad)
                 .precio_unitario(producto.getPrecio())
                 .subtotal(this.obtenerSubTotal())

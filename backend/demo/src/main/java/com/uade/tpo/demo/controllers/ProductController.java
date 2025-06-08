@@ -2,6 +2,7 @@ package com.uade.tpo.demo.controllers;
 
 import java.util.List;
 
+import com.uade.tpo.demo.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,8 +46,9 @@ public class ProductController {
 
     @PostMapping
     public Producto crearProducto(@RequestBody ProductRequest request) {
+        System.out.println(request);
         Category categoria = categoryService.getCategoriasById(request.getCategoriaId())
-                .orElseThrow(() -> new RuntimeException("Categoría no encontrada con id: " + request.getCategoriaId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada con id: " + request.getCategoriaId()));
 
         Producto producto = new Producto();
         producto.setNombre(request.getNombre());

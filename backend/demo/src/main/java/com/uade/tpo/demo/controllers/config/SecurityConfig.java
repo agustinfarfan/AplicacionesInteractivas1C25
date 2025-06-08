@@ -1,5 +1,6 @@
 package com.uade.tpo.demo.controllers.config;
 
+import com.uade.tpo.demo.controllers.auth.CustomAccessDeniedHandler;
 import com.uade.tpo.demo.enums.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,16 +33,21 @@ public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomAccessDeniedHandler accessDeniedHandler) throws Exception {
         http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
+                        // User
+                        .requestMatchers("/user/**").hasAnyAuthority(Role.USER.name(), Role.VENDOR.name())
+                        .requestMatchers(HttpMethod.GET, "/user").hasAnyAuthority(Role.VENDOR.name())
+
+
                         // Cart
-                        .requestMatchers("/cart/**").hasAnyAuthority(Role.USER.name(), Role.VENDOR.name())
-                        .requestMatchers(HttpMethod.GET, "/cart").hasAnyAuthority(Role.VENDOR.name())
+//                        .requestMatchers("/cart/**").hasAnyAuthority(Role.USER.name(), Role.VENDOR.name())
+//                        .requestMatchers(HttpMethod.GET, "/cart").hasAnyAuthority(Role.VENDOR.name())
 
                         // Productos
                         .requestMatchers(HttpMethod.GET,"/productos/**").permitAll()
@@ -75,6 +81,7 @@ public class SecurityConfig {
 
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

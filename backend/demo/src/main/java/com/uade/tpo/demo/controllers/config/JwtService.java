@@ -35,6 +35,7 @@ public class JwtService {
 
         if (userDetails instanceof User customUserDetails) {
             extraClaims.put("role", customUserDetails.getRole());
+            extraClaims.put("user_id", customUserDetails.getId());
         }
 
         return buildToken(extraClaims, userDetails, jwtExpiration);

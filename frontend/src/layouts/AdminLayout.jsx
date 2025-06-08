@@ -8,12 +8,12 @@ import Loading from "../components/Loading"
 
 const AdminLayout = () => {
 
-    const { user, loading } = useAuth();
+    const { user, loadingUser } = useAuth();
 
     console.log(user);
     
 
-    return loading ? (
+    return loadingUser ? (
         <>
             <Loading></Loading>
         </>

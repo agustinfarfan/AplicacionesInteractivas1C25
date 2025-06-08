@@ -3,6 +3,7 @@ package com.uade.tpo.demo.entity;
 import java.util.Collection;
 import java.util.List;
 
+import com.uade.tpo.demo.entity.dto.UserDTO;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -86,4 +87,7 @@ public class User implements UserDetails {
     @ManyToOne
     private Cliente cliente;
 
+    public UserDTO getDTO() {
+        return new UserDTO(id, email, firstName,lastName, role);
+    }
 }
