@@ -46,3 +46,18 @@ export function isLoggedIn() {
   }
 
 }
+
+/**
+ * Decodifica el JWT y devuelve el campo "sub" (o el nombre) del payload.
+ */
+export function getUsernameFromToken(token) {
+  try {
+    const payload = token.split(".")[1];
+    const decoded = JSON.parse(atob(payload));
+    // Ajusta según cómo pongas el nombre en tu token: aquí uso "sub"
+    return decoded.sub || decoded.username || "Usuario";
+  } catch {
+    return "Usuario";
+  }
+}
+
