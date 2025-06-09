@@ -61,3 +61,16 @@ export function getUsernameFromToken(token) {
   }
 }
 
+export function getUserIdFromToken() {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
+    const payload = token.split(".")[1];
+    const decoded = JSON.parse(atob(payload));
+    // Suponemos que el backend incluye "sub" = userId o {"userId": ...}
+    return decoded.user_id || decoded.sub || null;
+  } catch {
+    return null;
+  }
+}
+

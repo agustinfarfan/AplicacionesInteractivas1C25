@@ -1,6 +1,5 @@
 // src/components/UserProfileSidebar.jsx
-
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { isVendor, getRolesFromToken, getUsernameFromToken } from "../utils/auth";
 import {
@@ -12,8 +11,45 @@ import {
 
 const UserProfileSidebar = ({ onClose, onLogout }) => {
   // Leemos directamente si el usuario es vendor
+  
+  const [companyName, setCompanyName] = useState("Usuario");
+
+   // lista de direcciones del usuario (inicial siempre array)
+  const [addresses, setAddresses] = useState([]);
+  // id de la dirección seleccionada
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+
+  const token = localStorage.getItem("token");
+  const authHeader = token
+    ? { Authorization: `Bearer ${token}` }
+    : {};
+
   const isAdmin = isVendor();
-  const username = localStorage.getItem("token") ? getUsernameFromToken(localStorage.getItem("token")) : "Usuario";
+
+  // ← Nuevo: al montar, pedimos /user/me
+   useEffect(() => {
+     fetch("http://localhost:4002/user/me", {
+       headers: { "Content-Type": "application/json", ...authHeader },
+     })
+       .then((res) => {
+         if (!res.ok) throw new Error("No autorizado");
+         return res.json();
+       })
+       .then((data) => {
+        // 1) razón social
+        setCompanyName(data.razonSocial || "Usuario");
+
+        // 2) direcciones: data.direcciones debe llegar como array desde tu UserDTO
+        const list = Array.isArray(data.direcciones) ? data.direcciones : [];
+        setAddresses(list);
+
+        // 3) selecciono la primera si existe
+        if (list.length > 0) {
+          setSelectedAddressId(list[0].id);
+        }
+      })
+       .catch(console.error);
+   }, [token]);
 
   return (
     <div className="fixed top-0 right-0 h-full w-72 bg-white shadow-lg z-50 p-4 flex flex-col justify-start rounded-l-xl">
@@ -31,13 +67,22 @@ const UserProfileSidebar = ({ onClose, onLogout }) => {
       <div className="flex flex-col items-center text-center mt-4 mb-6">
         <HiOutlineOfficeBuilding className="w-20 h-20 text-gray-400" />
         <p className="text-sm text-gray-500 mt-2">Hola</p>
-        <p className="text-lg font-semibold">{username}</p>
+        <p className="text-lg font-semibold">{companyName}</p>
 
-        {/* Dropdown de direcciones (hardcode) */}
-        <select className="mt-2 w-full border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500">
-          <option>Av. Corrientes 1234, CABA</option>
-          <option>Ruta 8 Km 45, Pilar, Buenos Aires</option>
-          <option>España 456, Córdoba Capital</option>
+        <select
+          className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          value={selectedAddressId || ""}
+          onChange={(e) => setSelectedAddressId(Number(e.target.value))}
+        >
+          {addresses.length === 0 ? (
+            <option value="">No hay direcciones asociadas</option>
+          ) : (
+            addresses.map((addr) => (
+              <option key={addr.id} value={addr.id}>
+                {`${addr.alias}: ${addr.calle} ${addr.altura}, ${addr.localidad}`}
+              </option>
+            ))
+          )}
         </select>
       </div>
 

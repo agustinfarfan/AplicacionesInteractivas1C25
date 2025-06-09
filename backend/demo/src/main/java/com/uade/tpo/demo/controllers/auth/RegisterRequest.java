@@ -18,4 +18,12 @@ public class RegisterRequest {
     private String email;
     private String password;
     private Role role;
+    // 
+    private String razonSocial;
+    private String cuil;
+    private String calle;
+    private Integer altura;
+    private String codigoPostal;
+    private String localidad;
+    private String provincia;
 }
