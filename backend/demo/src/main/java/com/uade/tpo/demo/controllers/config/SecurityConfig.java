@@ -35,58 +35,59 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomAccessDeniedHandler accessDeniedHandler) throws Exception {
         http
-                .cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(req -> req
-                        .requestMatchers("/api/v1/auth/**").permitAll()
+            .cors(Customizer.withDefaults())
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(req -> req
+                    .requestMatchers("/api/v1/auth/**").permitAll()
 
-                        // User
-                        .requestMatchers("/user/**").hasAnyAuthority(Role.USER.name(), Role.VENDOR.name())
-                        .requestMatchers(HttpMethod.GET, "/user").hasAnyAuthority(Role.VENDOR.name())
+                    // User
+                    .requestMatchers("/user/**").hasAnyAuthority(Role.USER.name(), Role.VENDOR.name())
+                    .requestMatchers(HttpMethod.GET, "/user").hasAnyAuthority(Role.VENDOR.name())
 
 
-                        // Cart
-//                        .requestMatchers("/cart/**").hasAnyAuthority(Role.USER.name(), Role.VENDOR.name())
-//                        .requestMatchers(HttpMethod.GET, "/cart").hasAnyAuthority(Role.VENDOR.name())
+                    // Cart
+//                  .requestMatchers("/cart/**").hasAnyAuthority(Role.USER.name(), Role.VENDOR.name())
+//                  .requestMatchers(HttpMethod.GET, "/cart").hasAnyAuthority(Role.VENDOR.name())
 
-                        // Productos
-                        .requestMatchers(HttpMethod.GET,"/productos/**").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/productos/**").hasAnyAuthority(Role.VENDOR.name())
-                        .requestMatchers(HttpMethod.PUT,"/productos/**").hasAnyAuthority(Role.VENDOR.name())
-                        .requestMatchers(HttpMethod.DELETE,"/productos/**").hasAnyAuthority(Role.VENDOR.name())
+                    // Productos
+                    .requestMatchers(HttpMethod.GET, "/productos/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/productos/**").hasAnyAuthority(Role.VENDOR.name())
+                    .requestMatchers(HttpMethod.PUT, "/productos/**").hasAnyAuthority(Role.VENDOR.name())
+                    .requestMatchers(HttpMethod.DELETE, "/productos/**").hasAnyAuthority(Role.VENDOR.name())
 
-                        // Publicaciones
-                        .requestMatchers(HttpMethod.GET, "/publicaciones/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/publicaciones/**").hasAnyAuthority(Role.VENDOR.name())
-                        .requestMatchers(HttpMethod.PUT, "/publicaciones/**").hasAnyAuthority(Role.VENDOR.name())
-                        .requestMatchers(HttpMethod.DELETE, "/publicaciones/**").hasAnyAuthority(Role.VENDOR.name())
+                    // Publicaciones
+                    .requestMatchers(HttpMethod.GET, "/publicaciones/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/publicaciones/**").hasAnyAuthority(Role.VENDOR.name())
+                    .requestMatchers(HttpMethod.PUT, "/publicaciones/**").hasAnyAuthority(Role.VENDOR.name())
+                    .requestMatchers(HttpMethod.DELETE, "/publicaciones/**").hasAnyAuthority(Role.VENDOR.name())
 
-                        // Ordenes
-                        .requestMatchers("/orders/**").hasAnyAuthority(Role.VENDOR.name())
+                    // Ordenes
+                    .requestMatchers(HttpMethod.GET, "/orders/*").hasAnyAuthority(Role.USER.name(), Role.VENDOR.name())
+                    .requestMatchers("/orders/**").hasAnyAuthority(Role.VENDOR.name())
 
-                        // Categorias
-                        .requestMatchers(HttpMethod.GET,"/categories/**").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/categories/**").hasAnyAuthority(Role.VENDOR.name())
-                        .requestMatchers(HttpMethod.PUT,"/categories/**").hasAnyAuthority(Role.VENDOR.name())
-                        .requestMatchers(HttpMethod.DELETE,"/categories/**").hasAnyAuthority(Role.VENDOR.name())
+                    // Categorias
+                    .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/categories/**").hasAnyAuthority(Role.VENDOR.name())
+                    .requestMatchers(HttpMethod.PUT, "/categories/**").hasAnyAuthority(Role.VENDOR.name())
+                    .requestMatchers(HttpMethod.DELETE, "/categories/**").hasAnyAuthority(Role.VENDOR.name())
 
-                        // Clientes
-                        .requestMatchers(HttpMethod.GET,"/clientes/**").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/clientes/**").hasAnyAuthority(Role.VENDOR.name())
-                        .requestMatchers(HttpMethod.PUT,"/clientes/**").hasAnyAuthority(Role.VENDOR.name())
-                        .requestMatchers(HttpMethod.DELETE,"/clientes/**").hasAnyAuthority(Role.VENDOR.name())
+                    // Clientes
+                    .requestMatchers(HttpMethod.GET, "/clientes/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/clientes/**").hasAnyAuthority(Role.VENDOR.name())
+                    .requestMatchers(HttpMethod.PUT, "/clientes/**").hasAnyAuthority(Role.VENDOR.name())
+                    .requestMatchers(HttpMethod.DELETE, "/clientes/**").hasAnyAuthority(Role.VENDOR.name())
 
 
                         .requestMatchers("/shipping-addresses/**").permitAll()
                         // Admin
                         .requestMatchers("admin/**").hasAnyAuthority(Role.VENDOR.name())
 
-                        .anyRequest().authenticated()
-                )
-                .exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler))
-                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                    .anyRequest().authenticated()
+            )
+            .exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler))
+            .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+            .authenticationProvider(authenticationProvider)
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/buttons/Button';
 import ButtonLink from '../../components/buttons/ButtonLink';
 import useFetch from '../../hooks/useFetch'
@@ -8,6 +8,7 @@ import Loading from '../../components/Loading';
 import Resumen from '../../components/Resumen';
 import { useAuth } from '../../context/AuthContext';
 import { useEffect, useState } from 'react';
+import NoResourceMessage from '../../components/NoResourceMessage';
 
 const Carrito = () => {
 
@@ -37,7 +38,7 @@ const Carrito = () => {
     setLoading(true);
 
     console.log(productoId);
-    
+
 
     addProductoToCart({ userId: user.user_id, productoId: productoId, cantidad: 1 })
       .then((data) => {
@@ -64,21 +65,6 @@ const Carrito = () => {
       });
   }
 
-  const productoMock = [
-    {
-      id: 1,
-      name: 'Producto de ejemplo',
-      description: 'Descripción del producto de ejemplo',
-      price: 100.00
-    },
-    {
-      id: 2,
-      name: 'Producto de ejemplo',
-      description: 'Descripción del producto de ejemplo',
-      price: 100.00
-    },
-  ];
-
   const handleIngresarCheckout = (e) => {
 
     // Aca se valida si es posible ingresar al checkout
@@ -99,10 +85,8 @@ const Carrito = () => {
         <p>{JSON.stringify(error)}</p>
       </div>
     </>
-  ) : data && data.cantidad === 0 ? (
-    <div className='flex h-full w-full justify-center items-center'>
-      <h1 className='text-3xl font-bold mb-5'>No hay productos en el carrito</h1>
-    </div>
+  ) : data && data.carritoDetalle.length === 0 ? (
+    <NoResourceMessage texto={"No hay productos en el carrito"}/>  
   ) : (
     <>
       <div className='max-w-7xl mx-4 md:mx-auto mt-10'>
@@ -138,7 +122,7 @@ const Carrito = () => {
 
           </div>
           <div className='md:w-1/3 w-full h-80 shadow-md border-gray-100 p-4 border-2 rounded-md justify-between flex flex-col'>
-            <Resumen />
+            <Resumen data={data} />
             <div className='mt-5'>
               <Button onClick={handleIngresarCheckout} nombre={"Proceder al Checkout"} />
             </div>

@@ -7,6 +7,8 @@ import com.uade.tpo.demo.entity.Producto;
 import com.uade.tpo.demo.entity.User;
 import com.uade.tpo.demo.entity.dto.CartProductRequest;
 import com.uade.tpo.demo.entity.dto.CarritoDTO;
+import com.uade.tpo.demo.entity.dto.CheckoutDTO;
+import com.uade.tpo.demo.entity.dto.OrderDTO;
 import com.uade.tpo.demo.enums.Role;
 import com.uade.tpo.demo.exceptions.CartProductQuantityException;
 import com.uade.tpo.demo.exceptions.ResourceNotFoundException;
@@ -14,6 +16,7 @@ import com.uade.tpo.demo.repository.CartDetailsRepository;
 import com.uade.tpo.demo.repository.CartRepository;
 import com.uade.tpo.demo.repository.ProductoRepository;
 import com.uade.tpo.demo.repository.UserRepository;
+import com.uade.tpo.demo.service.OrderService;
 import com.uade.tpo.demo.service.ProductService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +46,11 @@ public class CartServiceImpl implements CartService {
     private CartDetailsRepository cartDetailsRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private OrderService orderService;
 
     public Page<CarritoDTO> getAllCarts(PageRequest pageable) {
-        Page<CarritoDTO> carritoDTOs = cartRepository.findAll(pageable).map(Carrito::getDTO);
-        return carritoDTOs;
+        return cartRepository.findAll(pageable).map(Carrito::getDTO);
     }
 
     public CarritoDTO getCartByEmail(Long userId, String email) {
@@ -69,9 +73,7 @@ public class CartServiceImpl implements CartService {
         Optional<Carrito> carritoViejo = cartRepository.findByUserId(user.getId());
 
         // Si User tenia carrito creado, lo elimina.
-        if (carritoViejo.isPresent()) {
-            cartRepository.delete(carritoViejo.get());
-        }
+        carritoViejo.ifPresent(carrito -> cartRepository.delete(carrito));
 
         Carrito carrito = cartRepository.save(new Carrito(user));
 
@@ -150,7 +152,7 @@ public class CartServiceImpl implements CartService {
         carritoDetalles.forEach(carritoDetalle -> {
             if (carritoDetalle.tieneProducto(request.getProductId())) {
 
-                if (carritoDetalle.getCantidad() < request.getCantidad().intValue()) {
+                if (carritoDetalle.getCantidad() <= request.getCantidad().intValue()) {
                     cartDetailsRepository.delete(carritoDetalle);
                     carrito.getCarritoDetalle().remove(carritoDetalle);
                 } else {
@@ -187,4 +189,26 @@ public class CartServiceImpl implements CartService {
         return true;
     }
 
+    @Transactional
+    public OrderDTO finalizeCart(Long userId, String email, CheckoutDTO requestBody) {
+
+        User user = UserRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+        Carrito carrito = cartRepository.findByUserId(user.getId()).orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con UserId: " + userId));
+
+        // Validación de propiedad de carrito
+        if (!carrito.getUser().getEmail().equals(email) ) {
+            throw new AccessDeniedException("Email no coincide con dueño del carrito");
+        }
+
+        // Validacion de cantidad de productos
+        if (carrito.getCarritoDetalle().isEmpty()) {
+            throw new CartProductQuantityException("No se puede finalizar carrito sin productos");
+        }
+
+        OrderDTO orderDTO = orderService.createOrder(carrito, requestBody);
+
+        createCart(email);
+
+        return orderDTO;
+    }
 }

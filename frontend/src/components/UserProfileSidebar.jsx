@@ -89,11 +89,11 @@ const UserProfileSidebar = ({ onClose, onLogout }) => {
       {/* Menú de navegación de usuario */}
       <div className="flex flex-col space-y-3 text-sm text-gray-700">
         <Link
-          to="/orders"
+          to="/pedidos"
           className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-indigo-100"
         >
           <HiOutlineClipboardList className="text-lg" />
-          Historial de Pedidos
+          Mis Pedidos
         </Link>
         
         <Link
@@ -117,6 +117,7 @@ const UserProfileSidebar = ({ onClose, onLogout }) => {
           <Link to="/admin/categories">Categorías</Link>
           <Link to="/admin/products">Productos</Link>
           <Link to="/admin/clients">Clientes</Link>
+          <Link to="/admin/pedidos">Pedidos</Link>
         </div>
       </details>
 
