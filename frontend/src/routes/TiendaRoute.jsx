@@ -3,7 +3,7 @@ import Home from './../pages/tienda/Home';
 import Carrito from "../pages/tienda/Carrito";
 import TiendaLayout from "../layouts/TiendaLayout";
 import Checkout from "../pages/tienda/Checkout";
-import NotFound from "../pages/tienda/notFound";
+import NotFound from "../pages/tienda/NotFound";
 import Contact from "../pages/tienda/Contact";
 import About from "../pages/tienda/About";
 import Success from "../pages/tienda/Success";
@@ -11,6 +11,7 @@ import Failure from './../pages/tienda/Failure';
 import Pedidos from "../pages/tienda/Pedidos";
 import Pedido from "../pages/tienda/Pedido";
 import PrivateRoute from "./PrivateRoute";
+import CategoryProducts from "../pages/tienda/CategoryProducts"
 
 
 const useTiendaRoute = () => {
@@ -37,7 +38,9 @@ const useTiendaRoute = () => {
 
       </Route>
 
+      <Route path="/categoria/:categoryId" element={<CategoryProducts />} />
 
+        
       <Route path="*" element={<NotFound />} />
     </Route>
   )
