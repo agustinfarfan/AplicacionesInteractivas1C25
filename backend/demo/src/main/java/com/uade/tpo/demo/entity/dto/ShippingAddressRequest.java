@@ -3,11 +3,10 @@ package com.uade.tpo.demo.entity.dto;
 import lombok.Data;
 
 @Data
-public class ClienteRequest {
-    private String razonSocial;
-    private String cuil;
+public class ShippingAddressRequest {
+    private String alias;
     private String calle;
-    private String altura;
+    private Integer altura;
     private String codigoPostal;
     private String localidad;
     private String provincia;

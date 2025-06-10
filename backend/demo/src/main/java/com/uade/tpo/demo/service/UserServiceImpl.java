@@ -1,6 +1,7 @@
 package com.uade.tpo.demo.service;
 
 import com.uade.tpo.demo.entity.User;
+import com.uade.tpo.demo.entity.dto.ShippingAddressDTO;
 import com.uade.tpo.demo.entity.dto.UserCreateDTO;
 import com.uade.tpo.demo.entity.dto.UserDTO;
 import com.uade.tpo.demo.exceptions.ResourceNotFoundException;
@@ -10,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -45,4 +48,36 @@ public class UserServiceImpl implements UserService {
 
         return savedUser.getDTO();
     }
+
+    @Override
+    public Optional<UserDTO> findByEmail(String email) {
+        return userRepository.findByEmail(email)
+            .map(user -> {
+                // mapeo de direcciones
+                List<ShippingAddressDTO> dtos = user.getShippingAddresses().stream()
+                    .map(addr -> new ShippingAddressDTO(
+                        addr.getId(),
+                        addr.getAlias(),
+                        addr.getCalle(),
+                        addr.getAltura(),
+                        addr.getCodigoPostal(),
+                        addr.getLocalidad(),
+                        addr.getProvincia()
+                    ))
+                    .collect(Collectors.toList());
+
+                // creamos el UserDTO con la lista
+                return new UserDTO(
+                    user.getId(),
+                    user.getEmail(),
+                    user.getFirstName(),
+                    user.getLastName(),
+                    user.getRole(),
+                    user.getRazonSocial(),
+                    dtos
+                );
+            });
+    }
+
+    
 }

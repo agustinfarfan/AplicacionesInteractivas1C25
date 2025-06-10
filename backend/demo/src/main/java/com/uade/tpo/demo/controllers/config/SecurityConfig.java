@@ -77,8 +77,10 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.PUT, "/clientes/**").hasAnyAuthority(Role.VENDOR.name())
                     .requestMatchers(HttpMethod.DELETE, "/clientes/**").hasAnyAuthority(Role.VENDOR.name())
 
-                    // Admin
-                    .requestMatchers("admin/**").hasAnyAuthority(Role.VENDOR.name())
+
+                        .requestMatchers("/shipping-addresses/**").permitAll()
+                        // Admin
+                        .requestMatchers("admin/**").hasAnyAuthority(Role.VENDOR.name())
 
                     .anyRequest().authenticated()
             )
