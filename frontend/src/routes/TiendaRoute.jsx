@@ -8,6 +8,9 @@ import Contact from "../pages/tienda/Contact";
 import About from "../pages/tienda/About";
 import Success from "../pages/tienda/Success";
 import Failure from './../pages/tienda/Failure';
+import Pedidos from "../pages/tienda/Pedidos";
+import Pedido from "../pages/tienda/Pedido";
+import PrivateRoute from "./PrivateRoute";
 
 
 const useTiendaRoute = () => {
@@ -27,6 +30,13 @@ const useTiendaRoute = () => {
 
       <Route path="contacto" element={<Contact />} />
       <Route path="about" element={<About />} />
+
+      <Route path="pedidos">
+        <Route index element={<PrivateRoute> <Pedidos /> </PrivateRoute>} />
+        <Route path=":id" element={<PrivateRoute> <Pedido /> </PrivateRoute> } />
+
+      </Route>
+
 
       <Route path="*" element={<NotFound />} />
     </Route>

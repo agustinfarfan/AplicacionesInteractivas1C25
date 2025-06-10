@@ -95,15 +95,22 @@ export const deleteProductoFromCart = async ({ userId, productoId, cantidad }) =
   return data;
 }
 
-export const finalizeCart = async ({ userId }) => {
+export const finalizeCart = async ({ userId, informacion}) => {
   const endpoint = `http://localhost:4002/user/${userId}/cart/finalize`;
 
+  console.log(informacion);
+  
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {
+      "Content-Type": "application/json",
       "Authorization": `Bearer ${localStorage.getItem("token")}`
     },
+    body: JSON.stringify(informacion)
   });
+
+  console.log(response);
+  
 
   if (!response.ok) {
     const errorText = await response.text();

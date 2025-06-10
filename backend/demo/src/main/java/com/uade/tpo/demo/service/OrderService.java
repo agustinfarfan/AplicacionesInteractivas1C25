@@ -2,6 +2,7 @@ package com.uade.tpo.demo.service;
 
 import com.uade.tpo.demo.entity.Carrito;
 import com.uade.tpo.demo.entity.Order;
+import com.uade.tpo.demo.entity.dto.CheckoutDTO;
 import com.uade.tpo.demo.entity.dto.OrderDTO;
 
 import java.util.List;
@@ -12,7 +13,9 @@ public interface OrderService {
 
     public OrderDTO getOrderById(Long id);
 
-    public OrderDTO createOrder(Carrito carrito);
+    public List<OrderDTO> getOrdersByUserId(Long id, String email);
+
+    public OrderDTO createOrder(Carrito carrito, CheckoutDTO requestBody);
 
     public void deleteOrder(Long id);
 }

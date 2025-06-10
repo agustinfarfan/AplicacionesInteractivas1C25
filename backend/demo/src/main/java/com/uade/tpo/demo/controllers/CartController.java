@@ -1,10 +1,7 @@
 package com.uade.tpo.demo.controllers;
 
 
-import com.uade.tpo.demo.entity.dto.CartProductRequest;
-import com.uade.tpo.demo.entity.dto.CarritoDTO;
-import com.uade.tpo.demo.entity.dto.CreateCartRequest;
-import com.uade.tpo.demo.entity.dto.OrderDTO;
+import com.uade.tpo.demo.entity.dto.*;
 import com.uade.tpo.demo.service.cart.CartService;
 import io.jsonwebtoken.Jwt;
 import jakarta.validation.Valid;
@@ -54,9 +51,9 @@ public class CartController {
     }
 
     @PostMapping("/finalize")
-    public ResponseEntity<OrderDTO> createCart(@PathVariable("id") Long userId) {
+    public ResponseEntity<OrderDTO> createCart(@PathVariable("id") Long userId, @RequestBody CheckoutDTO requestBody) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        OrderDTO orden = cartService.finalizeCart(userId, email);
+        OrderDTO orden = cartService.finalizeCart(userId, email, requestBody);
         return ResponseEntity.ok(orden);
     }
 

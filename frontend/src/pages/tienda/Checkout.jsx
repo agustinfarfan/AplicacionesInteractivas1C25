@@ -21,6 +21,7 @@ const Checkout = () => {
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [email, setEmail] = useState('');
+  const [direccion, setDireccion] = useState('');
   const [envioActivo, setEnvio] = useState("Envio");
   const [tarjeta, setTarjeta] = useState('');
   const [expirationDate, setexpirationDate] = useState('');
@@ -61,6 +62,11 @@ const Checkout = () => {
       alert("Seleccione un método de envío.");
       return false;
     }
+    if (!direccion) {
+      alert("Seleccione una dirección");
+      return false;
+    }
+
     return true;
   };
 
@@ -102,9 +108,18 @@ const Checkout = () => {
         return;
       }
 
+      const informacion = {
+        nombre: nombre,
+        apellido: apellido,
+        metodoDeEnvio: envioActivo,
+        direccion: direccion,
+        ultimosCuatroDigitos: tarjeta.replace(/\s/g, '').slice(-4),
+        email: email
+      }
+
       setLoading(true);
       // Se crea orden en base de datos.
-      finalizeCart({ userId: user.user_id })
+      finalizeCart({ userId: user.user_id, informacion: informacion })
         .then((data) => {
           setLoading(false);
 
@@ -134,16 +149,12 @@ const Checkout = () => {
 
   const metodosDeEnvio = [
     {
-      nombre: "Envio",
-      descripcion: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, mollitia nisi tempore veritatis aspernatur"
-    },
-    {
-      nombre: "En Sucursal",
-      descripcion: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, mollitia nisi tempore veritatis aspernatur"
+      nombre: "Envio a Domicilo",
+      descripcion: "Entrega estándar a domicilio en 3 a 5 días hábiles en todo el país."
     },
     {
       nombre: "Express",
-      descripcion: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, mollitia nisi tempore veritatis aspernatur"
+      descripcion: "Entrega rápida en 24 a 48 horas en zonas habilitadas. Ideal para pedidos urgentes."
     }
   ]
 
@@ -161,7 +172,7 @@ const Checkout = () => {
       </div>
     </>
   ) : data && data.carritoDetalle.length === 0 ? (
-    <Navigate to={"/carrito"}/>
+    <Navigate to={"/carrito"} />
   ) : (
     <>
       <div className='max-w-7xl mx-4 md:mx-auto mt-10'>
@@ -252,6 +263,24 @@ const Checkout = () => {
 
               {pasoActivo === 2 && (
                 <>
+
+                  <div className="mb-6">
+                    <label className="block text-gray-800 font-bold mb-2" htmlFor="direccion">
+                      Dirección
+                    </label>
+                    <select
+                      id="direccion"
+                      value={direccion}
+                      onChange={(e) => setDireccion(e.target.value)}
+                      className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    >
+                      <option value="">Seleccione una dirección</option>
+                      <option value={"Av. Corrientes 1234, CABA"}>Av. Corrientes 1234, CABA</option>
+                      <option value={"Ruta 8 Km 45, Pilar, Buenos Aires"}>Ruta 8 Km 45, Pilar, Buenos Aires</option>
+                      <option value={"España 456, Córdoba Capital"}>España 456, Córdoba Capital</option>
+                    </select>
+                  </div>
+
                   <div className='flex flex-row gap-5'>
                     {metodosDeEnvio.map((metodo) => (
                       <div
@@ -319,7 +348,7 @@ const Checkout = () => {
             </form>
           </div>
 
-          <div className={`md:w-1/3 w-full h-fit shadow-md border-gray-100 p-4 border-2 rounded-md justify-between ${resumenActivo ? "flex flex-col" : "flex flex-row"
+          <div className={`md:w-1/3 w-full h-60 shadow-md border-gray-100 p-4 border-2 rounded-md justify-between ${resumenActivo ? "flex flex-col" : "flex flex-row"
             }`}>
             <Resumen data={data} activo={resumenActivo} />
             <button className='block md:hidden border' onClick={() => setResumenActivo(!resumenActivo)}>

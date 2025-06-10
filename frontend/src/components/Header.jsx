@@ -84,7 +84,7 @@ const Header = () => {
             </div>
             <div className=" items-center">
               <div className="hidden md:flex md:flex-row md:items-center md:justify-center gap-4 h-full">
-                <ButtonIcon href={"carrito"} imgSrc={carritoIcono}/>
+                <ButtonIcon href={"/carrito"} imgSrc={carritoIcono}/>
                 { loggedIn ? (
                   <div className="relative">
                     <button onClick={() => setShowProfile(true)} className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">

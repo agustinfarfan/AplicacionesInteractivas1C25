@@ -7,6 +7,7 @@ import com.uade.tpo.demo.entity.Producto;
 import com.uade.tpo.demo.entity.User;
 import com.uade.tpo.demo.entity.dto.CartProductRequest;
 import com.uade.tpo.demo.entity.dto.CarritoDTO;
+import com.uade.tpo.demo.entity.dto.CheckoutDTO;
 import com.uade.tpo.demo.entity.dto.OrderDTO;
 import com.uade.tpo.demo.enums.Role;
 import com.uade.tpo.demo.exceptions.CartProductQuantityException;
@@ -189,7 +190,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Transactional
-    public OrderDTO finalizeCart(Long userId, String email) {
+    public OrderDTO finalizeCart(Long userId, String email, CheckoutDTO requestBody) {
 
         User user = UserRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
         Carrito carrito = cartRepository.findByUserId(user.getId()).orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con UserId: " + userId));
@@ -204,7 +205,7 @@ public class CartServiceImpl implements CartService {
             throw new CartProductQuantityException("No se puede finalizar carrito sin productos");
         }
 
-        OrderDTO orderDTO = orderService.createOrder(carrito);
+        OrderDTO orderDTO = orderService.createOrder(carrito, requestBody);
 
         createCart(email);
 
