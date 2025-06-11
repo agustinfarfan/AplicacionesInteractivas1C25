@@ -9,6 +9,23 @@ export const BACKEND_CONFIG = {
 
 export const fetchProducts = async () => {
 
+    const endpoint = `${BACKEND_CONFIG.BASE_URL}/productos`;
+
+    const response = await fetch(endpoint, {
+        method: "GET",
+        headers: BACKEND_CONFIG.headers,
+    });
+
+    if (!response.ok) {
+        throw new Error("Error fetching", { cause: response.statusText });
+    }
+
+    const data = await response.json();
+    return data;
+}
+
+export const fetchCategories = async () => {
+
     const endpoint = `${BACKEND_CONFIG.BASE_URL}/categories`;
 
     const response = await fetch(endpoint, {
@@ -23,6 +40,7 @@ export const fetchProducts = async () => {
     const data = await response.json();
     return data;
 }
+
 export const loginAdmin = async (email, password) => {
   const endpoint = `${BACKEND_CONFIG.BASE_URL}/auth/login`;
 
