@@ -85,10 +85,10 @@ const Home = () => {
   ];
 
   const stats = [
-    { number: "500+", label: "Productos" },
+    { number: "100+", label: "Productos" },
     { number: "1200+", label: "Clientes" },
     { number: "15+", label: "Años" },
-    { number: "98%", label: "Satisfacción" }
+    { number: "99%", label: "Satisfacción" }
   ];
 
   return (

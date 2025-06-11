@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import { fetchProducts } from '../../services/backendApi'; 
+import { fetchProducts } from '../services/backendApi'; 
+import ProductList from '../components/ProductList'; 
 
 const CategoryProducts = () => {
     const { categoryId } = useParams();
@@ -90,38 +91,7 @@ const CategoryProducts = () => {
                         </p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        {products.map((product) => (
-                            <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                                <div className="aspect-w-1 aspect-h-1 w-full">
-                                    <img
-                                        className="w-full h-48 object-cover"
-                                        src={product.image || product.imagen || '/placeholder-product.jpg'}
-                                        alt={product.name || product.nombre}
-                                        onError={(e) => {
-                                            e.target.src = '/placeholder-product.jpg';
-                                        }}
-                                    />
-                                </div>
-                                <div className="p-4">
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                                        {product.name || product.nombre}
-                                    </h3>
-                                    <p className="text-gray-600 text-sm mb-3 line-clamp-3">
-                                        {product.description || product.descripcion}
-                                    </p>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xl font-bold text-indigo-600">
-                                            ${product.price || product.precio}
-                                        </span>
-                                        <button className="bg-indigo-600 text-white px-4 py-2 rounded text-sm hover:bg-indigo-700 transition-colors">
-                                            Ver producto
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    <ProductList products={products} />
                 )}
             </div>
         </div>

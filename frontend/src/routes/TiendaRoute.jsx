@@ -12,6 +12,7 @@ import Pedidos from "../pages/tienda/Pedidos";
 import Pedido from "../pages/tienda/Pedido";
 import PrivateRoute from "./PrivateRoute";
 import CategoryProducts from "../pages/tienda/CategoryProducts"
+import ProductDetail from "../pages/tienda/ProductDetail"
 
 
 const useTiendaRoute = () => {
@@ -40,7 +41,8 @@ const useTiendaRoute = () => {
 
       <Route path="/categoria/:categoryId" element={<CategoryProducts />} />
 
-        
+      <Route path="/producto/:productId" element={<ProductDetail />} />
+
       <Route path="*" element={<NotFound />} />
     </Route>
   )
