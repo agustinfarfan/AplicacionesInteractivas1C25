@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import { fetchProducts } from '../services/backendApi'; 
-import ProductList from '../components/ProductList'; 
+import { fetchProducts } from '../../services/backendApi'; 
+import ProductList from '../../components/ProductList'; 
 
 const CategoryProducts = () => {
     const { categoryId } = useParams();

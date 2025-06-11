@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { addProductoToCart } from '../services/carritoService'; 
-import { useAuth } from '../context/AuthContext'; 
-import { isLoggedIn } from '../utils/auth'; 
+import { addProductoToCart } from '../../services/carritoService';
+import { useAuth } from '../../context/AuthContext';
+import { isLoggedIn } from '../../utils/auth';
 
 const ProductDetail = () => {
     const { productId } = useParams();
