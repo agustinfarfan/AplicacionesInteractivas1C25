@@ -37,7 +37,8 @@ public class Carrito {
     private User User;
 
     @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CarritoDetalle> carritoDetalle = new HashSet<CarritoDetalle>();
+    @OrderBy("id ASC")
+    private List<CarritoDetalle> carritoDetalle;
 
     @Enumerated(EnumType.STRING)
     private EstadoCarrito estado;

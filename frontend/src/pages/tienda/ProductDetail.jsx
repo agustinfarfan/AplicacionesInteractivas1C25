@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { addProductoToCart } from '../../services/carritoService';
 import { useAuth } from '../../context/AuthContext';
-import { isLoggedIn } from '../../utils/auth';
+import { fetchProductById } from '../../services/backendApi';
 
 const ProductDetail = () => {
     const { productId } = useParams();
@@ -19,13 +19,25 @@ const ProductDetail = () => {
     // Si no tenemos el producto en el state, podrías hacer fetch aquí
     useEffect(() => {
         if (!product && productId) {
-            fetchProductById(productId).then(setProduct);
+            fetchProductById({id: productId})
+            .then((response) => {
+                setProduct(response);
+            })
         }
     }, [product, productId]);
 
     const handleAddToCart = async () => {
-        // Verificar si el usuario está logueado
-        if (!isLoggedIn()) {
+        // // Verificar si el usuario está logueado
+        // if (!isLoggedIn()) {
+        //     setMessage('Debes iniciar sesión para agregar productos al carrito');
+        //     setTimeout(() => {
+        //         navigate('/auth/login');
+        //     }, 2000);
+        //     return;
+        // }
+
+        // Verificar si tenemos el user
+        if (!user) {
             setMessage('Debes iniciar sesión para agregar productos al carrito');
             setTimeout(() => {
                 navigate('/auth/login');
@@ -33,17 +45,10 @@ const ProductDetail = () => {
             return;
         }
 
-        // Verificar si tenemos el userId
-        const userId = user?.id || localStorage.getItem('userId');
-        if (!userId) {
-            setMessage('Error: No se encontró información del usuario');
-            return;
-        }
-
         try {
             setAddingToCart(true);
             await addProductoToCart({
-                userId: userId,
+                userId: user.user_id,
                 productoId: product.id,
                 cantidad: cantidad
             });

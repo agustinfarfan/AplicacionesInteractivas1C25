@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import { fetchProducts } from '../../services/backendApi'; 
+import { fetchProducts, fetchProductsByCategory } from '../../services/backendApi'; 
 import ProductList from '../../components/ProductList'; 
 
 const CategoryProducts = () => {
@@ -16,14 +16,14 @@ const CategoryProducts = () => {
         const loadProducts = async () => {
             try {
                 setLoading(true);
-                const allProducts = await fetchProducts();
+                const allProducts = await fetchProductsByCategory({ id: categoryId });
                 // Filtrar productos por categoría
                 const categoryProducts = allProducts.filter(product => 
                     product.categoryId === parseInt(categoryId) || 
                     product.category_id === parseInt(categoryId) ||
                     product.categoria_id === parseInt(categoryId)
                 );
-                setProducts(categoryProducts);
+                setProducts(allProducts);
             } catch (err) {
                 console.error('Error al cargar productos:', err);
                 setError('Error al cargar los productos');

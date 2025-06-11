@@ -38,7 +38,9 @@ const Header = () => {
       try {
         setLoadingCategories(true);
         const categoriesData = await fetchCategories();
-        setCategories(categoriesData);
+        console.log(categoriesData.content);
+        
+        setCategories(categoriesData.content);
       } catch (error) {
         console.error('Error al cargar categorías:', error);
       } finally {

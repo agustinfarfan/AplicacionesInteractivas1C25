@@ -179,7 +179,7 @@ const Checkout = () => {
         <h1 className='text-3xl font-bold mb-5'>Checkout</h1>
 
         <div className='flex flex-col-reverse md:flex-row gap-3'>
-          <div className='md:w-2/3 w-full shadow-md rounded-md border-gray-100 border-2 p-4'>
+          <div className='md:w-2/3 w-full rounded-lg shadow-lg bg-gray-50 border-gray-100 border-2 p-4'>
 
             {/* Pasos */}
             <div className="mb-10">
@@ -348,7 +348,7 @@ const Checkout = () => {
             </form>
           </div>
 
-          <div className={`md:w-1/3 w-full h-60 shadow-md border-gray-100 p-4 border-2 rounded-md justify-between ${resumenActivo ? "flex flex-col" : "flex flex-row"
+                <div className={`md:w-1/3 w-full h-60 rounded-lg shadow-lg bg-gray-50 border-gray-100 p-4 border-2 justify-between ${resumenActivo ? "flex flex-col" : "flex flex-row"
             }`}>
             <Resumen data={data} activo={resumenActivo} />
             <button className='block md:hidden border' onClick={() => setResumenActivo(!resumenActivo)}>
