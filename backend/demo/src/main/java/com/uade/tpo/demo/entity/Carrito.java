@@ -3,6 +3,8 @@ package com.uade.tpo.demo.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.uade.tpo.demo.entity.dto.CarritoDTO;
 import com.uade.tpo.demo.enums.EstadoCarrito;
+import com.uade.tpo.demo.enums.TipoDescuento;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -18,7 +20,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @Entity
 public class Carrito {
 
-    public Carrito() {}
+    public Carrito() {
+    }
 
     public Carrito(User User) {
         this.User = User;
@@ -47,22 +50,45 @@ public class Carrito {
 
     private LocalDateTime expirationDate;
 
+    @Nullable
+    @ManyToOne
+    @JoinColumn(name = "cupon_id", nullable = true)
+    private Cupon cupon;
+
     public void agregarDetalle(CarritoDetalle carritoDetalle) {
         this.carritoDetalle.add(carritoDetalle);
         carritoDetalle.setCarrito(this);
     }
 
-    public double getTotal() {
+    public double getDescuento() {
+
+        if (cupon == null) {
+            return 0;
+        }
+
+        if (cupon.getTipoDescuento().equals(TipoDescuento.FIJO)) {
+            return cupon.getDescuento();
+        } else {
+            return (cupon.getDescuento() / 100) * getSumaTotalProductos();
+        }
+    }
+
+    public double getSumaTotalProductos() {
         return carritoDetalle.stream().mapToDouble(CarritoDetalle::obtenerSubTotal).sum();
+    }
+
+    public double getTotal() {
+        return getSumaTotalProductos() - getDescuento();
     }
 
     public CarritoDTO getDTO() {
         return CarritoDTO.builder()
-                .carritoDetalle(this.carritoDetalle.stream()
-                        .map(CarritoDetalle::getDTO)
-                        .toList())
-                .total(this.getTotal())
-                .build();
+            .carritoDetalle(this.carritoDetalle.stream()
+                .map(CarritoDetalle::getDTO)
+                .toList())
+            .descuento(getDescuento())
+            .total(this.getTotal())
+            .build();
     }
 
 }

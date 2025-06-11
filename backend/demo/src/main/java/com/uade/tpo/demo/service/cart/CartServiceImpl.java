@@ -1,21 +1,12 @@
 package com.uade.tpo.demo.service.cart;
 
 
-import com.uade.tpo.demo.entity.Carrito;
-import com.uade.tpo.demo.entity.CarritoDetalle;
-import com.uade.tpo.demo.entity.Producto;
-import com.uade.tpo.demo.entity.User;
-import com.uade.tpo.demo.entity.dto.CartProductRequest;
-import com.uade.tpo.demo.entity.dto.CarritoDTO;
-import com.uade.tpo.demo.entity.dto.CheckoutDTO;
-import com.uade.tpo.demo.entity.dto.OrderDTO;
+import com.uade.tpo.demo.entity.*;
+import com.uade.tpo.demo.entity.dto.*;
 import com.uade.tpo.demo.enums.Role;
 import com.uade.tpo.demo.exceptions.CartProductQuantityException;
 import com.uade.tpo.demo.exceptions.ResourceNotFoundException;
-import com.uade.tpo.demo.repository.CartDetailsRepository;
-import com.uade.tpo.demo.repository.CartRepository;
-import com.uade.tpo.demo.repository.ProductoRepository;
-import com.uade.tpo.demo.repository.UserRepository;
+import com.uade.tpo.demo.repository.*;
 import com.uade.tpo.demo.service.OrderService;
 import com.uade.tpo.demo.service.ProductService;
 import jakarta.transaction.Transactional;
@@ -48,6 +39,8 @@ public class CartServiceImpl implements CartService {
     private UserRepository userRepository;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private CuponRepository cuponRepository;
 
     public Page<CarritoDTO> getAllCarts(PageRequest pageable) {
         return cartRepository.findAll(pageable).map(Carrito::getDTO);
@@ -132,6 +125,25 @@ public class CartServiceImpl implements CartService {
         }
 
         return carrito.getDTO();
+    }
+
+    @Override
+    @Transactional
+    public CarritoDTO addCouponToCart(Long userId, String email, CartCouponRequest request) {
+        Cupon cupon = cuponRepository.findByNombre(request.getNombreCupon()).orElseThrow(() -> new ResourceNotFoundException("Coupon not found with name: " + request.getNombreCupon()));;
+        User user = UserRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userId));
+        Carrito carrito = cartRepository.findByUserId(user.getId()).orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con UserId: " + userId));
+
+        // Validación de propiedad de carrito
+        if (!carrito.getUser().getEmail().equals(email) ) {
+            throw new AccessDeniedException("Email no coincide con dueño del carrito");
+        }
+
+        carrito.setCupon(cupon);
+
+        Carrito savedCarrito = cartRepository.save(carrito);
+
+        return savedCarrito.getDTO();
     }
 
     @Transactional

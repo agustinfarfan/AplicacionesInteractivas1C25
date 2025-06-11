@@ -19,6 +19,8 @@ const Carrito = () => {
   const [data, setCart] = useState(null);
   const [error, setError] = useState(null);
 
+  const [coupon, setCoupon] = useState("");
+
   useEffect(() => {
     if (!loadingUser && user) {
       fetchCart({ id: user.user_id })
@@ -65,6 +67,25 @@ const Carrito = () => {
       });
   }
 
+  const handleEliminarProducto = (productoId, cantidadActual) => {
+    setLoading(true);
+
+    deleteProductoFromCart({ userId: user.user_id, productoId: productoId, cantidad: cantidadActual })
+      .then((data) => {
+        setCart(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err);
+        setLoading(false);
+      });
+  }
+
+  const handleAgregarCupon = () => {
+    console.log(coupon);
+    
+  }
+
   const handleIngresarCheckout = (e) => {
 
     // Aca se valida si es posible ingresar al checkout
@@ -86,41 +107,58 @@ const Carrito = () => {
       </div>
     </>
   ) : data && data.carritoDetalle.length === 0 ? (
-    <NoResourceMessage texto={"No hay productos en el carrito"}/>  
+    <NoResourceMessage texto={"No hay productos en el carrito"} />
   ) : (
     <>
       <div className='max-w-7xl mx-4 md:mx-auto mt-10'>
         <h1 className='text-3xl font-bold mb-5'>Carrito</h1>
         <div className='flex flex-col md:flex-row gap-3'>
-          <div className='md:w-2/3 w-full shadow-md rounded-md border-gray-100 border-2 p-4'>
+                <div className='flex flex-col gap-3 md:w-2/3 w-full'>
+                  <div className='w-full h-full shadow-md rounded-md border-gray-100 border-2 p-4'>
 
-            {
-              data.carritoDetalle.map(product => (
-                <div key={product.producto_id} className='border border-gray-200  mb-4 rounded-md flex h-32 flex-row items-center justify-between'>
-                  <div className='flex flex-row items-center p-4'>
-                    <img src='https://via.placeholder.com/150?text=Hello' alt={product.nombre_producto} className='w-24 h-24 w-min-24 border border-gray-300 object-cover mr-4 rounded-md' />
-                    <div className='flex flex-col gap-2'>
-                      <h2 className='text-xl font-semibold'>{product.nombre_producto}</h2>
-                      <p>{product.descripcion}</p>
-                      <p className='text-lg font-bold'>${product.precio_unitario}</p>
-                    </div>
+                    {
+                      data.carritoDetalle.map(product => (
+                        <div key={product.producto_id} className='border border-gray-200  mb-4 rounded-md flex h-32 flex-row items-center justify-between'>
+                          <div className='flex flex-row items-center p-4'>
+                            <img src='https://via.placeholder.com/150?text=Hello' alt={product.nombre_producto} className='w-24 h-24 w-min-24 border border-gray-300 object-cover mr-4 rounded-md' />
+                            <div className='flex flex-col gap-2'>
+                              <h2 className='text-xl font-semibold'>{product.nombre_producto}</h2>
+                              <p>{product.descripcion}</p>
+                              <p className='text-lg font-bold'>${product.precio_unitario}</p>
+                            </div>
+                          </div>
+                          <div className='flex flex-col items-end justify-between h-full'>
+                            <button onClick={() => handleEliminarProducto(product.producto_id, product.cantidad)} className='pt-1 text-gray-300 hover:text-red-400 rounded-full w-8 h-8 flex items-center justify-center font-bold'>X</button>
+                            <div className='flex flex-row items-end justify-between h-full w-40 gap-2 p-2'>
+                              <button onClick={() => handleAgregarProducto(product.producto_id)} className='bg-indigo-600 text-white rounded-full w-full font-bold pb-1'>+</button>
+                              <p className='w-16 text-center border border-gray-300 rounded-md'>
+                                {product.cantidad}
+                              </p>
+                              <button onClick={() => handleDecrementarProducto(product.producto_id)} className='bg-indigo-600 text-white rounded-full w-full font-bold pb-1'>-</button>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    }
+
                   </div>
-                  <div className='flex flex-col items-end justify-between h-full'>
-                    <button className='pt-1 text-gray-300 hover:text-gray-500 rounded-full w-8 h-8 flex items-center justify-center font-bold'>X</button>
-                    <div className='flex flex-row items-end justify-between h-full w-40 gap-2 p-2'>
-                      <button onClick={() => handleAgregarProducto(product.producto_id)} className='bg-indigo-600 text-white rounded-full w-full font-bold pb-1'>+</button>
-                      <p className='w-16 text-center border border-gray-300 rounded-md'>
-                        {product.cantidad}
-                      </p>
-                      <button onClick={() => handleDecrementarProducto(product.producto_id)} className='bg-indigo-600 text-white rounded-full w-full font-bold pb-1'>-</button>
+                  <div className='shadow-md rounded-md border-gray-100 border-2 p-4'>
+                    <div className="flex flex-col ">
+                      <label className="block text-gray-800 font-bold mb-2" htmlFor="name">
+                        Cupón de descuento
+                      </label>
+                      <div className='flex flex-row gap-2 w-1/2'>
+                        <input value={coupon} onChange={(e) => setCoupon(e.target.value)} className="appearance-none border border-gray-400 rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="cupon" type="text" placeholder="Cupón" />
+                        
+                        <button onClick={handleAgregarCupon} disabled={coupon === ""} className="w-full disabled:bg-indigo-300 bg-indigo-600 px-4 py-2 rounded-md text-white text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                          Agregar
+                        </button>
+                      </div>
                     </div>
+
                   </div>
-                </div>
-              ))
-
-            }
-
           </div>
+          
           <div className='md:w-1/3 w-full h-80 shadow-md border-gray-100 p-4 border-2 rounded-md justify-between flex flex-col'>
             <Resumen data={data} />
             <div className='mt-5'>

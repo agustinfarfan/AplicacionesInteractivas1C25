@@ -3,11 +3,9 @@ package com.uade.tpo.demo.controllers;
 
 import com.uade.tpo.demo.entity.dto.*;
 import com.uade.tpo.demo.service.cart.CartService;
-import io.jsonwebtoken.Jwt;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,17 +48,25 @@ public class CartController {
         return ResponseEntity.ok(carrito);
     }
 
+    @PutMapping("/addCoupon")
+    public ResponseEntity<CarritoDTO> addCouponToCart(@PathVariable("id") Long userId, @RequestBody CartCouponRequest request) {
+        System.out.println(userId);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        CarritoDTO carrito = cartService.addCouponToCart(userId, email, request);
+        return ResponseEntity.ok(carrito);
+    }
+
     @PostMapping("/finalize")
-    public ResponseEntity<OrderDTO> createCart(@PathVariable("id") Long userId, @RequestBody CheckoutDTO requestBody) {
+    public ResponseEntity<OrderDTO> finalizeCart(@PathVariable("id") Long userId, @RequestBody CheckoutDTO requestBody) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         OrderDTO orden = cartService.finalizeCart(userId, email, requestBody);
         return ResponseEntity.ok(orden);
     }
 
     @DeleteMapping
-    public ResponseEntity<String> deleteCart(@PathVariable("id") Long userId) {
+    public ResponseEntity<String> deleteCart() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        cartService.deleteCartById(userId, email);
+        cartService.createCart(email);
         return ResponseEntity.ok("Cart deleted succesfully.");
     }
 

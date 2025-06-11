@@ -1,5 +1,6 @@
 package com.uade.tpo.demo.entity;
 
+import com.uade.tpo.demo.entity.dto.ShippingAddressDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -51,4 +52,16 @@ public class ShippingAddress {
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public ShippingAddressDTO getDTO() {
+        return ShippingAddressDTO.builder()
+            .id(id)
+            .alias(alias)
+            .calle(calle)
+            .altura(altura)
+            .codigoPostal(codigoPostal)
+            .localidad(localidad)
+            .provincia(provincia)
+            .build();
+    }
 }
