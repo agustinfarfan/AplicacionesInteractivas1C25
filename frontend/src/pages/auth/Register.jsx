@@ -14,11 +14,6 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    setLastname(firstname);
-
-    console.log(firstname, lastname, email, password, cuil, razonSocial);
-    
-
     await fetch("http://localhost:4002/api/v1/auth/register", {
       method: "POST",
       headers: {
@@ -60,7 +55,17 @@ const Register = () => {
                 required
               />
             </div>
-
+            <div className="flex-1">
+              <label className="block text-gray-700 font-semibold mb-1">Apellido</label>
+              <input
+                type="text"
+                placeholder="Apellido"
+                value={lastname}
+                onChange={(e) => setLastname(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                required
+              />
+            </div>
           </div>
           <div>
             <label className="block text-gray-700 font-semibold mb-1">Correo</label>

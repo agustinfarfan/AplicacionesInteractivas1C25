@@ -124,7 +124,6 @@ const UserProfileSidebar = ({ onClose, onLogout }) => {
               <div className="mt-2 ml-6 flex flex-col text-sm">
                 <Link className="text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 p-2" to="/admin/categories">Categorías</Link>
                 <Link className="text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 p-2" to="/admin/products">Productos</Link>
-                <Link className="text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 p-2" to="/admin/clients">Clientes</Link>
                 <Link className="text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 p-2" to="/admin/pedidos">Pedidos</Link>
                 <Link className="text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 p-2" to="/admin/cupones">Cupones</Link>
 

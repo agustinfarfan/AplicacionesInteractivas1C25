@@ -15,6 +15,7 @@ const Checkout = () => {
   const [data, setCart] = useState(null);
   const [error, setError] = useState(null);
 
+  const [addresses, setAddresses] = useState(null);
 
   const [resumenActivo, setResumenActivo] = useState(true);
 
@@ -29,6 +30,11 @@ const Checkout = () => {
   const [pasoActivo, setPaso] = useState(1);
 
 
+  const token = localStorage.getItem("token");
+  const authHeader = token
+    ? { Authorization: `Bearer ${token}` }
+    : {};
+
   useEffect(() => {
     if (!loadingUser && user) {
       fetchCart({ id: user.user_id })
@@ -40,6 +46,27 @@ const Checkout = () => {
           setError(err);
           setLoading(false);
         });
+
+      console.log("A");
+
+
+      fetch("http://localhost:4002/user/me", {
+        headers: { "Content-Type": "application/json", ...authHeader },
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("No autorizado");
+          return res.json();
+        })
+        .then((data) => {
+          console.log(data.direcciones);
+          setAddresses(data.direcciones);
+          setNombre(data.first_name);
+          setApellido(data.last_name);
+          setEmail(data.email);
+
+
+        })
+        .catch(console.error);
     }
 
   }, [user, loadingUser])
@@ -275,9 +302,17 @@ const Checkout = () => {
                       className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     >
                       <option value="">Seleccione una dirección</option>
-                      <option value={"Av. Corrientes 1234, CABA"}>Av. Corrientes 1234, CABA</option>
-                      <option value={"Ruta 8 Km 45, Pilar, Buenos Aires"}>Ruta 8 Km 45, Pilar, Buenos Aires</option>
-                      <option value={"España 456, Córdoba Capital"}>España 456, Córdoba Capital</option>
+
+                      {addresses.length === 0 ? (
+                        <option value="">No hay direcciones asociadas</option>
+                      ) : (
+                        addresses.map((addr) => (
+                          <option key={addr.id} value={addr.id}>
+                            {`${addr.alias}: ${addr.calle} ${addr.altura}, ${addr.localidad}`}
+                          </option>
+                        ))
+                      )}
+
                     </select>
                   </div>
 
@@ -348,7 +383,7 @@ const Checkout = () => {
             </form>
           </div>
 
-                <div className={`md:w-1/3 w-full h-60 rounded-lg shadow-lg bg-gray-50 border-gray-100 p-4 border-2 justify-between ${resumenActivo ? "flex flex-col" : "flex flex-row"
+          <div className={`md:w-1/3 w-full h-60 rounded-lg shadow-lg bg-gray-50 border-gray-100 p-4 border-2 justify-between ${resumenActivo ? "flex flex-col" : "flex flex-row"
             }`}>
             <Resumen data={data} activo={resumenActivo} />
             <button className='block md:hidden border' onClick={() => setResumenActivo(!resumenActivo)}>
