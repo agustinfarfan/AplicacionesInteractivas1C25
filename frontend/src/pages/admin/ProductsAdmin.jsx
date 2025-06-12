@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { BACKEND_CONFIG } from "../../services/backendApi";
 
 const ProductsAdmin = () => {
@@ -7,13 +6,17 @@ const ProductsAdmin = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const navigate = useNavigate();
+  const [editId, setEditId] = useState(null);
+  const [editForm, setEditForm] = useState({
+    nombre: "",
+    descripcion: "",
+    precio: "",
+  });
 
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/productos`, {
+        const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/products`, {
           method: "GET",
           headers: BACKEND_CONFIG.headers,
         });
@@ -40,7 +43,7 @@ const ProductsAdmin = () => {
     if (!confirm) return;
 
     try {
-      const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/productos/${id}`, {
+      const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/products/${id}`, {
         method: "DELETE",
         headers: BACKEND_CONFIG.headers,
       });
@@ -53,6 +56,54 @@ const ProductsAdmin = () => {
     } catch (err) {
       console.error(err);
       alert("Error al eliminar el producto");
+    }
+  };
+
+  const handleEdit = (producto) => {
+    setEditId(producto.id);
+    setEditForm({
+      nombre: producto.nombre,
+      descripcion: producto.descripcion,
+      precio: producto.precio,
+    });
+  };
+
+  const handleEditChange = (e) => {
+    setEditForm({ ...editForm, [e.target.name]: e.target.value });
+  };
+
+  const handleEditCancel = () => {
+    setEditId(null);
+    setEditForm({
+      nombre: "",
+      descripcion: "",
+      precio: "",
+    });
+  };
+
+  const handleEditSave = async (id) => {
+    try {
+      const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/products/${id}`, {
+        method: "PUT",
+        headers: {
+          ...BACKEND_CONFIG.headers,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(editForm),
+      });
+
+      if (!response.ok) throw new Error("Error al actualizar el producto");
+
+      const updated = await response.json();
+
+      setProductos((prev) =>
+        prev.map((prod) => (prod.id === id ? updated : prod))
+      );
+
+      setEditId(null);
+    } catch (err) {
+      alert("Error al actualizar el producto");
+      console.error(err);
     }
   };
 
@@ -96,23 +147,72 @@ const ProductsAdmin = () => {
                 filteredProductos.map((prod, idx) => (
                   <tr key={prod.id} className={idx % 2 === 0 ? "" : "bg-gray-50"}>
                     <td className="px-6 py-4 text-sm text-gray-700">{prod.id}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{prod.nombre}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{prod.descripcion}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">${prod.precio}</td>
-                    <td className="px-6 py-4 text-sm font-medium flex gap-2">
-                      <button
-                        onClick={() => navigate(`/admin/products/${prod.id}`)}
-                        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => handleDelete(prod.id)}
-                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                      >
-                        Eliminar
-                      </button>
-                    </td>
+
+                    {editId === prod.id ? (
+                      <>
+                        <td className="px-6 py-4 text-sm text-gray-700">
+                          <input
+                            type="text"
+                            name="nombre"
+                            value={editForm.nombre}
+                            onChange={handleEditChange}
+                            className="w-full border px-2 py-1 rounded"
+                          />
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-700">
+                          <input
+                            type="text"
+                            name="descripcion"
+                            value={editForm.descripcion}
+                            onChange={handleEditChange}
+                            className="w-full border px-2 py-1 rounded"
+                          />
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-700">
+                          <input
+                            type="number"
+                            name="precio"
+                            value={editForm.precio}
+                            onChange={handleEditChange}
+                            className="w-full border px-2 py-1 rounded"
+                          />
+                        </td>
+                        <td className="px-6 py-4 text-sm font-medium flex gap-2">
+                          <button
+                            onClick={() => handleEditSave(prod.id)}
+                            className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                          >
+                            Guardar
+                          </button>
+                          <button
+                            onClick={handleEditCancel}
+                            className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600"
+                          >
+                            Cancelar
+                          </button>
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td className="px-6 py-4 text-sm text-gray-700">{prod.nombre}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500">{prod.descripcion}</td>
+                        <td className="px-6 py-4 text-sm text-gray-700">${prod.precio}</td>
+                        <td className="px-6 py-4 text-sm font-medium flex gap-2">
+                          <button
+                            onClick={() => handleEdit(prod)}
+                            className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDelete(prod.id)}
+                            className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                          >
+                            Eliminar
+                          </button>
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))
               ) : (
@@ -128,9 +228,9 @@ const ProductsAdmin = () => {
       )}
 
       <div className="mt-6">
-        <Link to="/admin/products/nuevo" className="text-indigo-600 hover:underline">
-          + Agregar producto
-        </Link>
+        <p className="text-indigo-600 hover:underline">
+          + Agregar producto (redirecciona)
+        </p>
       </div>
     </div>
   );
