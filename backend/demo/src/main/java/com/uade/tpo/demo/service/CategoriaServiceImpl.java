@@ -31,10 +31,10 @@ public class CategoriaServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category createCategoria(String nombre) throws CategoryDuplicatedException {        
+    public Category createCategoria(String nombre, String description) throws CategoryDuplicatedException {        
         List<Category> categories = categoryRepository.findByName(nombre);
         if (categories.isEmpty())
-            return categoryRepository.save(new Category(nombre));
+            return categoryRepository.save(new Category(nombre, description));
         throw new CategoryDuplicatedException();
     }
 

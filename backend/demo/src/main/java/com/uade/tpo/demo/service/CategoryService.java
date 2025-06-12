@@ -15,7 +15,7 @@ public interface CategoryService {
 
     Optional<Category> getCategoriasById(Long categoryId);
 
-    Category createCategoria(String nombre) throws CategoryDuplicatedException;
+    Category createCategoria(String nombre, String description) throws CategoryDuplicatedException;
 
     void delCategoriaById(Long categoryId) throws CategoryNotFoundException;
 
