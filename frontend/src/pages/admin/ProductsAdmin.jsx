@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { BACKEND_CONFIG } from "../../services/backendApi";
 
 const ProductsAdmin = () => {
@@ -6,43 +7,26 @@ const ProductsAdmin = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [categorias, setCategorias] = useState([]);
 
-  const [editId, setEditId] = useState(null);
-  const [editForm, setEditForm] = useState({
-    nombre: "",
-    descripcion: "",
-    precio: "",
-    stock: "",
-    categoriaId: "",
-  });
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const [productsRes, categoriasRes] = await Promise.all([
-          fetch(`${BACKEND_CONFIG.BASE_URL}/products`, {
-            headers: BACKEND_CONFIG.headers,
-          }),
-          fetch(`${BACKEND_CONFIG.BASE_URL}/categories`, {
-            headers: BACKEND_CONFIG.headers,
-          }),
-        ]);
+        const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/products`, {
+          method: "GET",
+          headers: BACKEND_CONFIG.headers,
+        });
 
-        if (!productsRes.ok || !categoriasRes.ok) {
-          throw new Error("Error al cargar datos");
+        if (!response.ok) {
+          throw new Error("Error al cargar productos");
         }
 
-        const [productsData, categoriasData] = await Promise.all([
-          productsRes.json(),
-          categoriasRes.json(),
-        ]);
-
-        setProductos(productsData);
-        setCategorias(categoriasData);
+        const data = await response.json();
+        setProductos(data);
       } catch (err) {
         console.error(err);
-        setError("Error al cargar productos o categorías");
+        setError("Error al cargar productos");
       } finally {
         setLoading(false);
       }
@@ -61,65 +45,14 @@ const ProductsAdmin = () => {
         headers: BACKEND_CONFIG.headers,
       });
 
-      if (!response.ok) throw new Error("Error al eliminar el producto");
+      if (!response.ok) {
+        throw new Error("Error al eliminar el producto");
+      }
 
       setProductos((prev) => prev.filter((p) => p.id !== id));
     } catch (err) {
       console.error(err);
       alert("Error al eliminar el producto");
-    }
-  };
-
-  const handleEdit = (producto) => {
-    setEditId(producto.id);
-    setEditForm({
-      nombre: producto.nombre,
-      descripcion: producto.descripcion,
-      precio: producto.precio,
-      stock: producto.stock,
-      categoriaId: producto.categoria?.id || "",
-    });
-  };
-
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleEditCancel = () => {
-    setEditId(null);
-    setEditForm({
-      nombre: "",
-      descripcion: "",
-      precio: "",
-      stock: "",
-      categoriaId: "",
-    });
-  };
-
-  const handleEditSave = async (id) => {
-    try {
-      const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/products/${id}`, {
-        method: "PUT",
-        headers: {
-          ...BACKEND_CONFIG.headers,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(editForm),
-      });
-
-      if (!response.ok) throw new Error("Error al actualizar el producto");
-
-      const updated = await response.json();
-
-      setProductos((prev) =>
-        prev.map((prod) => (prod.id === id ? updated : prod))
-      );
-
-      setEditId(null);
-    } catch (err) {
-      alert("Error al actualizar el producto");
-      console.error(err);
     }
   };
 
@@ -150,118 +83,41 @@ const ProductsAdmin = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Precio</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Categoría</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acción</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Precio</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acción</th>
               </tr>
             </thead>
 
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredProductos.length > 0 ? (
-                filteredProductos.map((prod) => (
-                  <tr key={prod.id}>
-                    <td className="px-4 py-3 text-sm text-gray-700">{prod.id}</td>
-
-                    {editId === prod.id ? (
-                      <>
-                        <td className="px-4 py-3">
-                          <input
-                            type="text"
-                            name="nombre"
-                            value={editForm.nombre}
-                            onChange={handleEditChange}
-                            className="w-full border px-2 py-1 rounded"
-                          />
-                        </td>
-                        <td className="px-4 py-3">
-                          <input
-                            type="text"
-                            name="descripcion"
-                            value={editForm.descripcion}
-                            onChange={handleEditChange}
-                            className="w-full border px-2 py-1 rounded"
-                          />
-                        </td>
-                        <td className="px-4 py-3">
-                          <input
-                            type="number"
-                            name="precio"
-                            value={editForm.precio}
-                            onChange={handleEditChange}
-                            className="w-full border px-2 py-1 rounded"
-                          />
-                        </td>
-                        <td className="px-4 py-3">
-                          <input
-                            type="number"
-                            name="stock"
-                            value={editForm.stock}
-                            onChange={handleEditChange}
-                            className="w-full border px-2 py-1 rounded"
-                          />
-                        </td>
-                        <td className="px-4 py-3">
-                          <select
-                            name="categoriaId"
-                            value={editForm.categoriaId}
-                            onChange={handleEditChange}
-                            className="w-full border px-2 py-1 rounded"
-                          >
-                            <option value="">Seleccione</option>
-                            {categorias.map((cat) => (
-                              <option key={cat.id} value={cat.id}>
-                                {cat.nombre}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td className="px-4 py-3 flex gap-2">
-                          <button
-                            onClick={() => handleEditSave(prod.id)}
-                            className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                          >
-                            Guardar
-                          </button>
-                          <button
-                            onClick={handleEditCancel}
-                            className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600"
-                          >
-                            Cancelar
-                          </button>
-                        </td>
-                      </>
-                    ) : (
-                      <>
-                        <td className="px-4 py-3 text-sm text-gray-700">{prod.nombre}</td>
-                        <td className="px-4 py-3 text-sm text-gray-500">{prod.descripcion}</td>
-                        <td className="px-4 py-3 text-sm text-gray-700">${prod.precio}</td>
-                        <td className="px-4 py-3 text-sm text-gray-700">{prod.stock}</td>
-                        <td className="px-4 py-3 text-sm text-gray-700">{prod.categoria?.nombre || "-"}</td>
-                        <td className="px-4 py-3 flex gap-2">
-                          <button
-                            onClick={() => handleEdit(prod)}
-                            className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                          >
-                            Editar
-                          </button>
-                          <button
-                            onClick={() => handleDelete(prod.id)}
-                            className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                          >
-                            Eliminar
-                          </button>
-                        </td>
-                      </>
-                    )}
+                filteredProductos.map((prod, idx) => (
+                  <tr key={prod.id} className={idx % 2 === 0 ? "" : "bg-gray-50"}>
+                    <td className="px-6 py-4 text-sm text-gray-700">{prod.id}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700">{prod.nombre}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500">{prod.descripcion}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700">${prod.precio}</td>
+                    <td className="px-6 py-4 text-sm font-medium flex gap-2">
+                      <button
+                        onClick={() => navigate(`/admin/products/${prod.id}`)}
+                        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleDelete(prod.id)}
+                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                      >
+                        Eliminar
+                      </button>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="px-4 py-3 text-center text-sm text-gray-500">
+                  <td colSpan={5} className="px-6 py-4 text-sm text-gray-500 text-center">
                     No se encontraron productos.
                   </td>
                 </tr>
@@ -272,9 +128,9 @@ const ProductsAdmin = () => {
       )}
 
       <div className="mt-6">
-        <p className="text-indigo-600 hover:underline">
-          + Agregar producto (redirecciona)
-        </p>
+        <Link to="/admin/products/nuevo" className="text-indigo-600 hover:underline">
+          + Agregar producto
+        </Link>
       </div>
     </div>
   );
