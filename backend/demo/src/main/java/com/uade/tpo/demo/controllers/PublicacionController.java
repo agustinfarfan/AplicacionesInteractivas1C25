@@ -49,18 +49,17 @@ public class PublicacionController {
 
         Publicacion publicacion = new Publicacion();
         publicacion.setProducto(producto);
-        publicacion.setVendedor(vendedor);
         publicacion.setFechaPublicacion(new Date());
 
         Publicacion newPublicacion = publicacionService.createPublicacion(publicacion);
         return ResponseEntity.created(URI.create("/publicaciones/" + newPublicacion.getId())).body(newPublicacion);
     }
 
-    @PutMapping("/{id}/estado")
-    public ResponseEntity<Publicacion> updateEstado(@PathVariable Long id, @RequestParam String estado) {
-        Publicacion updatedPublicacion = publicacionService.updateEstado(id, estado);
-        return updatedPublicacion != null ? ResponseEntity.ok(updatedPublicacion) : ResponseEntity.notFound().build();
-    }
+//    @PutMapping("/{id}/estado")
+//    public ResponseEntity<Publicacion> updateEstado(@PathVariable Long id, @RequestParam String estado) {
+//        Publicacion updatedPublicacion = publicacionService.updateEstado(id, estado);
+//        return updatedPublicacion != null ? ResponseEntity.ok(updatedPublicacion) : ResponseEntity.notFound().build();
+//    }
 
     @PutMapping("/{id}/visible")
     public ResponseEntity<Publicacion> updateVisible(@PathVariable Long id, @RequestParam boolean visible) {

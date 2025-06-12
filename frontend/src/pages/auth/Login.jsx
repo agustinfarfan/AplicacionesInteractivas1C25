@@ -26,12 +26,7 @@ const Login = () => {
         const data = await response.json();
 
         login(data.access_token);
-
-        if (data.role === "ADMIN") {
-          navigate("/admin/dashboard");
-        } else {
-          navigate("/");
-        }
+        navigate("/");    
       })
       .catch((err) => {
         setError(err.message);

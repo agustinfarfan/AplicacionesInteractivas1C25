@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BACKEND_CONFIG } from "../../services/backendApi";
+import { BACKEND_CONFIG, fetchProducts } from "../../services/backendApi";
 
 const ProductsAdmin = () => {
   const [productos, setProductos] = useState([]);
@@ -13,16 +13,7 @@ const ProductsAdmin = () => {
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/products`, {
-          method: "GET",
-          headers: BACKEND_CONFIG.headers,
-        });
-
-        if (!response.ok) {
-          throw new Error("Error al cargar productos");
-        }
-
-        const data = await response.json();
+        const data = await fetchProducts();
         setProductos(data);
       } catch (err) {
         console.error(err);
@@ -35,25 +26,14 @@ const ProductsAdmin = () => {
     fetchProductos();
   }, []);
 
-  const handleDelete = async (id) => {
-    const confirm = window.confirm("¿Estás seguro de que querés eliminar este producto?");
-    if (!confirm) return;
+  const handleDelete = (id) => {
+    if (!window.confirm("¿Estás seguro de que querés eliminar este producto?")) return;
 
-    try {
-      const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/products/${id}`, {
-        method: "DELETE",
-        headers: BACKEND_CONFIG.headers,
-      });
-
-      if (!response.ok) {
-        throw new Error("Error al eliminar el producto");
-      }
-
-      setProductos((prev) => prev.filter((p) => p.id !== id));
-    } catch (err) {
-      console.error(err);
-      alert("Error al eliminar el producto");
-    }
+    axios.delete(`http://localhost:8080/api/productos/${id}`)
+      .then(() => {
+        setProductos(prev => prev.filter(p => p.id !== id));
+      })
+      .catch(() => alert("Error al eliminar el producto"));
   };
 
   const filteredProductos = productos.filter((prod) =>
