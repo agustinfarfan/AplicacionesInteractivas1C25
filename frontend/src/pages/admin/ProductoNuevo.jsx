@@ -29,16 +29,16 @@ const ProductoNuevo = () => {
 
     try {
       await createProduct({
-          nombre,
-          descripcion,
-          precio: parseFloat(precio),
-          stock: parseInt(stock),
-          category: { id: parseInt(categoriaId) }, // 👈 clave
-        });
-
+        nombre,
+        description: descripcion,
+        precio: parseFloat(precio),
+        stock: parseInt(stock),
+        categoriaId: parseInt(categoriaId), // ✅ CORRECTO
+      });
 
       navigate("/admin/productos");
     } catch (err) {
+      console.error(err);
       setError("Error al crear el producto");
     }
   };
