@@ -36,7 +36,7 @@ const ProductoNuevo = () => {
         categoriaId: parseInt(categoriaId), // ✅ CORRECTO
       });
 
-      navigate("/admin/productos");
+      navigate("/admin/products");
     } catch (err) {
       console.error(err);
       setError("Error al crear el producto");

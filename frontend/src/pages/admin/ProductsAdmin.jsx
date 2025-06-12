@@ -13,7 +13,7 @@ const ProductsAdmin = () => {
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/productos`, {
+        const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/products`, {
           method: "GET",
           headers: BACKEND_CONFIG.headers,
         });
@@ -40,7 +40,7 @@ const ProductsAdmin = () => {
     if (!confirm) return;
 
     try {
-      const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/productos/${id}`, {
+      const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/products/${id}`, {
         method: "DELETE",
         headers: BACKEND_CONFIG.headers,
       });
