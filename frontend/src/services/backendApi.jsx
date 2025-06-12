@@ -125,3 +125,23 @@ export const createProduct = async (product) => {
   const data = await response.json();
   return data;
 };
+
+export const deleteProduct = async ({ id }) => {
+
+  const endpoint = `${BACKEND_CONFIG.BASE_URL}/productos/${id}`;
+
+  const response = await fetch(endpoint, {
+    method: "DELETE",
+    headers: {
+      "Authorization": `Bearer ${localStorage.getItem("token")}`
+    },
+  });
+
+  console.log(response);
+  
+
+
+  if (!response.ok) {
+    throw new Error("Error fetching", { cause: response.statusText });
+  }
+}
