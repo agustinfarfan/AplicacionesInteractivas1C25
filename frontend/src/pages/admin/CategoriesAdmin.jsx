@@ -151,11 +151,13 @@ const CategoriasAdmin = () => {
     }
   };
 
+  /*
   const categoriasMock = [{
     id: 1,
     nombre: "Microbiologia",
     descripcion: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dolor, dignissimos."
-  }]
+  }]  
+  */
 
   // —————————— Filtrado local (ya no hay excepción porque `categorias` siempre es array) ——————————
   const filteredCategorias = categorias.filter((cat) =>

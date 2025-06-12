@@ -57,6 +57,16 @@ export const fetchProductsByCategory = async ({ id }) => {
   const data = await response.json();
   return data;
 }
+export const getMappedCategories = async () => {
+  const raw = await fetchCategories();
+  const data = raw.content || raw;
+
+  return data.map((c) => ({
+    id: c.id,
+    nombre: c.name,
+    descripcion: c.description,
+  }));
+};
 
 export const fetchCategories = async () => {
 
@@ -95,3 +105,23 @@ export const loginAdmin = async (email, password) => {
   return data; // debería contener el token
 };
 
+
+export const createProduct = async (product) => {
+  const endpoint = `${BACKEND_CONFIG.BASE_URL}/productos`;
+
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      ...BACKEND_CONFIG.headers,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(product),
+  });
+
+  if (!response.ok) {
+    throw new Error("Error al crear el producto");
+  }
+
+  const data = await response.json();
+  return data;
+};

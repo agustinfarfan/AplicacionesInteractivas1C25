@@ -6,6 +6,8 @@ import PedidosAdmin from "../pages/admin/PedidosAdmin";
 import Pedido from './../pages/tienda/Pedido';
 import PedidoAdmin from "../pages/admin/PedidoAdmin";
 import CuponesAdmin from "../pages/admin/CuponesAdmin";
+import ProductoNuevo from "../pages/admin/ProductoNuevo";
+
 
 const useAdminRoute = () => {
   return (
@@ -16,6 +18,8 @@ const useAdminRoute = () => {
 
       {/*Cuando entras a admin/products te muestra lo que este en ProductsAdmin.jsx*/}
       <Route path="products" element={<ProductsAdmin />} />
+
+      <Route path="products/nuevo" element={<ProductoNuevo />} />
 
       <Route path="pedidos">
         <Route index element={<PedidosAdmin />} />
