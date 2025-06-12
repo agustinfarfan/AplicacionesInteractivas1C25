@@ -57,6 +57,16 @@ export const fetchProductsByCategory = async ({ id }) => {
   const data = await response.json();
   return data;
 }
+export const getMappedCategories = async () => {
+  const raw = await fetchCategories();
+  const data = raw.content || raw;
+
+  return data.map((c) => ({
+    id: c.id,
+    nombre: c.name,
+    descripcion: c.description,
+  }));
+};
 
 export const fetchCategories = async () => {
 

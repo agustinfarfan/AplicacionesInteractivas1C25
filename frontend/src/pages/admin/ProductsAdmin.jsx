@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { BACKEND_CONFIG } from "../../services/backendApi";
 
 const ProductsAdmin = () => {
   const [productos, setProductos] = useState([]);
@@ -11,23 +11,52 @@ const ProductsAdmin = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get("http://localhost:8080/api/productos")
-      .then(response => setProductos(response.data))
-      .catch(() => setError("Error al cargar productos"))
-      .finally(() => setLoading(false));
+    const fetchProductos = async () => {
+      try {
+        const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/productos`, {
+          method: "GET",
+          headers: BACKEND_CONFIG.headers,
+        });
+
+        if (!response.ok) {
+          throw new Error("Error al cargar productos");
+        }
+
+        const data = await response.json();
+        setProductos(data);
+      } catch (err) {
+        console.error(err);
+        setError("Error al cargar productos");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProductos();
   }, []);
 
-  const handleDelete = (id) => {
-    if (!window.confirm("¿Estás seguro de que querés eliminar este producto?")) return;
+  const handleDelete = async (id) => {
+    const confirm = window.confirm("¿Estás seguro de que querés eliminar este producto?");
+    if (!confirm) return;
 
-    axios.delete(`http://localhost:8080/api/productos/${id}`)
-      .then(() => {
-        setProductos(prev => prev.filter(p => p.id !== id));
-      })
-      .catch(() => alert("Error al eliminar el producto"));
+    try {
+      const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/productos/${id}`, {
+        method: "DELETE",
+        headers: BACKEND_CONFIG.headers,
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al eliminar el producto");
+      }
+
+      setProductos((prev) => prev.filter((p) => p.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Error al eliminar el producto");
+    }
   };
 
-  const filteredProductos = productos.filter(prod =>
+  const filteredProductos = productos.filter((prod) =>
     prod.nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -40,7 +69,7 @@ const ProductsAdmin = () => {
           type="text"
           placeholder="Buscar productos..."
           value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
+          onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
       </div>
@@ -99,7 +128,7 @@ const ProductsAdmin = () => {
       )}
 
       <div className="mt-6">
-        <Link to="/admin/products/nuevo">
+        <Link to="/admin/products/nuevo" className="text-indigo-600 hover:underline">
           + Agregar producto
         </Link>
       </div>

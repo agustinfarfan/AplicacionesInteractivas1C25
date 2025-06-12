@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchCategories, createProduct } from "../../services/backendApi";
+import { createProduct, getMappedCategories } from "../../services/backendApi";
 
 const ProductoNuevo = () => {
   const navigate = useNavigate();
@@ -14,7 +14,7 @@ const ProductoNuevo = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchCategories()
+    getMappedCategories()
       .then(setCategorias)
       .catch(() => setError("No se pudieron cargar las categorías"));
   }, []);
@@ -29,12 +29,13 @@ const ProductoNuevo = () => {
 
     try {
       await createProduct({
-        nombre,
-        descripcion,
-        precio: parseFloat(precio),
-        stock: parseInt(stock),
-        categoriaId: parseInt(categoriaId),
-      });
+          nombre,
+          descripcion,
+          precio: parseFloat(precio),
+          stock: parseInt(stock),
+          category: { id: parseInt(categoriaId) }, // 👈 clave
+        });
+
 
       navigate("/admin/productos");
     } catch (err) {
