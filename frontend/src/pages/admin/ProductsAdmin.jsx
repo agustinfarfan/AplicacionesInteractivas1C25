@@ -7,13 +7,14 @@ const ProductsAdmin = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deleteProd, setDeleteProd] = useState(null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/products`, {
+        const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/productos`, {
           method: "GET",
           headers: BACKEND_CONFIG.headers,
         });
@@ -35,24 +36,28 @@ const ProductsAdmin = () => {
     fetchProductos();
   }, []);
 
-  const handleDelete = async (id) => {
-    const confirm = window.confirm("¿Estás seguro de que querés eliminar este producto?");
-    if (!confirm) return;
+  const confirmDelete = async () => {
+
+    const token = localStorage.getItem("token");
+    const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
 
     try {
-      const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/products/${id}`, {
+      const resp = await fetch(`http://localhost:4002/productos/${deleteProd.id}`, {
         method: "DELETE",
-        headers: BACKEND_CONFIG.headers,
+        headers:{...authHeader}
       });
-
-      if (!response.ok) {
-        throw new Error("Error al eliminar el producto");
+      if (resp.status === 204) {
+        // Después de borrar, recargamos lista
+        await loadCategoriasBackend();
+      } else {
+        const text = await resp.text();
+        throw new Error(`Error al eliminar: ${text}`);
       }
-
-      setProductos((prev) => prev.filter((p) => p.id !== id));
-    } catch (err) {
-      console.error(err);
-      alert("Error al eliminar el producto");
+    } catch (error) {
+      console.error("Error en eliminar producto:", error);
+      alert("Hubo un error al eliminar. Revisa la consola.");
+    } finally {
+      setDeleteProd(null);
     }
   };
 
@@ -107,7 +112,7 @@ const ProductsAdmin = () => {
                         Editar
                       </button>
                       <button
-                        onClick={() => handleDelete(prod.id)}
+                        onClick={() => setDeleteProd(prod)}
                         className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
                       >
                         Eliminar
@@ -132,6 +137,40 @@ const ProductsAdmin = () => {
           + Agregar producto
         </Link>
       </div>
+
+      {/* Pop-up para eliminar*/}
+      {deleteProd && (
+        <>
+          <div
+            onClick={() => setDeleteProd(null)}
+            className="fixed inset-0 bg-black/30 z-40"
+          />
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
+              <p className="text-base text-gray-800 mb-4">
+                ¿Seguro que desea eliminar el producto {" "}
+                <span className="font-semibold">{deleteProd.nombre}</span>?
+              </p>
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setDeleteProd(null)}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+
     </div>
   );
 };

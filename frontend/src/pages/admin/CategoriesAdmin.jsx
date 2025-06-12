@@ -69,7 +69,7 @@ const CategoriasAdmin = () => {
     try {
       let resp;
       if (activeCat) {
-        // Editar → PUT /categories/{id} enviando { name, description }
+        
         resp = await fetch(`http://localhost:4002/categories/${activeCat.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json", ...authHeader },
@@ -79,7 +79,7 @@ const CategoriasAdmin = () => {
           }),
         });
       } else {
-        // Crear → POST /categories enviando { name, description }
+        
         resp = await fetch("http://localhost:4002/categories", {
           method: "POST",
           headers: { "Content-Type": "application/json", ...authHeader },
@@ -95,7 +95,7 @@ const CategoriasAdmin = () => {
         throw new Error(`Error al guardar: ${text}`);
       }
 
-      // Tras guardar, recargamos la lista completa desde el backend:
+      // Despues de crear o editar, recargo la lista
       await loadCategoriasBackend();
 
       setFormName("");
@@ -108,7 +108,7 @@ const CategoriasAdmin = () => {
     }
   };
 
-  // Función auxiliar para recargar el arreglo de categories tras crear/editar/eliminar
+  // Función auxiliar para recargar el array de categories tras crear/editar/eliminar
   const loadCategoriasBackend = async () => {
     try {
       const resp = await fetch("http://localhost:4002/categories");
