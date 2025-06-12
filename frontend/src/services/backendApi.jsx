@@ -104,6 +104,8 @@ export const loginAdmin = async (email, password) => {
   const data = await response.json();
   return data; // debería contener el token
 };
+
+
 export const createProduct = async (product) => {
   const endpoint = `${BACKEND_CONFIG.BASE_URL}/productos`;
 
