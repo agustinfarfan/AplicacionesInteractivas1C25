@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ChevronRight, Award, Shield, Truck, Users, Star, ArrowRight, Microscope, TestTube, Beaker } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 
 const Home = () => {
 
@@ -45,7 +45,7 @@ const Home = () => {
       desc: "Cultivos, reactivos y medios de crecimiento especializados",
       icon: <Microscope className="w-8 h-8" />,
       color: "from-blue-500 to-cyan-500",
-      items: "250+ productos"
+      id: 7
     },
     { 
       nombre: "Hematología", 
@@ -53,7 +53,7 @@ const Home = () => {
       desc: "Tubos, anticoagulantes y equipos de análisis sanguíneo",
       icon: <TestTube className="w-8 h-8" />,
       color: "from-red-500 to-pink-500",
-      items: "180+ productos"
+      id:8
     },
     { 
       nombre: "Química Clínica", 
@@ -61,7 +61,7 @@ const Home = () => {
       desc: "Reactivos, enzimas y materiales de análisis químico avanzado",
       icon: <Beaker className="w-8 h-8" />,
       color: "from-green-500 to-emerald-500",
-      items: "320+ productos"
+      id: 9
     }
   ];
 
@@ -220,13 +220,14 @@ const Home = () => {
                   
                   <p className="text-gray-600 mb-6 leading-relaxed">{cat.desc}</p>
                   
-                  <a
-                    href={`/tienda/category/${cat.path}`}
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/categoria/${cat.id}`)}
                     className="group/link inline-flex items-center gap-2 text-gray-900 font-semibold hover:gap-4 transition-all duration-300"
                   >
                     Ver productos
                     <ChevronRight className="w-5 h-5 group-hover/link:translate-x-1 transition-transform" />
-                  </a>
+                  </button>
                 </div>
               </div>
             ))}

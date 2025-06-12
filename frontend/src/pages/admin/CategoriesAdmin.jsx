@@ -189,6 +189,12 @@ const CategoriasAdmin = () => {
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
+                Id
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Nombre
               </th>
               <th
@@ -211,6 +217,9 @@ const CategoriasAdmin = () => {
             {filteredCategorias.length > 0 ? (
               filteredCategorias.map((cat, idx) => (
                 <tr key={cat.id} className={idx % 2 === 0 ? "" : "bg-gray-50"}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    {cat.id}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                     {cat.nombre}
                   </td>

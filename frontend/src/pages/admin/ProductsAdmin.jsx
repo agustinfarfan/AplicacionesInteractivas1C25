@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BACKEND_CONFIG } from "../../services/backendApi";
+import { BACKEND_CONFIG, fetchProducts } from "../../services/backendApi";
 
 const ProductsAdmin = () => {
   const [productos, setProductos] = useState([]);
@@ -14,16 +14,7 @@ const ProductsAdmin = () => {
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const response = await fetch(`${BACKEND_CONFIG.BASE_URL}/productos`, {
-          method: "GET",
-          headers: BACKEND_CONFIG.headers,
-        });
-
-        if (!response.ok) {
-          throw new Error("Error al cargar productos");
-        }
-
-        const data = await response.json();
+        const data = await fetchProducts();
         setProductos(data);
       } catch (err) {
         console.error(err);
@@ -36,29 +27,14 @@ const ProductsAdmin = () => {
     fetchProductos();
   }, []);
 
-  const confirmDelete = async () => {
+  const handleDelete = (id) => {
+    if (!window.confirm("¿Estás seguro de que querés eliminar este producto?")) return;
 
-    const token = localStorage.getItem("token");
-    const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
-
-    try {
-      const resp = await fetch(`http://localhost:4002/productos/${deleteProd.id}`, {
-        method: "DELETE",
-        headers:{...authHeader}
-      });
-      if (resp.status === 204) {
-        // Después de borrar, recargamos lista
-        await loadCategoriasBackend();
-      } else {
-        const text = await resp.text();
-        throw new Error(`Error al eliminar: ${text}`);
-      }
-    } catch (error) {
-      console.error("Error en eliminar producto:", error);
-      alert("Hubo un error al eliminar. Revisa la consola.");
-    } finally {
-      setDeleteProd(null);
-    }
+    axios.delete(`http://localhost:8080/api/productos/${id}`)
+      .then(() => {
+        setProductos(prev => prev.filter(p => p.id !== id));
+      })
+      .catch(() => alert("Error al eliminar el producto"));
   };
 
   const filteredProductos = productos.filter((prod) =>
