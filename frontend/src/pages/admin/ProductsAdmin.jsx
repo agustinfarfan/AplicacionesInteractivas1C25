@@ -84,7 +84,7 @@ const ProductsAdmin = () => {
                   <tr key={prod.id} className={idx % 2 === 0 ? "" : "bg-gray-50"}>
                     <td className="px-6 py-4 text-sm text-gray-700">{prod.id}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{prod.nombre}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{prod.descripcion}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500">{prod.description}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">${prod.precio}</td>
                     <td className="px-6 py-4 text-sm font-medium flex gap-2">
                       <button
