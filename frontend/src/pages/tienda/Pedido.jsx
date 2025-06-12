@@ -89,6 +89,33 @@ const Pedido = () => {
             ))}
           </tbody>
         </table>
+
+        {data.cupon && (
+          <div className="mt-4 p-4 bg-indigo-50 rounded border border-indigo-200">
+            <h3 className="font-semibold text-indigo-700 mb-1">
+              Cupón aplicado: <span className="font-bold">{data.cupon.nombre}</span>
+            </h3>
+            <p className="text-sm text-gray-700">
+              Tipo: {data.cupon.tipoDescuento === "PORCENTUAL" ? "Porcentual" : "Fijo"}<br />
+              Descuento: {data.cupon.tipoDescuento === "PORCENTUAL"
+                ? `${data.cupon.descuento}%`
+                : `$${Number(data.cupon.descuento).toFixed(2)}`}
+            </p>
+
+            <p className="mt-2 text-md font-medium text-indigo-900">
+              Valor descontado: $
+              {(() => {
+                const subtotal = data.detalleOrder.reduce((acc, prod) => acc + prod.subtotal, 0);
+                if (data.cupon.tipoDescuento === "PORCENTUAL") {
+                  return (subtotal * (data.cupon.descuento / 100)).toFixed(2);
+                } else {
+                  return Number(data.cupon.descuento).toFixed(2);
+                }
+              })()}
+            </p>
+          </div>
+        )}
+
       </div>
 
       <div className="flex flex-col md:flex-row md:justify-between md:items-center border-t border-neutral-300 pt-4">

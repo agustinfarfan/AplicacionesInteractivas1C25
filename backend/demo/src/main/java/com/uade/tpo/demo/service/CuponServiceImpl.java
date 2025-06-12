@@ -6,6 +6,7 @@ import com.uade.tpo.demo.entity.dto.CuponDTO;
 import com.uade.tpo.demo.entity.dto.UserCreateDTO;
 import com.uade.tpo.demo.exceptions.ResourceNotFoundException;
 import com.uade.tpo.demo.repository.CuponRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,12 +30,21 @@ public class CuponServiceImpl implements CuponService {
     }
 
     @Override
+    @Transactional
     public CuponDTO crearCupon(CreateCuponRequest request) {
-        return null;
+        Cupon cupon = new Cupon(request);
+        return cuponRepository.save(cupon).getDTO();
     }
 
     @Override
     public CuponDTO actualizarCupon(Long id, CreateCuponRequest request) {
-        return null;
+
+        Cupon cupon = cuponRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Coupon not found with id: " + id));
+        cupon.setNombre(request.getNombre());
+        cupon.setDescuento(request.getDescuento());
+        cupon.setCantidadUsos(request.getCantidadUsos());
+        cupon.setTipoDescuento(request.getTipoDescuento());
+
+        return cuponRepository.save(cupon).getDTO();
     }
 }

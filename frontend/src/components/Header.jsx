@@ -11,6 +11,7 @@ import LogoSanaSana from '../assets/SanaSanaTransparenteLogo.png'
 import { isLoggedIn } from '../utils/auth';
 import { useAuth } from '../context/AuthContext';
 import { fetchCategories } from '../services/backendApi'; 
+import { HiUserCircle  } from "react-icons/hi";
 
 const Header = () => {
 
@@ -28,11 +29,10 @@ const Header = () => {
   const tabs = [
     { name: 'Home', href: '/'},
     { name: 'Categorias', href: '#', hasDropdown: true },
-    { name: 'Sobre nosotros', href: '/about'},
-    { name: 'Contactactanos', href:'contacto'}
+    { name: 'Nosotros', href: '/about'},
+    { name: 'Contactanos', href:'contacto'}
   ]
 
-  // Cargar categorías al montar el componente
   useEffect(() => {
     const loadCategories = async () => {
       try {
@@ -189,7 +189,7 @@ const Header = () => {
                 { loggedIn ? (
                   <div className="relative">
                     <button onClick={() => setShowProfile(true)} className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                      <img className="h-8 w-8 rounded-full" src="https://tailwindflex.com/images/avatar/avatar-1.jpg" alt="Perfil"/>
+                      <HiUserCircle  className="w-10 h-10 text-gray-400" />
                     </button>
                     {showProfile && <UserProfileSidebar onLogout={handleLogout} onClose={() => setShowProfile(false)} />}
                   </div>

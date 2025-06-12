@@ -37,11 +37,11 @@ public class AuthenticationService {
                                 // ahora rellenamos también la info de la “empresa”
                                 .razonSocial(request.getRazonSocial())
                                 .cuil(request.getCuil())
-                                .calle(request.getCalle())
-                                .altura(request.getAltura())
-                                .codigoPostal(request.getCodigoPostal())
-                                .localidad(request.getLocalidad())
-                                .provincia(request.getProvincia())
+//                                .calle(request.getCalle())
+//                                .altura(request.getAltura())
+//                                .codigoPostal(request.getCodigoPostal())
+//                                .localidad(request.getLocalidad())
+//                                .provincia(request.getProvincia())
                                 .build();
 
                 repository.save(user);

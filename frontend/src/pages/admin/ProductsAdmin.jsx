@@ -101,7 +101,7 @@ const ProductsAdmin = () => {
                     <td className="px-6 py-4 text-sm text-gray-700">${prod.precio}</td>
                     <td className="px-6 py-4 text-sm font-medium flex gap-2">
                       <button
-                        onClick={() => navigate(`/admin/productos/${prod.id}`)}
+                        onClick={() => navigate(`/admin/products/${prod.id}`)}
                         className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
                       >
                         Editar

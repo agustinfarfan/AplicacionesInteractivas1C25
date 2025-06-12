@@ -149,7 +149,7 @@ const confirmDelete = async () => {
 
   // 5) Filtrar / Render
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 ">
       <h1 className="text-2xl font-semibold mb-6">Mis Direcciones de Envío</h1>
       <button
         onClick={openNew}

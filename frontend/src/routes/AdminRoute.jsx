@@ -5,6 +5,7 @@ import AdminLayout from "../layouts/AdminLayout";
 import PedidosAdmin from "../pages/admin/PedidosAdmin";
 import Pedido from './../pages/tienda/Pedido';
 import PedidoAdmin from "../pages/admin/PedidoAdmin";
+import CuponesAdmin from "../pages/admin/CuponesAdmin";
 import ProductoNuevo from "../pages/admin/ProductoNuevo";
 
 
@@ -24,6 +25,8 @@ const useAdminRoute = () => {
         <Route index element={<PedidosAdmin />} />
         <Route path=":id" element={<PedidoAdmin />} />
       </Route>
+
+      <Route path="cupones" element={<CuponesAdmin/>}/>
 
     </Route>
   )

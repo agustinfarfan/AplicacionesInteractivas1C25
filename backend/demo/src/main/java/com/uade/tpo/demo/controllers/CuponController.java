@@ -37,7 +37,7 @@ public class CuponController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CuponDTO> actualizarUser(@PathVariable Long id, CreateCuponRequest request) {
+    public ResponseEntity<CuponDTO> actualizarCupon(@PathVariable Long id, @RequestBody CreateCuponRequest request) {
         return ResponseEntity.ok(cuponService.actualizarCupon(id, request));
     }
 

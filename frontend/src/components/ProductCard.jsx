@@ -19,9 +19,9 @@ const ProductCard = ({ product }) => {
                     className="w-full h-48 object-cover"
                     src={product.image || product.imagen || '/placeholder-product.jpg'}
                     alt={product.name || product.nombre}
-                    onError={(e) => {
-                        e.target.src = '/placeholder-product.jpg';
-                    }}
+                    // onError={(e) => {
+                    //     e.target.src = '/placeholder-product.jpg';
+                    // }}
                 />
             </div>
             <div className="p-4">

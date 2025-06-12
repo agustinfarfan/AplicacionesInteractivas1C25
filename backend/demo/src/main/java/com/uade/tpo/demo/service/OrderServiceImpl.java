@@ -79,6 +79,10 @@ public class OrderServiceImpl implements OrderService {
             requestBody.getEmail()
         );
 
+        if (carrito.getCupon() != null) {
+            order.setCupon(carrito.getCupon());
+        }
+
         Order savedOrder = orderRepository.save(order);
 
         carrito.getCarritoDetalle().forEach(carritoDetalle -> {
