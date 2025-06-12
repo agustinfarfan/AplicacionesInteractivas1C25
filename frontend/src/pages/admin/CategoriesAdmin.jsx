@@ -25,6 +25,8 @@ const CategoriasAdmin = () => {
         // Mapear cada objeto a la forma { id, nombre, descripcion }
         const mapped = rawArray.map((c) => ({
           id: c.id,
+
+
           nombre: c.name,
           descripcion: c.description,
         }));
@@ -156,7 +158,7 @@ const CategoriasAdmin = () => {
   }]
 
   // —————————— Filtrado local (ya no hay excepción porque `categorias` siempre es array) ——————————
-  const filteredCategorias = categoriasMock.filter((cat) =>
+  const filteredCategorias = categorias.filter((cat) =>
     cat.nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -175,7 +177,7 @@ const CategoriasAdmin = () => {
         />
       </div>
 
-      {/* Tabla de categorías */}
+      {/* Esto es la tabla*/}
       <div className="overflow-x-auto bg-white shadow-md rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">
           {/* Encabezado */}
@@ -202,7 +204,7 @@ const CategoriasAdmin = () => {
             </tr>
           </thead>
 
-          {/* Cuerpo de la tabla */}
+          {/* Cuerpo*/}
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredCategorias.length > 0 ? (
               filteredCategorias.map((cat, idx) => (

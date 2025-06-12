@@ -63,6 +63,10 @@ public class Order {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "cupon_id")
+    private Cupon cupon;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
@@ -73,7 +77,7 @@ public class Order {
     private EstadoOrder estado;
 
     public OrderDTO getDTO() {
-        return OrderDTO.builder()
+       return OrderDTO.builder()
             .orderId(id)
             .userId(user.getId())
             .detalleOrder(this.orderDetalle.stream()
@@ -88,6 +92,7 @@ public class Order {
             .nombre(nombre)
             .apellido(apellido)
             .email(email)
+            .cupon(cupon != null ? cupon.getDTO() : null)
             .build();
     }
 

@@ -99,7 +99,7 @@ public class User implements UserDetails {
     private String provincia;
 
     public UserDTO getDTO() {
-        return new UserDTO(id, email, firstName,lastName, role, razonSocial);
+        return new UserDTO(id, email, firstName,lastName, role, razonSocial, shippingAddresses.stream().map(ShippingAddress::getDTO).toList());
     }
 
      /** Lista de direcciones de envío asociadas **/

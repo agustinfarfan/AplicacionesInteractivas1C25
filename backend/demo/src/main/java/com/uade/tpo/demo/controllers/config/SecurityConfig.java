@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -41,8 +42,8 @@ public class SecurityConfig {
                     .requestMatchers("/api/v1/auth/**").permitAll()
 
                     // User
-                    .requestMatchers("/user/**").hasAnyAuthority(Role.USER.name(), Role.VENDOR.name())
                     .requestMatchers(HttpMethod.GET, "/user").hasAnyAuthority(Role.VENDOR.name())
+                    .requestMatchers("/user/**").hasAnyAuthority(Role.USER.name(), Role.VENDOR.name())
 
 
                     // Cart
@@ -54,6 +55,9 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/productos/**").hasAnyAuthority(Role.VENDOR.name())
                     .requestMatchers(HttpMethod.PUT, "/productos/**").hasAnyAuthority(Role.VENDOR.name())
                     .requestMatchers(HttpMethod.DELETE, "/productos/**").hasAnyAuthority(Role.VENDOR.name())
+
+                    // Cupones
+                    .requestMatchers(HttpMethod.GET, "/coupon/**").hasAnyAuthority(Role.VENDOR.name())
 
                     // Publicaciones
                     .requestMatchers(HttpMethod.GET, "/publicaciones/**").permitAll()
