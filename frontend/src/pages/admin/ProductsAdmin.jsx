@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BACKEND_CONFIG, fetchProducts } from "../../services/backendApi";
+import { BACKEND_CONFIG, deleteProduct, fetchProducts } from "../../services/backendApi";
 
 const ProductsAdmin = () => {
   const [productos, setProductos] = useState([]);
@@ -27,14 +27,21 @@ const ProductsAdmin = () => {
     fetchProductos();
   }, []);
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm("¿Estás seguro de que querés eliminar este producto?")) return;
 
-    axios.delete(`http://localhost:8080/api/productos/${id}`)
-      .then(() => {
-        setProductos(prev => prev.filter(p => p.id !== id));
+    await deleteProduct({id})
+      .then(async () => {
+        const data = await fetchProducts();
+        setProductos(data);
       })
-      .catch(() => alert("Error al eliminar el producto"));
+      .catch(async (error) => {
+        if (error) {
+          alert("Error al eliminar el producto: " + error)
+        }
+      }
+    );
+
   };
 
   const filteredProductos = productos.filter((prod) =>
@@ -78,7 +85,7 @@ const ProductsAdmin = () => {
                   <tr key={prod.id} className={idx % 2 === 0 ? "" : "bg-gray-50"}>
                     <td className="px-6 py-4 text-sm text-gray-700">{prod.id}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{prod.nombre}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{prod.descripcion}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500">{prod.description}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">${prod.precio}</td>
                     <td className="px-6 py-4 text-sm font-medium flex gap-2">
                       <button
