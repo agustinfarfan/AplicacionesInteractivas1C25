@@ -17,18 +17,18 @@ const Resumen = ({ data, activo = true }) => {
                             ))}
 
                         </div>
-                        {/* <div className='flex flex-row justify-between'>
-                            <p className='text-md font-medium'>Envío: </p>
-                            <p className='text-md font-medium'>$0.00</p>
-                        </div>
                         <div className='flex flex-row justify-between'>
+                            <p className='text-md font-medium'>Descuento: </p>
+                            <p className='text-md font-medium'>${Number(data.descuento).toFixed(2)}</p>
+                        </div>
+                        {/* <div className='flex flex-row justify-between'>
                             <p className='text-md font-medium'>Impuestos: </p>
                             <p className='text-md font-medium'>$0.00</p>
                         </div> */}
                     </div>
                     <div className='flex flex-row justify-between border-t-2 border-zinc-200 pt-3'>
                         <p className='text-md font-medium '>Total: </p>
-                        <p className='text-md font-medium'>${data.total}</p>
+                        <p className='text-md font-medium'>${Number(data.total).toFixed(2)}</p>
                     </div>
                 </div>
             )}

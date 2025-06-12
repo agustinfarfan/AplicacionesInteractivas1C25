@@ -4,6 +4,7 @@ import com.uade.tpo.demo.entity.dto.CreateCuponRequest;
 import com.uade.tpo.demo.entity.dto.CuponDTO;
 import com.uade.tpo.demo.enums.TipoDescuento;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 

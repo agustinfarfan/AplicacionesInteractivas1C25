@@ -219,6 +219,13 @@ public class CartServiceImpl implements CartService {
 
         OrderDTO orderDTO = orderService.createOrder(carrito, requestBody);
 
+        Cupon cupon = carrito.getCupon();
+
+        if (cupon != null) {
+            cupon.setCantidadActual(cupon.getCantidadActual() + 1);
+            cuponRepository.save(cupon);
+        }
+
         createCart(email);
 
         return orderDTO;

@@ -11,7 +11,7 @@ import {
 
 const About = () => {
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-6 sm:px-10 lg:px-20">
+    <div className=" py-12 px-6 sm:px-10 lg:px-20">
       <div className="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-lg">
         <h1 className="text-4xl font-extrabold mb-6 text-indigo-700 flex items-center gap-2">
           <Building className="w-8 h-8 text-indigo-700" /> Sobre Nosotros

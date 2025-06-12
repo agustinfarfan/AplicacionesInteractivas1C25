@@ -3,7 +3,7 @@ import Button from '../../components/buttons/Button';
 import ButtonLink from '../../components/buttons/ButtonLink';
 import useFetch from '../../hooks/useFetch'
 import { fetchProducts } from '../../services/backendApi';
-import { addProductoToCart, deleteProductoFromCart, fetchCart } from '../../services/carritoService';
+import { addCouponToCart, addProductoToCart, deleteProductoFromCart, fetchCart } from '../../services/carritoService';
 import Loading from '../../components/Loading';
 import Resumen from '../../components/Resumen';
 import { useAuth } from '../../context/AuthContext';
@@ -38,9 +38,6 @@ const Carrito = () => {
 
   const handleAgregarProducto = (productoId) => {
     setLoading(true);
-
-    console.log(productoId);
-
 
     addProductoToCart({ userId: user.user_id, productoId: productoId, cantidad: 1 })
       .then((data) => {
@@ -82,7 +79,17 @@ const Carrito = () => {
   }
 
   const handleAgregarCupon = () => {
-    console.log(coupon);
+    setLoading(true);
+
+    addCouponToCart({ userId: user.user_id, nombre: coupon })
+      .then((data) => {
+        setCart(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err);
+        setLoading(false);
+      });
     
   }
 
@@ -163,9 +170,9 @@ const Carrito = () => {
                         Cupón de descuento
                       </label>
                       <div className='flex flex-row gap-2 w-1/2'>
-                        <input value={coupon} onChange={(e) => setCoupon(e.target.value)} className="appearance-none border border-gray-400 rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="cupon" type="text" placeholder="Cupón" />
+                        <input disabled={data.descuento > 0} value={coupon} onChange={(e) => setCoupon(e.target.value)} className="appearance-none border border-gray-400 rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="cupon" type="text" placeholder="Cupón" />
                         
-                        <button onClick={handleAgregarCupon} disabled={coupon === ""} className="w-full disabled:bg-indigo-300 bg-indigo-600 px-4 py-2 rounded-md text-white text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <button onClick={handleAgregarCupon} disabled={coupon === "" || data.descuento > 0} className="w-full disabled:bg-indigo-300 bg-indigo-600 px-4 py-2 rounded-md text-white text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                           Agregar
                         </button>
                       </div>

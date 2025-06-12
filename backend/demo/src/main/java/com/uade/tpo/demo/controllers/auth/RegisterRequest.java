@@ -21,9 +21,9 @@ public class RegisterRequest {
     // 
     private String razonSocial;
     private String cuil;
-    private String calle;
-    private Integer altura;
-    private String codigoPostal;
-    private String localidad;
-    private String provincia;
+//    private String calle;
+//    private Integer altura;
+//    private String codigoPostal;
+//    private String localidad;
+//    private String provincia;
 }

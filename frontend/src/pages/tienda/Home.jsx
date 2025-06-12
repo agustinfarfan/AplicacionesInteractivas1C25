@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { ChevronRight, Award, Shield, Truck, Users, Star, ArrowRight, Microscope, TestTube, Beaker } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
+
+  const navigate = useNavigate();
+
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -114,7 +118,7 @@ const Home = () => {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                   <a
-                    href="/tienda/products"
+                    onClick={() => navigate('/productos')}
                     className="group bg-white text-gray-900 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center gap-2"
                   >
                     Ver catálogo completo

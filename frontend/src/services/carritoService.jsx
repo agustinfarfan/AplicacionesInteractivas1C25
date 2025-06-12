@@ -69,7 +69,7 @@ export const addProductoToCart = async ({ userId, productoId, cantidad }) => {
 
   const data = await response.json();
   return data;
-};
+}
 
 export const deleteProductoFromCart = async ({ userId, productoId, cantidad }) => {
     const endpoint = `http://localhost:4002/user/${userId}/cart/removeProduct`;
@@ -94,6 +94,29 @@ export const deleteProductoFromCart = async ({ userId, productoId, cantidad }) =
   const data = await response.json();
   return data;
 }
+
+export const addCouponToCart = async ({ userId, nombre }) => {
+  const endpoint = `http://localhost:4002/user/${userId}/cart/addCoupon`;
+
+  const response = await fetch(endpoint, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("token")}`
+    },
+    body: JSON.stringify({
+      nombreCupon: nombre
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error ${response.status}: ${errorText}`);
+  }
+
+  const data = await response.json();
+  return data;
+};
 
 export const finalizeCart = async ({ userId, informacion}) => {
   const endpoint = `http://localhost:4002/user/${userId}/cart/finalize`;

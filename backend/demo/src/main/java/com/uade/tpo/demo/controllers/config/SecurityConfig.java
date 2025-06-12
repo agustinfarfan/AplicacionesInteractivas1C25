@@ -56,6 +56,9 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.PUT, "/productos/**").hasAnyAuthority(Role.VENDOR.name())
                     .requestMatchers(HttpMethod.DELETE, "/productos/**").hasAnyAuthority(Role.VENDOR.name())
 
+                    // Cupones
+                    .requestMatchers(HttpMethod.GET, "/coupon/**").hasAnyAuthority(Role.VENDOR.name())
+
                     // Publicaciones
                     .requestMatchers(HttpMethod.GET, "/publicaciones/**").permitAll()
                     .requestMatchers(HttpMethod.POST, "/publicaciones/**").hasAnyAuthority(Role.VENDOR.name())

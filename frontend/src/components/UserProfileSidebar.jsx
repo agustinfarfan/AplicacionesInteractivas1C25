@@ -8,12 +8,16 @@ import {
   HiOutlineCog,
   HiOutlineOfficeBuilding
 } from "react-icons/hi";
+import { useAuth } from "../context/AuthContext";
+import { Loader } from "lucide-react";
+import Loading from "./Loading";
 
 const UserProfileSidebar = ({ onClose, onLogout }) => {
-  // Leemos directamente si el usuario es vendor
   
-  const [companyName, setCompanyName] = useState("Usuario");
+  const {user, loadingUser} = useAuth();
 
+
+  const [companyName, setCompanyName] = useState("Usuario");
    // lista de direcciones del usuario (inicial siempre array)
   const [addresses, setAddresses] = useState([]);
   // id de la dirección seleccionada
@@ -24,7 +28,6 @@ const UserProfileSidebar = ({ onClose, onLogout }) => {
     ? { Authorization: `Bearer ${token}` }
     : {};
 
-  const isAdmin = isVendor();
 
   // ← Nuevo: al montar, pedimos /user/me
    useEffect(() => {
@@ -51,7 +54,9 @@ const UserProfileSidebar = ({ onClose, onLogout }) => {
        .catch(console.error);
    }, [token]);
 
-  return (
+  return loadingUser ? (
+    <Loading/>
+  ) : (
     <div className="fixed top-0 right-0 h-full w-72 bg-white shadow-lg z-50 p-4 flex flex-col justify-start rounded-l-xl">
       {/* Botón de cerrar (X) */}
       <div className="flex justify-end">
@@ -105,22 +110,29 @@ const UserProfileSidebar = ({ onClose, onLogout }) => {
         </Link>
         
       </div>
-      <details className="group mt-6">
-        <summary className="flex items-center justify-between cursor-pointer px-4 py-2 text-sm text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50">
-          <span className="flex items-center gap-2">
-            <HiOutlineCog className="text-lg" />
-            Configuracion
-          </span>
+      
+      {
+        user.role == "VENDOR" && (
+            <details className="group mt-6">
+              <summary className="flex items-center justify-between cursor-pointer px-4 py-2 text-sm text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50">
+                <span className="flex items-center gap-2">
+                  <HiOutlineCog className="text-lg" />
+                  Configuracion
+                </span>
 
-        </summary>
-        <div className="mt-2 ml-6 flex flex-col gap-1 text-sm">
-          <Link to="/admin/categories">Categorías</Link>
-          <Link to="/admin/products">Productos</Link>
-          <Link to="/admin/clients">Clientes</Link>
-          <Link to="/admin/pedidos">Pedidos</Link>
-        </div>
-      </details>
+              </summary>
+              <div className="mt-2 ml-6 flex flex-col text-sm">
+                <Link className="text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 p-2" to="/admin/categories">Categorías</Link>
+                <Link className="text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 p-2" to="/admin/products">Productos</Link>
+                <Link className="text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 p-2" to="/admin/clients">Clientes</Link>
+                <Link className="text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 p-2" to="/admin/pedidos">Pedidos</Link>
+                <Link className="text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 p-2" to="/admin/cupones">Cupones</Link>
 
+              </div>
+            </details>
+        )
+      }
+      
       {/* Menú desplegable de Configuración (para todos los logueados) */}
       
 

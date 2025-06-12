@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
-import { fetchProducts, fetchProductsByCategory } from '../../services/backendApi'; 
-import ProductList from '../../components/ProductList'; 
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { fetchCategories, fetchProducts, fetchProductsByCategory } from '../../services/backendApi';
+import ProductList from '../../components/ProductList';
 
-const CategoryProducts = () => {
-    const { categoryId } = useParams();
-    const location = useLocation();
-    const categoryName = location.state?.categoryName || 'Categoría';
+const AllProducts = () => {
+    
+    const navigate = useNavigate();
     
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -14,17 +13,15 @@ const CategoryProducts = () => {
 
     const [searchTerm, setSearchTerm] = useState("");
 
+    const [categories, setCategories] = useState([]);
+    const [loadingCategories, setLoadingCategories] = useState(false);
+
+
     useEffect(() => {
         const loadProducts = async () => {
             try {
                 setLoading(true);
-                const allProducts = await fetchProductsByCategory({ id: categoryId });
-                // Filtrar productos por categoría
-                const categoryProducts = allProducts.filter(product => 
-                    product.categoryId === parseInt(categoryId) || 
-                    product.category_id === parseInt(categoryId) ||
-                    product.categoria_id === parseInt(categoryId)
-                );
+                const allProducts = await fetchProducts();
                 setProducts(allProducts);
             } catch (err) {
                 console.error('Error al cargar productos:', err);
@@ -34,10 +31,24 @@ const CategoryProducts = () => {
             }
         };
 
-        if (categoryId) {
-            loadProducts();
-        }
-    }, [categoryId]);
+        const loadCategories = async () => {
+            try {
+                setLoadingCategories(true);
+                const categoriesData = await fetchCategories();
+                console.log(categoriesData.content);
+
+                setCategories(categoriesData.content);
+            } catch (error) {
+                console.error('Error al cargar categorías:', error);
+            } finally {
+                setLoadingCategories(false);
+            }
+        };
+
+        loadProducts();
+        loadCategories();
+
+    }, []);
 
     const filteredProducts = products.filter((cat) =>
         cat.nombre.toLowerCase().includes(searchTerm.toLowerCase())
@@ -59,7 +70,7 @@ const CategoryProducts = () => {
             <div className="min-h-screen pt-16 flex items-center justify-center">
                 <div className="text-center">
                     <p className="text-red-600 mb-4">{error}</p>
-                    <button 
+                    <button
                         onClick={() => window.location.reload()}
                         className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
                     >
@@ -75,11 +86,31 @@ const CategoryProducts = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-4">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        {categoryName}
+                        Productos
                     </h1>
                     <p className="text-gray-600">
                         {products.length} {products.length === 1 ? 'producto encontrado' : 'productos encontrados'}
                     </p>
+                </div>
+
+                <div className="mb-8">
+                    <h2 className="text-xl font-semibold mb-2">Categorías</h2>
+                    <div className="flex overflow-x-auto gap-4 pb-2">
+                        {categories.map((cat) => (
+                            <button
+                                key={cat.id}
+                                className="min-w-[180px] bg-white border border-indigo-200 rounded-lg shadow hover:bg-indigo-50 transition flex-shrink-0 px-6 py-4 text-left"
+                                onClick={() => {
+                                    navigate(`/categoria/${cat.id}`)
+                                }}
+                            >
+                                <div className="font-bold text-indigo-700">{cat.name}</div>
+                                {cat.description && (
+                                    <div className="text-gray-500 text-sm mt-1">{cat.description}</div>
+                                )}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 <div className="mb-4">
@@ -93,7 +124,7 @@ const CategoryProducts = () => {
                 </div>
 
                 {filteredProducts.length === 0 ? (
-                    
+
                     <div className="text-center py-12">
                         <div className="text-gray-400 mb-4">
                             <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -108,11 +139,11 @@ const CategoryProducts = () => {
                         </p>
                     </div>
                 ) : (
-                        <ProductList products={filteredProducts} />
+                    <ProductList products={filteredProducts} />
                 )}
             </div>
         </div>
     );
 };
 
-export default CategoryProducts;
+export default AllProducts;

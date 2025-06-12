@@ -25,5 +25,5 @@ public class OrderDTO {
     private String nombre;
     private String apellido;
     private String email;
-
+    private CuponDTO cupon;
 }
