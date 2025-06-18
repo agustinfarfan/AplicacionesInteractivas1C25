@@ -10,13 +10,14 @@ import UserProfileSidebar from './UserProfileSidebar';
 import LogoSanaSana from '../assets/SanaSanaTransparenteLogo.png'
 import { isLoggedIn } from '../utils/auth';
 import { useAuth } from '../context/AuthContext';
-import { fetchCategories } from '../services/backendApi'; 
-import { HiUserCircle  } from "react-icons/hi";
+import { fetchCategories } from '../services/backendApi';
+import { HiUserCircle } from "react-icons/hi";
+import { fetchCart } from '../services/carritoService';
 
 const Header = () => {
 
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user, loadingUser, logout } = useAuth();
   const dropdownRef = useRef(null);
 
   const [current, setCurrent] = useState('Home');
@@ -25,12 +26,14 @@ const Header = () => {
   const [categories, setCategories] = useState([]);
   const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false);
   const [loadingCategories, setLoadingCategories] = useState(false);
+  const [cartQuantity, setCartQuantity] = useState(null);
+
 
   const tabs = [
-    { name: 'Home', href: '/'},
+    { name: 'Home', href: '/' },
     { name: 'Categorias', href: '#', hasDropdown: true },
-    { name: 'Nosotros', href: '/about'},
-    { name: 'Contactanos', href:'contacto'}
+    { name: 'Nosotros', href: '/about' },
+    { name: 'Contactanos', href: 'contacto' }
   ]
 
   useEffect(() => {
@@ -65,9 +68,9 @@ const Header = () => {
 
   // Cada vez que cambie localStorage (login/logout), queremos reflejarlo
   useEffect(() => {
-    
+
     console.log(isLoggedIn());
-    
+
     // Al montar, chequeamos si hay token
     setIsLoggedIn(isLoggedIn());
 
@@ -82,9 +85,25 @@ const Header = () => {
     };
   }, []);
 
-   // Función para cerrar sesión (borrar token y volver al landing)
-   const handleLogout = () => {
-    logout(); 
+  useEffect(() => {
+    if (!loadingUser && user) {
+      fetchCart({ id: user.user_id })
+        .then((data) => {
+          const value = data.carritoDetalle.reduce((prev, current, index) => prev + current.cantidad, 0)
+          console.log(value);
+
+          setCartQuantity(value);
+        })
+        .catch((err) => {
+          setError(err);
+        });
+    }
+  }, [user, loadingUser])
+
+
+  // Función para cerrar sesión (borrar token y volver al landing)
+  const handleLogout = () => {
+    logout();
     setIsLoggedIn(false);
     navigate("/");
   };
@@ -104,7 +123,7 @@ const Header = () => {
       setShowCategoriesDropdown(false);
     }
   };
-  
+
   return (
     <>
       <nav className="bg-white shadow-md fixed w-full z-10">
@@ -119,38 +138,36 @@ const Header = () => {
                 {tabs.map((tab) => (
                   <div key={tab.name} className="relative" ref={tab.name === 'Categorias' ? dropdownRef : null}>
                     {tab.hasDropdown ? (
-                      <button 
+                      <button
                         onClick={() => handleTabClick(tab)}
-                        className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                          current === tab.name
-                            ? 'border-indigo-500 text-gray-900'
-                            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                        }`}
-                      >                    
+                        className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${current === tab.name
+                          ? 'border-indigo-500 text-gray-900'
+                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                          }`}
+                      >
                         {tab.name}
-                        <svg 
-                          className={`ml-1 h-4 w-4 transition-transform ${showCategoriesDropdown ? 'rotate-180' : ''}`} 
-                          fill="none" 
-                          stroke="currentColor" 
+                        <svg
+                          className={`ml-1 h-4 w-4 transition-transform ${showCategoriesDropdown ? 'rotate-180' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
                           viewBox="0 0 24 24"
                         >
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                       </button>
                     ) : (
-                      <Link 
-                        to={tab.href} 
-                        onClick={() => handleTabClick(tab)} 
-                        className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                          current === tab.name
-                            ? 'border-indigo-500 text-gray-900'
-                            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                        }`}
-                      >                    
-                        {tab.name}                  
+                      <Link
+                        to={tab.href}
+                        onClick={() => handleTabClick(tab)}
+                        className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${current === tab.name
+                          ? 'border-indigo-500 text-gray-900'
+                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                          }`}
+                      >
+                        {tab.name}
                       </Link>
                     )}
-                    
+
                     {/* Dropdown de categorías */}
                     {tab.name === 'Categorias' && showCategoriesDropdown && (
                       <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-50">
@@ -183,21 +200,36 @@ const Header = () => {
             </div>
             <div className=" items-center">
               <div className="hidden md:flex md:flex-row md:items-center md:justify-center gap-4 h-full">
-                <ButtonIcon href={"/carrito"} imgSrc={carritoIcono}/>
-                { loggedIn ? (
-                  <div className="relative">
+                {loggedIn ? (
+                  <div className="flex flex-row gap-3 items-center justify-center">
+                    <div className='flex flex-row items-center justify-center bg-neutral-200 rounded-md'>
+                      <span className="px-3 text-sm font-bold text-indigo-600">
+                        {cartQuantity}
+                      </span>
+
+                      <Link to="/carrito" className="flex items-center justify-center w-full p-2 rounded-md text-white text-sm font-medium bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                        </svg>
+
+                      </Link>
+
+                    </div>
+
+
+
                     <button onClick={() => setShowProfile(true)} className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                      <HiUserCircle  className="w-10 h-10 text-gray-400" />
+                      <HiUserCircle className="w-10 h-10 text-gray-400" />
                     </button>
                     {showProfile && <UserProfileSidebar onLogout={handleLogout} onClose={() => setShowProfile(false)} />}
                   </div>
-                ):(
+                ) : (
                   <>
                     <ButtonLink href={"/auth/login"} nombre={"Iniciar Sesión"} />
-                      <ButtonLink href={"/auth/register"} nombre={"Registarse"} />
+                    <ButtonLink href={"/auth/register"} nombre={"Registarse"} />
                   </>
                 )}
-                
+
               </div>
               <div className="flex items-center h-full md:hidden">
                 <button type="button" className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500" aria-expanded="false">
@@ -213,7 +245,7 @@ const Header = () => {
 
         <div className="md:hidden hidden" id="mobile-menu">
           <div className="pt-2 pb-3 space-y-1">
-          {
+            {
               tabs.map((tab) => (
                 <Link
                   to={tab.href}
@@ -232,7 +264,7 @@ const Header = () => {
           </div>
           <div className="pt-4 pb-3 border-t border-gray-200">
             <div className="flex items-center px-4">
-              <Button nombre={"Sign Up"}/>
+              <Button nombre={"Sign Up"} />
             </div>
           </div>
         </div>
