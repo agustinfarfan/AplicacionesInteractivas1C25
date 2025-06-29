@@ -20,7 +20,7 @@ const AdminLayout = () => {
     ) : user && user.role == "VENDOR" ? (
         <>
             <Header />
-            <div className="h-vh min-h-screen py-20 bg-gray-50">
+            <div className='h-vh min-h-screen py-20 bg-gradient-to-br from-slate-50 to-blue-50'>
                 <Outlet />
             </div>
             <Footer />

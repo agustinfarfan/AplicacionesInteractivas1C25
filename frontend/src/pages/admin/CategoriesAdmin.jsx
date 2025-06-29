@@ -165,7 +165,7 @@ const CategoriasAdmin = () => {
   );
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6">
       <h1 className="text-2xl font-semibold mb-6">Administración de Categorías</h1>
 
       {/* Barra de búsqueda */}
