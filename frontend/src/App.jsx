@@ -4,6 +4,7 @@ import useTiendaRoute from "./routes/TiendaRoute";
 import useAuthRoute from "./routes/AuthRoute";
 import { AuthProvider } from "./context/AuthContext";
 
+
 function App() {
   const adminRoute = useAdminRoute();
   const tiendaRoute = useTiendaRoute();

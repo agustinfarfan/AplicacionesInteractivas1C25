@@ -3,65 +3,51 @@ import Button from '../../components/buttons/Button';
 import ButtonLink from '../../components/buttons/ButtonLink';
 import useFetch from '../../hooks/useFetch'
 import { fetchProducts } from '../../services/backendApi';
-import { addCouponToCart, addProductoToCart, deleteProductoFromCart, fetchCart } from '../../services/carritoService';
 import Loading from '../../components/Loading';
 import Resumen from '../../components/Resumen';
 import { useAuth } from '../../context/AuthContext';
 import { useEffect, useState } from 'react';
 import NoResourceMessage from '../../components/NoResourceMessage';
+import { useDispatch, useSelector } from 'react-redux';
+import { addProductoToCart, fetchCarrito, removeProductoFromCart } from '../../redux/carrito/carritoReducer';
 
 const Carrito = () => {
 
   const navigate = useNavigate();
   const { user, loadingUser } = useAuth();
 
-  const [loading, setLoading] = useState(true);
+  //const [loading, setLoading] = useState(true);
   const [data, setCart] = useState(null);
-  const [error, setError] = useState(null);
+  //const [error, setError] = useState(null);
 
   const [coupon, setCoupon] = useState("");
 
-  useEffect(() => {
-    if (!loadingUser && user) {
-      fetchCart({ id: user.user_id })
-        .then((data) => {
-          setCart(data);
-          setLoading(false);
-        })
-        .catch((err) => {
-          setError(err);
-          setLoading(false);
-        });
-    }
+  const dispatch = useDispatch();
+  const { carrito, loading, error, empty } = useSelector((state) => state.carrito);
 
-  }, [user, loadingUser])
+  useEffect(() => {
+    if (user) {
+      console.log("Dispatching fetchCarrito with id:", user.user_id);
+      dispatch(fetchCarrito({ id: user.user_id }));
+    }
+  }, [dispatch, user])
+
+
 
   const handleAgregarProducto = (productoId) => {
-    setLoading(true);
-
-    addProductoToCart({ userId: user.user_id, productoId: productoId, cantidad: 1 })
-      .then((data) => {
-        setCart(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
+    dispatch(addProductoToCart({
+      id: user.user_id,
+      productoId: productoId,
+      cantidad: 1
+    }))
   }
 
   const handleDecrementarProducto = (productoId) => {
-    setLoading(true);
-
-    deleteProductoFromCart({ userId: user.user_id, productoId: productoId, cantidad: 1 })
-      .then((data) => {
-        setCart(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
+    dispatch(removeProductoFromCart({
+      id: user.user_id,
+      productoId: productoId,
+      cantidad: 1
+    }))
   }
 
   const handleEliminarProducto = (productoId, cantidadActual) => {
@@ -113,7 +99,7 @@ const Carrito = () => {
         <p>{JSON.stringify(error)}</p>
       </div>
     </>
-  ) : data && data.carritoDetalle.length === 0 ? (
+  ) : empty ? (
     <NoResourceMessage texto={"No hay productos en el carrito"} />
   ) : (
     <>
@@ -124,7 +110,7 @@ const Carrito = () => {
             <div className='w-full h-full rounded-lg shadow-lg bg-white border-gray-100 border-2 p-4'>
 
               {
-                data.carritoDetalle.map(product => (
+                carrito.carritoDetalle.map(product => (
                   <div key={product.producto_id} className='border rounded-lg shadow-lg bg-white border-gray-200 mb-4 flex h-32 flex-row items-center justify-between'>
                     <div className='flex flex-row items-center p-4'>
                       <img onClick={() => navigate(`/producto/${product.producto_id}`)} src='https://via.placeholder.com/150?text=Hello' alt={product.nombre_producto} className='w-24 h-24 w-min-24 border border-gray-300 object-cover mr-4 rounded-md' />
@@ -170,9 +156,9 @@ const Carrito = () => {
                   Cupón de descuento
                 </label>
                 <div className='flex flex-row gap-2 w-1/2'>
-                  <input disabled={data.descuento > 0} value={coupon} onChange={(e) => setCoupon(e.target.value)} className="appearance-none border border-gray-400 rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="cupon" type="text" placeholder="Cupón" />
+                  <input disabled={carrito.descuento > 0} value={coupon} onChange={(e) => setCoupon(e.target.value)} className="appearance-none border border-gray-400 rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="cupon" type="text" placeholder="Cupón" />
 
-                  <button onClick={handleAgregarCupon} disabled={coupon === "" || data.descuento > 0} className="w-full disabled:bg-indigo-300 bg-indigo-600 px-4 py-2 rounded-md text-white text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                  <button onClick={handleAgregarCupon} disabled={coupon === "" || carrito.descuento > 0} className="w-full disabled:bg-indigo-300 bg-indigo-600 px-4 py-2 rounded-md text-white text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     Agregar
                   </button>
                 </div>
@@ -182,7 +168,7 @@ const Carrito = () => {
           </div>
 
           <div className='md:w-1/3 w-full h-96 rounded-lg shadow-lg bg-white border-gray-100 p-4 border-2 justify-between flex flex-col'>
-            <Resumen data={data} />
+            <Resumen data={carrito} />
             <div className='mt-5'>
               <Button onClick={handleIngresarCheckout} nombre={"Proceder al Checkout"} />
             </div>

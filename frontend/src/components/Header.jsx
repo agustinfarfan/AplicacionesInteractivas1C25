@@ -202,10 +202,12 @@ const Header = () => {
               <div className="hidden md:flex md:flex-row md:items-center md:justify-center gap-4 h-full">
                 {loggedIn ? (
                   <div className="flex flex-row gap-3 items-center justify-center">
-                    <div className='flex flex-row items-center justify-center bg-neutral-200 rounded-md'>
-                      <span className="px-3 text-sm font-bold text-indigo-600">
-                        {cartQuantity}
-                      </span>
+                      <div className='flex flex-row items-center justify-center bg-neutral-200 rounded-md'>
+                      {cartQuantity != null && cartQuantity > 0 ? (
+                        <span className="px-3 text-sm font-bold text-indigo-600">
+                          {cartQuantity}
+                        </span>
+                      ) : (<></>)}
 
                       <Link to="/carrito" className="flex items-center justify-center w-full p-2 rounded-md text-white text-sm font-medium bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
