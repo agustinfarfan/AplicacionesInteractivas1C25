@@ -9,28 +9,17 @@ import { useAuth } from '../../context/AuthContext';
 import { useEffect, useState } from 'react';
 import NoResourceMessage from '../../components/NoResourceMessage';
 import { useDispatch, useSelector } from 'react-redux';
-import { addProductoToCart, fetchCarrito, removeProductoFromCart } from '../../redux/carrito/carritoReducer';
+import { addCouponToCart, addProductoToCart, fetchCarrito, removeProductoFromCart } from '../../redux/carrito/carritoReducer';
 
 const Carrito = () => {
 
   const navigate = useNavigate();
   const { user, loadingUser } = useAuth();
 
-  //const [loading, setLoading] = useState(true);
-  const [data, setCart] = useState(null);
-  //const [error, setError] = useState(null);
-
   const [coupon, setCoupon] = useState("");
 
   const dispatch = useDispatch();
-  const { carrito, loading, error, empty } = useSelector((state) => state.carrito);
-
-  useEffect(() => {
-    if (user) {
-      console.log("Dispatching fetchCarrito with id:", user.user_id);
-      dispatch(fetchCarrito({ id: user.user_id }));
-    }
-  }, [dispatch, user])
+  const { carrito, loading, error, isEmpty } = useSelector((state) => state.carrito);
 
 
 
@@ -51,32 +40,18 @@ const Carrito = () => {
   }
 
   const handleEliminarProducto = (productoId, cantidadActual) => {
-    setLoading(true);
-
-    deleteProductoFromCart({ userId: user.user_id, productoId: productoId, cantidad: cantidadActual })
-      .then((data) => {
-        setCart(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
+    dispatch(removeProductoFromCart({
+      id: user.user_id,
+      productoId: productoId,
+      cantidad: cantidadActual
+    }))
   }
 
   const handleAgregarCupon = () => {
-    setLoading(true);
-
-    addCouponToCart({ userId: user.user_id, nombre: coupon })
-      .then((data) => {
-        setCart(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
-
+    dispatch(addCouponToCart({
+      id: user.user_id,
+      nombre: coupon
+    }))
   }
 
   const handleIngresarCheckout = (e) => {
@@ -99,7 +74,7 @@ const Carrito = () => {
         <p>{JSON.stringify(error)}</p>
       </div>
     </>
-  ) : empty ? (
+  ) : isEmpty ? (
     <NoResourceMessage texto={"No hay productos en el carrito"} />
   ) : (
     <>

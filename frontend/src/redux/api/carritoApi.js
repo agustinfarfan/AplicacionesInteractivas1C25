@@ -32,3 +32,15 @@ export const removeProduct = async (userId, productoId, cantidad) => {
   });
   return response.data;
 };
+
+export const addCoupon = async (userId, nombre) => {
+  const response = await axiosInstance.put(`/user/${userId}/cart/addCoupon`, {
+    nombreCupon: nombre
+  });
+  return response.data;
+};
+
+export const finalize = async (userId, data) => {
+  const response = await axiosInstance.post(`/user/${userId}/cart/finalize`, data);
+  return response.data;
+};

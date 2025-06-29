@@ -13,11 +13,13 @@ import { useAuth } from '../context/AuthContext';
 import { fetchCategories } from '../services/backendApi';
 import { HiUserCircle } from "react-icons/hi";
 import { fetchCart } from '../services/carritoService';
+import { useSelector } from 'react-redux';
 
 const Header = () => {
 
   const navigate = useNavigate();
   const { user, loadingUser, logout } = useAuth();
+  const { isEmpty, quantity } = useSelector((state) => state.carrito);
   const dropdownRef = useRef(null);
 
   const [current, setCurrent] = useState('Home');
@@ -26,7 +28,6 @@ const Header = () => {
   const [categories, setCategories] = useState([]);
   const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false);
   const [loadingCategories, setLoadingCategories] = useState(false);
-  const [cartQuantity, setCartQuantity] = useState(null);
 
 
   const tabs = [
@@ -84,21 +85,6 @@ const Header = () => {
       window.removeEventListener("storage", handleStorageChange);
     };
   }, []);
-
-  useEffect(() => {
-    if (!loadingUser && user) {
-      fetchCart({ id: user.user_id })
-        .then((data) => {
-          const value = data.carritoDetalle.reduce((prev, current, index) => prev + current.cantidad, 0)
-          console.log(value);
-
-          setCartQuantity(value);
-        })
-        .catch((err) => {
-          setError(err);
-        });
-    }
-  }, [user, loadingUser])
 
 
   // Función para cerrar sesión (borrar token y volver al landing)
@@ -203,9 +189,9 @@ const Header = () => {
                 {loggedIn ? (
                   <div className="flex flex-row gap-3 items-center justify-center">
                       <div className='flex flex-row items-center justify-center bg-neutral-200 rounded-md'>
-                      {cartQuantity != null && cartQuantity > 0 ? (
+                      {!isEmpty ? (
                         <span className="px-3 text-sm font-bold text-indigo-600">
-                          {cartQuantity}
+                          {quantity}
                         </span>
                       ) : (<></>)}
 

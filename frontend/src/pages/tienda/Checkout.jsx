@@ -3,22 +3,20 @@ import Button from '../../components/buttons/Button'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import Resumen from '../../components/Resumen';
 import { useAuth } from '../../context/AuthContext';
-import { fetchCart, finalizeCart } from '../../services/carritoService';
 import Loading from '../../components/Loading';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCarrito, finalizeCart } from '../../redux/carrito/carritoReducer';
 
 const Checkout = () => {
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { user, loadingUser } = useAuth();
-
-  const [loading, setLoading] = useState(true);
-  const [data, setCart] = useState(null);
-  const [error, setError] = useState(null);
-
-  const [addresses, setAddresses] = useState(null);
+  const { carrito, loading, error, isEmpty } = useSelector((state) => state.carrito);
 
   const [resumenActivo, setResumenActivo] = useState(true);
 
+  const [addresses, setAddresses] = useState(null);
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [email, setEmail] = useState('');
@@ -37,18 +35,6 @@ const Checkout = () => {
 
   useEffect(() => {
     if (!loadingUser && user) {
-      fetchCart({ id: user.user_id })
-        .then((data) => {
-          setCart(data);
-          setLoading(false);
-        })
-        .catch((err) => {
-          setError(err);
-          setLoading(false);
-        });
-
-      console.log("A");
-
 
       fetch("http://localhost:4002/user/me", {
         headers: { "Content-Type": "application/json", ...authHeader },
@@ -70,6 +56,23 @@ const Checkout = () => {
     }
 
   }, [user, loadingUser])
+
+  const handleExpirationChange = (e) => {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 2) {
+      value = value.slice(0, 2) + '/' + value.slice(2, 4);
+    }
+    if (value.length > 5) {
+      value = value.slice(0, 5);
+    }
+    setexpirationDate(value);
+  };
+
+  const handleCardNumberChange = (e) => {
+    let value = e.target.value.replace(/\D/g, '').slice(0, 16); // Solo 16 dígitos
+    value = value.replace(/(.{4})/g, '$1 ').trim(); // Agrupa en bloques de 4
+    setTarjeta(value);
+  }
 
   // Funciones de validación por paso
   const validarPaso1 = () => {
@@ -97,18 +100,7 @@ const Checkout = () => {
     return true;
   };
 
-  const handleExpirationChange = (e) => {
-    let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-    if (value.length > 2) {
-      value = value.slice(0, 2) + '/' + value.slice(2, 4);
-    }
-    if (value.length > 5) {
-      value = value.slice(0, 5);
-    }
-    setexpirationDate(value);
-  };
-
-  const handleCheckoutFormulario = (e) => {
+  const handleCheckoutFormulario = async (e) => {
     e.preventDefault();
 
 
@@ -144,21 +136,14 @@ const Checkout = () => {
         email: email
       }
 
-      setLoading(true);
-      // Se crea orden en base de datos.
-      finalizeCart({ userId: user.user_id, informacion: informacion })
-        .then((data) => {
-          setLoading(false);
-
-          // Si todo está bien, navegar a success
-          navigate("success");
-        })
-        .catch((err) => {
-          setError(err);
-          setLoading(false);
-          navigate("failure");
-        });
-
+      try {
+        await dispatch(finalizeCart({ id: user.user_id, info: informacion })).unwrap();
+        dispatch(fetchCarrito({ id: user.user_id }));
+        navigate("success");
+      } catch (err) {
+        console.error("Payment failed:", err);
+        navigate("failure");
+      }
     }
   }
 
@@ -198,7 +183,7 @@ const Checkout = () => {
         <p>{JSON.stringify(error)}</p>
       </div>
     </>
-  ) : data && data.carritoDetalle.length === 0 ? (
+  ) : isEmpty ? (
     <Navigate to={"/carrito"} />
   ) : (
     <>
@@ -352,7 +337,7 @@ const Checkout = () => {
                     <label className="block text-gray-800 font-bold mb-2" htmlFor="card_number">
                       Número de tarjeta
                     </label>
-                    <input value={tarjeta} onChange={(e) => setTarjeta(e.target.value)} className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="card_number" type="text" placeholder="**** **** **** 1234" />
+                    <input value={tarjeta} onChange={handleCardNumberChange} className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="card_number" type="text" placeholder="**** **** **** 1234" />
                   </div>
 
                   <div className='flex flex-row gap-3 mb-6'>
@@ -385,7 +370,7 @@ const Checkout = () => {
 
           <div className={`md:w-1/3 w-full h-60 rounded-lg shadow-lg bg-gray-50 border-gray-100 p-4 border-2 justify-between ${resumenActivo ? "flex flex-col" : "flex flex-row"
             }`}>
-            <Resumen data={data} activo={resumenActivo} />
+            <Resumen data={carrito} activo={resumenActivo} />
             <button className='block md:hidden border' onClick={() => setResumenActivo(!resumenActivo)}>
               cerrar
             </button>
