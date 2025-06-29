@@ -1,19 +1,13 @@
 package com.uade.tpo.demo.service.cart;
 
 
-import com.uade.tpo.demo.entity.Carrito;
-import com.uade.tpo.demo.entity.CarritoDetalle;
-import com.uade.tpo.demo.entity.Producto;
-import com.uade.tpo.demo.entity.User;
-import com.uade.tpo.demo.entity.dto.CartProductRequest;
-import com.uade.tpo.demo.entity.dto.CarritoDTO;
+import com.uade.tpo.demo.entity.*;
+import com.uade.tpo.demo.entity.dto.*;
 import com.uade.tpo.demo.enums.Role;
 import com.uade.tpo.demo.exceptions.CartProductQuantityException;
 import com.uade.tpo.demo.exceptions.ResourceNotFoundException;
-import com.uade.tpo.demo.repository.CartDetailsRepository;
-import com.uade.tpo.demo.repository.CartRepository;
-import com.uade.tpo.demo.repository.ProductoRepository;
-import com.uade.tpo.demo.repository.UserRepository;
+import com.uade.tpo.demo.repository.*;
+import com.uade.tpo.demo.service.OrderService;
 import com.uade.tpo.demo.service.ProductService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,14 +37,24 @@ public class CartServiceImpl implements CartService {
     private CartDetailsRepository cartDetailsRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private OrderService orderService;
+    @Autowired
+    private CuponRepository cuponRepository;
 
     public Page<CarritoDTO> getAllCarts(PageRequest pageable) {
-        Page<CarritoDTO> carritoDTOs = cartRepository.findAll(pageable).map(Carrito::getDTO);
-        return carritoDTOs;
+        return cartRepository.findAll(pageable).map(Carrito::getDTO);
     }
 
-    public CarritoDTO getCartById(Long cartId) {
-        Carrito carrito = cartRepository.findById(cartId).orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con Id: " + cartId));
+    public CarritoDTO getCartByEmail(Long userId, String email) {
+
+        User user = UserRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+        Carrito carrito = cartRepository.findByUserId(user.getId()).orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con UserId: " + userId));
+
+        if (!carrito.getUser().getEmail().equals(email)) {
+            throw new AccessDeniedException("Email no coincide con dueño del carrito");
+        }
+
         return carrito.getDTO();
     }
 
@@ -62,9 +66,7 @@ public class CartServiceImpl implements CartService {
         Optional<Carrito> carritoViejo = cartRepository.findByUserId(user.getId());
 
         // Si User tenia carrito creado, lo elimina.
-        if (carritoViejo.isPresent()) {
-            cartRepository.delete(carritoViejo.get());
-        }
+        carritoViejo.ifPresent(carrito -> cartRepository.delete(carrito));
 
         Carrito carrito = cartRepository.save(new Carrito(user));
 
@@ -72,35 +74,37 @@ public class CartServiceImpl implements CartService {
     }
 
     @Transactional
-    public CarritoDTO addProductToCart(Long cartId, CartProductRequest request) throws CartProductQuantityException, ResourceNotFoundException {
+    public CarritoDTO addProductToCart(Long userId, String email, CartProductRequest request) throws CartProductQuantityException, ResourceNotFoundException {
 
-        Carrito carrito = cartRepository.findById(cartId).orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con Id: " + cartId));
         Producto producto = productoRepository.findById(request.getProductId()).orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con Id: " + request.getProductId()));;
+        User user = UserRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+        Carrito carrito = cartRepository.findByUserId(user.getId()).orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con UserId: " + userId));
 
-        // Validacion de autenticacion
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
-
-        if (user.getRole() != Role.VENDOR && !Objects.equals(user.getId(), carrito.getUser().getId())) {
-            throw new AccessDeniedException("User is not the owner of this cart.");
+        // Validación de propiedad de carrito
+        if (!carrito.getUser().getEmail().equals(email) ) {
+            throw new AccessDeniedException("Email no coincide con dueño del carrito");
         }
 
         // Validacion de cantidad
         if (request.getCantidad() <= 0) {
-            throw new CartProductQuantityException();
+            throw new CartProductQuantityException("No se puede ingresar cantidad negativa.");
         }
 
         // Validacion de stock
         if (producto.getStock() < request.getCantidad()) {
-            throw new CartProductQuantityException();
+            throw new IllegalArgumentException("El producto no tiene stock");
         }
 
         // Ver si tiene producto en carrito.
-        List<CarritoDetalle> carritoDetalles = cartDetailsRepository.findByCartId(cartId);
+        List<CarritoDetalle> carritoDetalles = cartDetailsRepository.findByCartId(carrito.getId());
         AtomicBoolean existe = new AtomicBoolean(false);
 
         carritoDetalles.forEach(carritoDetalle -> {
             if (carritoDetalle.tieneProducto(request.getProductId())) {
+
+                if (producto.getStock() < request.getCantidad() + carritoDetalle.getCantidad()) {
+                    throw new IllegalArgumentException("El producto no tiene stock");
+                }
 
                 carritoDetalle.ajustarCantidad(request.getCantidad());
                 cartDetailsRepository.save(carritoDetalle);
@@ -123,26 +127,44 @@ public class CartServiceImpl implements CartService {
         return carrito.getDTO();
     }
 
+    @Override
     @Transactional
-    public CarritoDTO deleteProductFromCart(Long cartId, CartProductRequest request) throws ResourceNotFoundException {
-        Carrito carrito = cartRepository.findById(cartId).orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con Id: " + cartId));
-        Producto producto = productoRepository.findById(request.getProductId()).orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con Id: " + request.getProductId()));;
+    public CarritoDTO addCouponToCart(Long userId, String email, CartCouponRequest request) {
+        Cupon cupon = cuponRepository.findByNombre(request.getNombreCupon()).orElseThrow(() -> new ResourceNotFoundException("Coupon not found with name: " + request.getNombreCupon()));;
+        User user = UserRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userId));
+        Carrito carrito = cartRepository.findByUserId(user.getId()).orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con UserId: " + userId));
 
-        // Validacion de autenticacion
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
-
-        if (user.getRole() != Role.VENDOR && !Objects.equals(user.getId(), carrito.getUser().getId())) {
-            throw new AccessDeniedException("User is not the owner of this cart.");
+        // Validación de propiedad de carrito
+        if (!carrito.getUser().getEmail().equals(email) ) {
+            throw new AccessDeniedException("Email no coincide con dueño del carrito");
         }
 
-        List<CarritoDetalle> carritoDetalles = cartDetailsRepository.findByCartId(cartId);
+        carrito.setCupon(cupon);
+
+        Carrito savedCarrito = cartRepository.save(carrito);
+
+        return savedCarrito.getDTO();
+    }
+
+    @Transactional
+    public CarritoDTO deleteProductFromCart(Long userId, String email, CartProductRequest request) throws ResourceNotFoundException {
+
+        Producto producto = productoRepository.findById(request.getProductId()).orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con Id: " + request.getProductId()));;
+        User user = UserRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+        Carrito carrito = cartRepository.findByUserId(user.getId()).orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con UserId: " + userId));
+
+        // Validación de propiedad de carrito
+        if (!carrito.getUser().getEmail().equals(email) ) {
+            throw new AccessDeniedException("Email no coincide con dueño del carrito");
+        }
+
+        List<CarritoDetalle> carritoDetalles = cartDetailsRepository.findByCartId(carrito.getId());
         AtomicBoolean existe = new AtomicBoolean(false);
 
         carritoDetalles.forEach(carritoDetalle -> {
             if (carritoDetalle.tieneProducto(request.getProductId())) {
 
-                if (carritoDetalle.getCantidad() < request.getCantidad().intValue()) {
+                if (carritoDetalle.getCantidad() <= request.getCantidad().intValue()) {
                     cartDetailsRepository.delete(carritoDetalle);
                     carrito.getCarritoDetalle().remove(carritoDetalle);
                 } else {
@@ -165,20 +187,47 @@ public class CartServiceImpl implements CartService {
     }
 
     @Transactional
-    public Boolean deleteCartById(Long cartId) {
+    public Boolean deleteCartById(Long userId, String email) {
 
-        Carrito carrito = cartRepository.findById(cartId).orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
+        User user = UserRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+        Carrito carrito = cartRepository.findByUserId(user.getId()).orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con UserId: " + userId));
 
-        // Validacion de autenticacion
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
-
-        if (user.getRole() != Role.VENDOR && !Objects.equals(user.getId(), carrito.getUser().getId())) {
-            throw new AccessDeniedException("User is not the owner of this cart.");
+        // Validación de propiedad de carrito
+        if (!carrito.getUser().getEmail().equals(email) ) {
+            throw new AccessDeniedException("Email no coincide con dueño del carrito");
         }
 
-        cartRepository.deleteById(cartId);
+        cartRepository.deleteById(carrito.getId());
         return true;
     }
 
+    @Transactional
+    public OrderDTO finalizeCart(Long userId, String email, CheckoutDTO requestBody) {
+
+        User user = UserRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+        Carrito carrito = cartRepository.findByUserId(user.getId()).orElseThrow(() -> new ResourceNotFoundException("Carrito no encontrado con UserId: " + userId));
+
+        // Validación de propiedad de carrito
+        if (!carrito.getUser().getEmail().equals(email) ) {
+            throw new AccessDeniedException("Email no coincide con dueño del carrito");
+        }
+
+        // Validacion de cantidad de productos
+        if (carrito.getCarritoDetalle().isEmpty()) {
+            throw new CartProductQuantityException("No se puede finalizar carrito sin productos");
+        }
+
+        OrderDTO orderDTO = orderService.createOrder(carrito, requestBody);
+
+        Cupon cupon = carrito.getCupon();
+
+        if (cupon != null) {
+            cupon.setCantidadActual(cupon.getCantidadActual() + 1);
+            cuponRepository.save(cupon);
+        }
+
+        createCart(email);
+
+        return orderDTO;
+    }
 }

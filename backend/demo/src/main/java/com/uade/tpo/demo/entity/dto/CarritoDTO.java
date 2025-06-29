@@ -15,5 +15,6 @@ import java.util.List;
 @Builder
 public class CarritoDTO {
     private List<CarritoDetalleDTO> carritoDetalle;
+    private double descuento;
     private double total;
 }

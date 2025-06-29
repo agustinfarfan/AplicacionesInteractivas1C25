@@ -10,7 +10,9 @@ import lombok.Setter;
 @Setter
 @Builder
 public class CarritoDetalleDTO {
+    private Long producto_id;
     private String nombre_producto;
+    private String descripcion;
     private double precio_unitario;
     private int cantidad;
     private double subtotal;

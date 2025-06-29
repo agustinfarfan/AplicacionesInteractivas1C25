@@ -10,6 +10,7 @@ import java.util.function.Function;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.uade.tpo.demo.entity.User;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
@@ -29,16 +30,24 @@ public class JwtService {
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
 
-    public String generateToken(
-            UserDetails userDetails) {
-        return buildToken(userDetails, jwtExpiration);
+    public String generateToken(UserDetails userDetails) {
+        Map<String, Object> extraClaims = new HashMap<>();
+
+        if (userDetails instanceof User customUserDetails) {
+            extraClaims.put("role", customUserDetails.getRole());
+            extraClaims.put("user_id", customUserDetails.getId());
+        }
+
+        return buildToken(extraClaims, userDetails, jwtExpiration);
     }
 
     private String buildToken(
+            Map<String, Object> extraClaims,
             UserDetails userDetails,
             long expiration) {
         return Jwts
                 .builder()
+                .claims(extraClaims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))

@@ -17,6 +17,7 @@ import com.uade.tpo.demo.exceptions.CategoryDuplicatedException;
 import com.uade.tpo.demo.service.CategoryService;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("categories")
 public class CategoriesController {
 
@@ -54,7 +55,7 @@ public class CategoriesController {
     @PostMapping
     public ResponseEntity<Object> createCategoria(@RequestBody CategoriesRequest categoriaRequest)
             throws CategoryDuplicatedException {
-        Category result = categoriaService.createCategoria(categoriaRequest.getNombre());
+        Category result = categoriaService.createCategoria(categoriaRequest.getNombre(), categoriaRequest.getDescripcion());
         return ResponseEntity.created(URI.create("/categories/" + result.getId())).body(result);
     }
     

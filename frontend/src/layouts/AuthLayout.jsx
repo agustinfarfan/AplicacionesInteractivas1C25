@@ -8,7 +8,8 @@ const AuthLayout = () => {
   return (
     <>
       <Header />
-      <div className="h-screen pt-20">
+      <div className='h-vh min-h-screen py-20 bg-gradient-to-br from-slate-50 to-blue-50'>
+
         <Outlet />
       </div>
       <Footer />

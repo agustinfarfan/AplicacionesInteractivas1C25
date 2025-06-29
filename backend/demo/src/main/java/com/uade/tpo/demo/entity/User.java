@@ -1,8 +1,10 @@
 package com.uade.tpo.demo.entity;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.uade.tpo.demo.entity.dto.UserDTO;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -83,7 +85,28 @@ public class User implements UserDetails {
         return true;
     }
 
-    @ManyToOne
-    private Cliente cliente;
+    @Column(name = "razon_social", nullable = false)
+    private String razonSocial;
 
+    @Column(name = "cuil", nullable = false, unique = true)
+    private String cuil;
+
+    private String calle;
+    private Integer altura;
+    @Column(name = "codigo_postal")
+    private String codigoPostal;
+    private String localidad;
+    private String provincia;
+
+    public UserDTO getDTO() {
+        return new UserDTO(id, email, firstName,lastName, role, razonSocial, shippingAddresses.stream().map(ShippingAddress::getDTO).toList());
+    }
+
+     /** Lista de direcciones de envío asociadas **/
+    @OneToMany(
+        mappedBy = "user",
+        cascade = jakarta.persistence.CascadeType.ALL,
+        orphanRemoval = true
+    )
+    private List<ShippingAddress> shippingAddresses = new ArrayList<>();
 }

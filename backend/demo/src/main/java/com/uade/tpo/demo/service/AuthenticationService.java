@@ -1,5 +1,7 @@
 package com.uade.tpo.demo.service;
 
+import com.uade.tpo.demo.service.cart.CartService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +24,9 @@ public class AuthenticationService {
         private final JwtService jwtService;
         private final AuthenticationManager authenticationManager;
 
+        @Autowired
+        private CartService cartService;
+
         public AuthenticationResponse register(RegisterRequest request) {
                 var user = User.builder()
                                 .firstName(request.getFirstname())
@@ -29,9 +34,20 @@ public class AuthenticationService {
                                 .email(request.getEmail())
                                 .password(passwordEncoder.encode(request.getPassword()))
                                 .role(request.getRole())
+                                // ahora rellenamos también la info de la “empresa”
+                                .razonSocial(request.getRazonSocial())
+                                .cuil(request.getCuil())
+//                                .calle(request.getCalle())
+//                                .altura(request.getAltura())
+//                                .codigoPostal(request.getCodigoPostal())
+//                                .localidad(request.getLocalidad())
+//                                .provincia(request.getProvincia())
                                 .build();
 
                 repository.save(user);
+
+                cartService.createCart(request.getEmail());
+
                 var jwtToken = jwtService.generateToken(user);
                 return AuthenticationResponse.builder()
                                 .accessToken(jwtToken)
