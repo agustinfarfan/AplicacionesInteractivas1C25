@@ -1,8 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import axios from 'axios'
 import { addCoupon, addProduct, finalize, getUserCart, removeProduct } from '../api/carritoApi'
-
-
 
 export const fetchCarrito = createAsyncThunk("carrito/getCart", async ({ id }) => {
   const data = await getUserCart(id);
@@ -59,9 +56,6 @@ function handleCarritoRejected(state, action) {
   state.error = action.error.message;
 }
 
-function handleCarritoClear(state, action) {
-  state.loading
-}
 
 export const carritoSlice = createSlice({
   name: 'carrito',

@@ -21,7 +21,6 @@ function App() {
             {authRoute}
             {adminRoute}
           </Route>
-
         </Routes>
       </BrowserRouter>
     </AuthProvider>
