@@ -82,7 +82,7 @@ const AllProducts = () => {
     }
 
     return (
-        <div className="min-h-screen pt-16 bg-gray-50">
+        <div className="pt-10">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-4">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -99,14 +99,14 @@ const AllProducts = () => {
                         {categories.map((cat) => (
                             <button
                                 key={cat.id}
-                                className="min-w-[180px] bg-white border border-indigo-200 rounded-lg shadow hover:bg-indigo-50 transition flex-shrink-0 px-6 py-4 text-left"
+                                className="min-w-[200px] max-w-[300px] bg-white border border-indigo-200 rounded-lg shadow hover:bg-indigo-50 transition flex-shrink-0 px-6 py-4 text-left"
                                 onClick={() => {
                                     navigate(`/categoria/${cat.id}`)
                                 }}
                             >
                                 <div className="font-bold text-indigo-700">{cat.name}</div>
                                 {cat.description && (
-                                    <div className="text-gray-500 text-sm mt-1">{cat.description}</div>
+                                    <p className="text-gray-500 text-sm mt-1 line-clamp-3">{cat.description}</p>
                                 )}
                             </button>
                         ))}

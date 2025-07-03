@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.uade.tpo.demo.entity.Category;
+import com.uade.tpo.demo.entity.dto.CategoriesRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,10 +32,10 @@ public class CategoriaServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category createCategoria(String nombre, String description) throws CategoryDuplicatedException {        
-        List<Category> categories = categoryRepository.findByName(nombre);
+    public Category createCategoria(CategoriesRequest request) throws CategoryDuplicatedException {
+        List<Category> categories = categoryRepository.findByName(request.getNombre());
         if (categories.isEmpty())
-            return categoryRepository.save(new Category(nombre, description));
+            return categoryRepository.save(new Category(request.getNombre(), request.getDescripcion()));
         throw new CategoryDuplicatedException();
     }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ChevronRight, Award, Shield, Truck, Users, Star, ArrowRight, Microscope, TestTube, Beaker } from "lucide-react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Home = () => {
 
@@ -190,7 +190,7 @@ const Home = () => {
         </div>
 
         {/* Categorías destacadas */}
-        <div className="mb-20">
+        {/* <div className="mb-20">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Categorías destacadas</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -232,10 +232,10 @@ const Home = () => {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* Productos recomendados */}
-        <div className="mb-20">
+        {/* <div className="mb-20">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Productos recomendados</h2>
             <p className="text-xl text-gray-600">Los más elegidos por profesionales de la salud</p>
@@ -267,7 +267,7 @@ const Home = () => {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* CTA Section */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-700 rounded-3xl p-8 lg:p-16 text-center text-white relative overflow-hidden">
@@ -278,18 +278,18 @@ const Home = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <a
-                href="/registro"
+              <Link
+                to="/auth/register"
                 className="bg-white text-blue-600 px-8 py-4 rounded-full font-bold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
               >
                 Crear cuenta profesional
-              </a>
-              <a
-                href="/tienda/products"
+              </Link>
+              <Link
+                to="/productos"
                 className="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-blue-600 transition-all duration-300"
               >
                 Explorar catálogo
-              </a>
+              </Link>
             </div>
           </div>
           

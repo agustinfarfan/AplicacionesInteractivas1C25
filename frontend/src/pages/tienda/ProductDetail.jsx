@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { addProductoToCart } from '../../services/carritoService';
-import { useAuth } from '../../context/AuthContext';
 import { fetchProductById } from '../../services/backendApi';
+import { useDispatch, useSelector } from 'react-redux';
+import { addProductoToCart } from '../../redux/carrito/carritoReducer';
 
 const ProductDetail = () => {
     const { productId } = useParams();
+
     const location = useLocation();
     const navigate = useNavigate();
-    const { user } = useAuth(); // Asumiendo que tienes el usuario en el contexto
+    const dispatch = useDispatch();
     
+    const { data: userData, isAuthenticated } = useSelector((state) => state.user);
+
     const [product, setProduct] = useState(location.state?.product || null);
     const [cantidad, setCantidad] = useState(1);
     const [loading, setLoading] = useState(false);
@@ -27,17 +30,9 @@ const ProductDetail = () => {
     }, [product, productId]);
 
     const handleAddToCart = async () => {
-        // // Verificar si el usuario está logueado
-        // if (!isLoggedIn()) {
-        //     setMessage('Debes iniciar sesión para agregar productos al carrito');
-        //     setTimeout(() => {
-        //         navigate('/auth/login');
-        //     }, 2000);
-        //     return;
-        // }
 
         // Verificar si tenemos el user
-        if (!user) {
+        if (!isAuthenticated) {
             setMessage('Debes iniciar sesión para agregar productos al carrito');
             setTimeout(() => {
                 navigate('/auth/login');
@@ -47,11 +42,11 @@ const ProductDetail = () => {
 
         try {
             setAddingToCart(true);
-            await addProductoToCart({
-                userId: user.user_id,
+            dispatch(addProductoToCart({
+                id: userData.user_id,
                 productoId: product.id,
                 cantidad: cantidad
-            });
+            }))
             
             setMessage('Producto agregado al carrito exitosamente!');
             
@@ -97,7 +92,7 @@ const ProductDetail = () => {
     }
 
     return (
-        <div className="min-h-screen pt-16 bg-gray-50">
+        <div className="min-h-screen pt-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Breadcrumb */}
                 <nav className="flex mb-8" aria-label="Breadcrumb">

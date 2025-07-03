@@ -1,60 +1,32 @@
 // src/components/UserProfileSidebar.jsx
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { isVendor, getRolesFromToken, getUsernameFromToken } from "../utils/auth";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   HiOutlineClipboardList,
   HiOutlineLocationMarker,
   HiOutlineCog,
   HiOutlineOfficeBuilding
 } from "react-icons/hi";
-import { useAuth } from "../context/AuthContext";
-import { Loader } from "lucide-react";
 import Loading from "./Loading";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../redux/user/authReducer";
 
-const UserProfileSidebar = ({ onClose, onLogout }) => {
-  
-  const {user, loadingUser} = useAuth();
+const UserProfileSidebar = ({ onClose }) => {
 
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const [companyName, setCompanyName] = useState("Usuario");
-   // lista de direcciones del usuario (inicial siempre array)
-  const [addresses, setAddresses] = useState([]);
-  // id de la dirección seleccionada
+  const { data, isAuthenticated, loading } = useSelector((state) => state.user);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
 
-  const token = localStorage.getItem("token");
-  const authHeader = token
-    ? { Authorization: `Bearer ${token}` }
-    : {};
+  const handleLogout = (e) => {
+    if (isAuthenticated) {
+      dispatch(logout());
+      navigate("/");
+    }
+  }
 
-
-  // ← Nuevo: al montar, pedimos /user/me
-   useEffect(() => {
-     fetch("http://localhost:4002/user/me", {
-       headers: { "Content-Type": "application/json", ...authHeader },
-     })
-       .then((res) => {
-         if (!res.ok) throw new Error("No autorizado");
-         return res.json();
-       })
-       .then((data) => {
-        // 1) razón social
-        setCompanyName(data.razonSocial || "Usuario");
-
-        // 2) direcciones: data.direcciones debe llegar como array desde tu UserDTO
-        const list = Array.isArray(data.direcciones) ? data.direcciones : [];
-        setAddresses(list);
-
-        // 3) selecciono la primera si existe
-        if (list.length > 0) {
-          setSelectedAddressId(list[0].id);
-        }
-      })
-       .catch(console.error);
-   }, [token]);
-
-  return loadingUser ? (
+  return loading && !data ? (
     <Loading/>
   ) : (
     <div className="fixed top-0 right-0 h-full w-72 bg-white shadow-lg z-50 p-4 flex flex-col justify-start rounded-l-xl">
@@ -72,17 +44,17 @@ const UserProfileSidebar = ({ onClose, onLogout }) => {
       <div className="flex flex-col items-center text-center mt-4 mb-6">
         <HiOutlineOfficeBuilding className="w-20 h-20 text-gray-400" />
         <p className="text-sm text-gray-500 mt-2">Hola</p>
-        <p className="text-lg font-semibold">{companyName}</p>
+        <p className="text-lg font-semibold">{data?.razonSocial}</p>
 
         <select
           className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
           value={selectedAddressId || ""}
           onChange={(e) => setSelectedAddressId(Number(e.target.value))}
         >
-          {addresses.length === 0 ? (
+          {data?.direcciones.length === 0 ? (
             <option value="">No hay direcciones asociadas</option>
           ) : (
-            addresses.map((addr) => (
+            data?.direcciones.map((addr) => (
               <option key={addr.id} value={addr.id}>
                 {`${addr.alias}: ${addr.calle} ${addr.altura}, ${addr.localidad}`}
               </option>
@@ -112,7 +84,7 @@ const UserProfileSidebar = ({ onClose, onLogout }) => {
       </div>
       
       {
-        user.role == "VENDOR" && (
+        data?.role == "VENDOR" && (
             <details className="group mt-6">
               <summary className="flex items-center justify-between cursor-pointer px-4 py-2 text-sm text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50">
                 <span className="flex items-center gap-2">
@@ -124,7 +96,6 @@ const UserProfileSidebar = ({ onClose, onLogout }) => {
               <div className="mt-2 ml-6 flex flex-col text-sm">
                 <Link className="text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 p-2" to="/admin/categories">Categorías</Link>
                 <Link className="text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 p-2" to="/admin/products">Productos</Link>
-                <Link className="text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 p-2" to="/admin/clients">Clientes</Link>
                 <Link className="text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 p-2" to="/admin/pedidos">Pedidos</Link>
                 <Link className="text-gray-700 hover:text-indigo-600 rounded-lg hover:bg-indigo-50 p-2" to="/admin/cupones">Cupones</Link>
 
@@ -138,9 +109,7 @@ const UserProfileSidebar = ({ onClose, onLogout }) => {
 
       {/* Botón “Cerrar sesión” al final */}
       <button
-        onClick={() => {
-          onLogout(); // Esto borrará el token y hará navigate("/")
-        }}
+        onClick={handleLogout}
         className="mt-auto text-left px-4 py-2 text-red-600 hover:text-red-800"
       >
         Cerrar sesión

@@ -1,9 +1,8 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
-import React, { useState, useMemo, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { fetchAllPedidos, fetchPedidosByUserId } from '../../services/pedidosService';
+import { useState, useMemo, useEffect } from 'react';
+import { fetchAllPedidos } from '../../services/pedidosService';
 import Loading from '../../components/Loading';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import EstadoPedido from '../../components/EstadoPedido';
 import NoResourceMessage from '../../components/NoResourceMessage';
 
@@ -32,14 +31,12 @@ function groupOrders(data, mode) {
   });
   // Ordenar por clave (fecha/hora/mes)
   return Object.entries(map)
-    .sort(([a], [b]) => a.localeCompare(b))
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .map(([name, count]) => ({ name, count }));
 }
 
 
 function PedidosAdmin() {
-  const { user, loadingUser } = useAuth();
-  const navigate = useNavigate();
 
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -49,20 +46,18 @@ function PedidosAdmin() {
   const chartData = useMemo(() => data ? groupOrders(data, groupBy) : [], [data, groupBy]);
 
   useEffect(() => {
-    if (!loadingUser && user) {
-      fetchAllPedidos()
-        .then((data) => {
-          console.log(data);
-          setData(data);
-          setLoading(false);
-        })
-        .catch((err) => {
-          setError(err);
-          setLoading(false);
-        });
-    }
 
-  }, [user, loadingUser])
+    fetchAllPedidos()
+      .then((data) => {
+        console.log(data);
+        setData(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err);
+        setLoading(false);
+      });
+  }, [])
 
 
   return (
@@ -119,7 +114,7 @@ function PedidosAdmin() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Orden ID</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Comprador</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Comprador</th>
 
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Productos</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>

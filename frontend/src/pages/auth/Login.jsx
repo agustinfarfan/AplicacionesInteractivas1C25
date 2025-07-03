@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useNavigate, Link, Navigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { userLogin } from "../../redux/user/authReducer";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const dispatch = useDispatch();
+
+  const { isAuthenticated } = useSelector((state) => state.user);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,25 +16,21 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    await fetch("http://localhost:4002/api/v1/auth/authenticate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Credenciales inválidas");
-
-        const data = await response.json();
-
-        login(data.access_token);
-        navigate("/");    
+    dispatch(userLogin({ email, password }))
+      .unwrap()
+      .then(() => {
+        navigate("/");
+        window.location.reload();
       })
-      .catch((err) => {
-        setError(err.message);
+      .catch(() => {
+        setError("Credenciales inválidas");
       });
+    
   };
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="flex items-center justify-center py-12 px-4 ">
