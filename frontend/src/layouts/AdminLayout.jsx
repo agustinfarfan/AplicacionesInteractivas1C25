@@ -1,6 +1,4 @@
 
-import React from 'react'
-import { useAuth } from '../context/AuthContext';
 import { Outlet, Navigate } from 'react-router-dom';
 import Header from "../components/Header";
 import Footer from "../components/Footer";

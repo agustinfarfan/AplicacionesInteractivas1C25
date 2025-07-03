@@ -1,7 +1,6 @@
 // src/pages/tienda/Direcciones.jsx
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { getUserIdFromToken } from "../../utils/auth";
-import { useAuth } from '../../context/AuthContext';
 
 const Address = () => {
 

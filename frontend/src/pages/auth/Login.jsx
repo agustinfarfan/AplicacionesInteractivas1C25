@@ -1,14 +1,13 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useNavigate, Link, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUser, userLogin } from "../../redux/user/authReducer";
+import { userLogin } from "../../redux/user/authReducer";
 
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { isAuthenticated, loading } = useSelector((state) => state.user);
+  const { isAuthenticated } = useSelector((state) => state.user);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,15 +16,21 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    dispatch(userLogin({
-      email: email,
-      password: password
-    })).then(()=> {
-      navigate("/");
-      window.location.reload();
-    });
+    dispatch(userLogin({ email, password }))
+      .unwrap()
+      .then(() => {
+        navigate("/");
+        window.location.reload();
+      })
+      .catch(() => {
+        setError("Credenciales inválidas");
+      });
     
   };
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="flex items-center justify-center py-12 px-4 ">

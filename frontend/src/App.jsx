@@ -1,8 +1,7 @@
-import { Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
 import useAdminRoute from "./routes/AdminRoute";
 import useTiendaRoute from "./routes/TiendaRoute";
 import useAuthRoute from "./routes/AuthRoute";
-import { AuthProvider } from "./context/AuthContext";
 import WebLayout from "./layouts/WebLayout";
 
 
@@ -11,9 +10,7 @@ function App() {
   const tiendaRoute = useTiendaRoute();
   const authRoute = useAuthRoute();
 
-
   return (
-    <AuthProvider>
       <BrowserRouter>
         <Routes >
           <Route element={<WebLayout />}>
@@ -23,8 +20,6 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
-    </AuthProvider>
-
   );
 }
 

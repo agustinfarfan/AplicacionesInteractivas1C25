@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import { fetchProductById } from '../../services/backendApi';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addProductoToCart } from '../../redux/carrito/carritoReducer';
 
 const ProductDetail = () => {
     const { productId } = useParams();
+
     const location = useLocation();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { user } = useAuth(); // Asumiendo que tienes el usuario en el contexto
     
+    const { data: userData, isAuthenticated } = useSelector((state) => state.user);
+
     const [product, setProduct] = useState(location.state?.product || null);
     const [cantidad, setCantidad] = useState(1);
     const [loading, setLoading] = useState(false);
@@ -31,7 +32,7 @@ const ProductDetail = () => {
     const handleAddToCart = async () => {
 
         // Verificar si tenemos el user
-        if (!user) {
+        if (!isAuthenticated) {
             setMessage('Debes iniciar sesión para agregar productos al carrito');
             setTimeout(() => {
                 navigate('/auth/login');
@@ -42,7 +43,7 @@ const ProductDetail = () => {
         try {
             setAddingToCart(true);
             dispatch(addProductoToCart({
-                id: user.user_id,
+                id: userData.user_id,
                 productoId: product.id,
                 cantidad: cantidad
             }))

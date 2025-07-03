@@ -1,29 +1,22 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
-import Home from './../pages/tienda/Home';
-import Contact from './../pages/tienda/Contact';
 import Button from './buttons/Button';
 import ButtonLink from './buttons/ButtonLink';
-import ButtonIcon from './buttons/ButtonIcon';
-import carritoIcono from './../assets/carritoIcono.png';
 import UserProfileSidebar from './UserProfileSidebar';
 import LogoSanaSana from '../assets/SanaSanaTransparenteLogo.png'
-import { isLoggedIn } from '../utils/auth';
-import { useAuth } from '../context/AuthContext';
 import { fetchCategories } from '../services/backendApi';
 import { HiUserCircle } from "react-icons/hi";
-import { fetchCart } from '../services/carritoService';
 import { useSelector } from 'react-redux';
 
 const Header = () => {
 
   const navigate = useNavigate();
-  const { user, loadingUser, logout } = useAuth();
   const { isEmpty, quantity } = useSelector((state) => state.carrito);
+  const { isAuthenticated } = useSelector((state) => state.user);
+  
   const dropdownRef = useRef(null);
 
   const [current, setCurrent] = useState('Home');
-  const [loggedIn, setIsLoggedIn] = useState();
   const [showProfile, setShowProfile] = useState(false);
   const [categories, setCategories] = useState([]);
   const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false);
@@ -67,32 +60,6 @@ const Header = () => {
     };
   }, []);
 
-  // Cada vez que cambie localStorage (login/logout), queremos reflejarlo
-  useEffect(() => {
-
-    console.log(isLoggedIn());
-
-    // Al montar, chequeamos si hay token
-    setIsLoggedIn(isLoggedIn());
-
-    // También nos suscribimos a cambios de localStorage (si el usuario cierra sesión en otra pestaña)
-    const handleStorageChange = () => {
-      setIsLoggedIn(isLoggedIn());
-    };
-    window.addEventListener("storage", handleStorageChange);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
-
-
-  // Función para cerrar sesión (borrar token y volver al landing)
-  const handleLogout = () => {
-    logout();
-    setIsLoggedIn(false);
-    navigate("/");
-  };
 
   // Manejar click en categoría
   const handleCategoryClick = (categoryId, categoryName) => {
@@ -186,7 +153,7 @@ const Header = () => {
             </div>
             <div className=" items-center">
               <div className="hidden md:flex md:flex-row md:items-center md:justify-center gap-4 h-full">
-                {loggedIn ? (
+                {isAuthenticated ? (
                   <div className="flex flex-row gap-3 items-center justify-center">
                       <div className='flex flex-row items-center justify-center bg-neutral-200 rounded-md'>
                       {!isEmpty ? (
@@ -209,7 +176,7 @@ const Header = () => {
                     <button onClick={() => setShowProfile(true)} className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                       <HiUserCircle className="w-10 h-10 text-gray-400" />
                     </button>
-                    {showProfile && <UserProfileSidebar onLogout={handleLogout} onClose={() => setShowProfile(false)} />}
+                    {showProfile && <UserProfileSidebar onClose={() => setShowProfile(false)} />}
                   </div>
                 ) : (
                   <>

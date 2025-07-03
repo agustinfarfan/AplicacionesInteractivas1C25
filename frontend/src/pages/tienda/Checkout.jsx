@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Button from '../../components/buttons/Button'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import Resumen from '../../components/Resumen';
-import { useAuth } from '../../context/AuthContext';
 import Loading from '../../components/Loading';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCarrito, finalizeCart } from '../../redux/carrito/carritoReducer';
@@ -11,8 +10,9 @@ const Checkout = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user, loadingUser } = useAuth();
+
   const { carrito, loading, error, isEmpty } = useSelector((state) => state.carrito);
+  const { data: userData } = useSelector((state) => state.user);
 
   const [resumenActivo, setResumenActivo] = useState(true);
 
@@ -27,35 +27,16 @@ const Checkout = () => {
   const [CVV, setCVV] = useState('')
   const [pasoActivo, setPaso] = useState(1);
 
-
-  const token = localStorage.getItem("token");
-  const authHeader = token
-    ? { Authorization: `Bearer ${token}` }
-    : {};
-
   useEffect(() => {
-    if (!loadingUser && user) {
-
-      fetch("http://localhost:4002/user/me", {
-        headers: { "Content-Type": "application/json", ...authHeader },
-      })
-        .then((res) => {
-          if (!res.ok) throw new Error("No autorizado");
-          return res.json();
-        })
-        .then((data) => {
-          console.log(data.direcciones);
-          setAddresses(data.direcciones);
-          setNombre(data.first_name);
-          setApellido(data.last_name);
-          setEmail(data.email);
-
-
-        })
-        .catch(console.error);
+    if (!loading && userData) {
+      setAddresses(userData.direcciones);
+      setNombre(userData.first_name);
+      setApellido(userData.last_name);
+      setEmail(userData.email);
     }
 
-  }, [user, loadingUser])
+  }, [userData])
+  
 
   const handleExpirationChange = (e) => {
     let value = e.target.value.replace(/\D/g, '');
@@ -137,8 +118,8 @@ const Checkout = () => {
       }
 
       try {
-        await dispatch(finalizeCart({ id: user.user_id, info: informacion })).unwrap();
-        dispatch(fetchCarrito({ id: user.user_id }));
+        await dispatch(finalizeCart({ id: userData.user_id, info: informacion })).unwrap();
+        dispatch(fetchCarrito({ id: userData.user_id }));
         navigate("success");
       } catch (err) {
         console.error("Payment failed:", err);
@@ -191,7 +172,7 @@ const Checkout = () => {
         <h1 className='text-3xl font-bold mb-5'>Checkout</h1>
 
         <div className='flex flex-col-reverse md:flex-row gap-3'>
-          <div className='md:w-2/3 w-full rounded-lg shadow-lg bg-gray-50 border-gray-100 border-2 p-4'>
+                <div className='md:w-2/3 w-full rounded-lg shadow-lg bg-white border-gray-100 border-2 p-4'>
 
             {/* Pasos */}
             <div className="mb-10">
@@ -368,7 +349,7 @@ const Checkout = () => {
             </form>
           </div>
 
-          <div className={`md:w-1/3 w-full h-60 rounded-lg shadow-lg bg-gray-50 border-gray-100 p-4 border-2 justify-between ${resumenActivo ? "flex flex-col" : "flex flex-row"
+                <div className={`md:w-1/3 w-full min-h-[22rem] max-h-[23rem] rounded-lg shadow-lg bg-white border-gray-100 p-4 border-2 justify-between ${resumenActivo ? "flex flex-col" : "flex flex-row"
             }`}>
             <Resumen data={carrito} activo={resumenActivo} />
             <button className='block md:hidden border' onClick={() => setResumenActivo(!resumenActivo)}>

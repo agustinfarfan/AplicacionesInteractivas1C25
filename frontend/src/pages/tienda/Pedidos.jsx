@@ -1,25 +1,25 @@
-import React, { useEffect, useState } from 'react'
-import { useAuth } from '../../context/AuthContext';
+import { useEffect, useState } from 'react'
 import { fetchPedidosByUserId } from '../../services/pedidosService';
 import Loading from '../../components/Loading';
 import { useNavigate } from 'react-router-dom';
 import EstadoPedido from '../../components/EstadoPedido';
 import NoResourceMessage from '../../components/NoResourceMessage';
+import { useSelector } from 'react-redux';
 
 const Pedidos = () => {
 
-  const { user, loadingUser } = useAuth();
   const navigate = useNavigate();
+  
+  const { data: userData, loading: userLoading } = useSelector((state) => state.user);
 
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!loadingUser && user) {
-      fetchPedidosByUserId({ id: user.user_id })
+    if (!userLoading && userData) {
+      fetchPedidosByUserId({ id: userData.user_id })
         .then((data) => {
-          console.log(data);
           setData(data);
           setLoading(false);
         })
@@ -28,22 +28,7 @@ const Pedidos = () => {
           setLoading(false);
         });
     }
-
-  }, [user, loadingUser])
-
-  // const productos = [
-  //     { id: 1, nombre: "Guantes de Látex", descripcion: "Caja de 100 unidades", precio: 1500 },
-  //     { id: 2, nombre: "Reactivo Hematológico", descripcion: "Botella de 500ml", precio: 3200 },
-  //     { id: 3, nombre: "Centrífuga de Laboratorio", descripcion: "Velocidad ajustable", precio: 75000 },
-  //     { id: 4, nombre: "Microscopio Óptico", descripcion: "Con luz LED", precio: 54000 },
-  //     { id: 5, nombre: "Kit Serológico", descripcion: "Pruebas rápidas para laboratorio", precio: 12000 },
-  // ];
-
-  // const [searchTerm, setSearchTerm] = useState("");
-
-  // const filteredProductos = data.filter(pedido =>
-  //     pedido.detalleOrder.filter(producto.nombre_producto.toLowerCase().includes(searchTerm.toLowerCase()))
-  // );
+  }, [userData, userLoading])
 
 
   return (

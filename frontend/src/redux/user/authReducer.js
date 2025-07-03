@@ -4,7 +4,7 @@ import { data } from 'react-router-dom';
 import { login, register } from '../api/authApi';
 import { getUserLogged } from '../api/userApi';
 
-export const userRegister = createAsyncThunk("user/auth/register", async ({ info }) => {
+export const userRegister = createAsyncThunk("user/auth/register", async ( info ) => {
   const data = await register(info);
   return data;
 })
@@ -47,8 +47,8 @@ export const userSlice = createSlice({
       })
       .addCase(userRegister.fulfilled, (state, action) => {
         state.loading = false;
-        state.token = action.payload.access_token;        
-        localStorage.setItem('token', action.payload.access_token);
+        //state.token = action.payload.access_token;        
+        //localStorage.setItem('token', action.payload.access_token);
       })
       .addCase(userRegister.rejected, (state, action) => {
         state.loading = false;

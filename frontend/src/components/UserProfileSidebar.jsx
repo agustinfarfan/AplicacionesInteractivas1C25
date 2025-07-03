@@ -1,28 +1,28 @@
 // src/components/UserProfileSidebar.jsx
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { isVendor, getRolesFromToken, getUsernameFromToken } from "../utils/auth";
 import {
   HiOutlineClipboardList,
   HiOutlineLocationMarker,
   HiOutlineCog,
   HiOutlineOfficeBuilding
 } from "react-icons/hi";
-import { useAuth } from "../context/AuthContext";
-import { Loader } from "lucide-react";
 import Loading from "./Loading";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/user/authReducer";
 
-const UserProfileSidebar = ({ onClose, onLogout }) => {
+const UserProfileSidebar = ({ onClose }) => {
 
+  const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const { data, isAuthenticated, loading } = useSelector((state) => state.user);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
 
   const handleLogout = (e) => {
     if (isAuthenticated) {
       dispatch(logout());
+      navigate("/");
     }
   }
 
@@ -109,7 +109,7 @@ const UserProfileSidebar = ({ onClose, onLogout }) => {
 
       {/* Botón “Cerrar sesión” al final */}
       <button
-        onClick={onLogout}
+        onClick={handleLogout}
         className="mt-auto text-left px-4 py-2 text-red-600 hover:text-red-800"
       >
         Cerrar sesión

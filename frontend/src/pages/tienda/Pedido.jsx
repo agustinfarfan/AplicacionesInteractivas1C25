@@ -1,24 +1,19 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import { fetchPedidoById } from '../../services/pedidosService';
 import Loading from '../../components/Loading';
 import EstadoPedido from '../../components/EstadoPedido';
 
 const Pedido = () => {
   const { id } = useParams();
-  const { user, loadingUser } = useAuth();
 
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!loadingUser && user) {
       fetchPedidoById({ id })
         .then((data) => {
-          console.log(data);
-
           setData(data);
           setLoading(false);
         })
@@ -26,8 +21,7 @@ const Pedido = () => {
           setError(err);
           setLoading(false);
         });
-    }
-  }, [user, loadingUser, id]);
+  }, []);
 
   if (loading) {
     return (

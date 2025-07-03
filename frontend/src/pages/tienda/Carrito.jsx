@@ -1,31 +1,26 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Button from '../../components/buttons/Button';
-import ButtonLink from '../../components/buttons/ButtonLink';
-import useFetch from '../../hooks/useFetch'
-import { fetchProducts } from '../../services/backendApi';
 import Loading from '../../components/Loading';
 import Resumen from '../../components/Resumen';
-import { useAuth } from '../../context/AuthContext';
-import { useEffect, useState } from 'react';
 import NoResourceMessage from '../../components/NoResourceMessage';
 import { useDispatch, useSelector } from 'react-redux';
-import { addCouponToCart, addProductoToCart, fetchCarrito, removeProductoFromCart } from '../../redux/carrito/carritoReducer';
+import { addCouponToCart, addProductoToCart, removeProductoFromCart } from '../../redux/carrito/carritoReducer';
+import { useState } from 'react';
 
 const Carrito = () => {
 
   const navigate = useNavigate();
-  const { user, loadingUser } = useAuth();
+  const dispatch = useDispatch();
+
+  const { carrito, loading, error, isEmpty } = useSelector((state) => state.carrito);
+  const { data: userData } = useSelector((state) => state.user);
 
   const [coupon, setCoupon] = useState("");
-
-  const dispatch = useDispatch();
-  const { carrito, loading, error, isEmpty } = useSelector((state) => state.carrito);
-
 
 
   const handleAgregarProducto = (productoId) => {
     dispatch(addProductoToCart({
-      id: user.user_id,
+      id: userData.user_id,
       productoId: productoId,
       cantidad: 1
     }))
@@ -33,7 +28,7 @@ const Carrito = () => {
 
   const handleDecrementarProducto = (productoId) => {
     dispatch(removeProductoFromCart({
-      id: user.user_id,
+      id: userData.user_id,
       productoId: productoId,
       cantidad: 1
     }))
@@ -41,7 +36,7 @@ const Carrito = () => {
 
   const handleEliminarProducto = (productoId, cantidadActual) => {
     dispatch(removeProductoFromCart({
-      id: user.user_id,
+      id: userData.user_id,
       productoId: productoId,
       cantidad: cantidadActual
     }))
@@ -49,7 +44,7 @@ const Carrito = () => {
 
   const handleAgregarCupon = () => {
     dispatch(addCouponToCart({
-      id: user.user_id,
+      id: userData.user_id,
       nombre: coupon
     }))
   }
@@ -82,17 +77,17 @@ const Carrito = () => {
         <h1 className='text-3xl font-bold mb-5'>Carrito</h1>
         <div className='flex flex-col md:flex-row gap-3'>
           <div className='flex flex-col gap-3 md:w-2/3 w-full'>
-            <div className='w-full h-full rounded-lg shadow-lg bg-white border-gray-100 border-2 p-4'>
+            <div className='w-full h-full rounded-lg shadow-lg bg-white border-gray-100 border-2 p-4 overflow-y-auto max-h-[500px] no-scrollbar'>
 
               {
                 carrito.carritoDetalle.map(product => (
                   <div key={product.producto_id} className='border rounded-lg shadow-lg bg-white border-gray-200 mb-4 flex h-32 flex-row items-center justify-between'>
-                    <div className='flex flex-row items-center p-4'>
+                    <div className='flex flex-row items-center p-4 h-full'>
                       <img onClick={() => navigate(`/producto/${product.producto_id}`)} src='https://via.placeholder.com/150?text=Hello' alt={product.nombre_producto} className='w-24 h-24 w-min-24 border border-gray-300 object-cover mr-4 rounded-md' />
-                      <div className='flex flex-col gap-2'>
-                        <h2 className='text-xl font-semibold'>{product.nombre_producto}</h2>
-                        <p>{product.descripcion}</p>
-                        <p className='text-lg font-bold'>${product.precio_unitario}</p>
+                      <div className='flex flex-col gap-2 h-full'>
+                        <h2 className='md:text-xl font-semibold'>{product.nombre_producto}</h2>
+                        <p className='hidden md:block'>{product.descripcion}</p>
+                        <p className='md:text-lg font-bold'>${product.precio_unitario}</p>
                       </div>
                     </div>
                     <div className='flex flex-col items-end justify-between h-full'>
@@ -100,18 +95,18 @@ const Carrito = () => {
                       <div className='flex flex-row items-end justify-between h-full p-2'>
                         <button
                           onClick={() => handleAgregarProducto(product.producto_id)}
-                          className="flex items-center justify-center w-7 h-7 rounded-full border border-gray-300 hover:bg-gray-50"
+                          className="flex items-center justify-center size-5 md:size-7 rounded-full border border-gray-300 hover:bg-gray-50"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                           </svg>
                         </button>
-                        <span className="text-xl font-semibold w-8 text-center">
+                        <span className="md:text-xl font-semibold w-8 text-center">
                           {product.cantidad}
                         </span>
                         <button
                           onClick={() => handleDecrementarProducto(product.producto_id)}
-                          className="flex items-center justify-center w-7 h-7 rounded-full border border-gray-300 hover:bg-gray-50"
+                          className="flex items-center justify-center size-5 md:size-7 rounded-full border border-gray-300 hover:bg-gray-50"
                         >
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -142,7 +137,7 @@ const Carrito = () => {
             </div>
           </div>
 
-          <div className='md:w-1/3 w-full h-96 rounded-lg shadow-lg bg-white border-gray-100 p-4 border-2 justify-between flex flex-col'>
+          <div className='md:w-1/3 w-full min-h-[24rem] max-h-[26rem] rounded-lg shadow-lg bg-white border-gray-100 p-4 border-2 justify-between flex flex-col'>
             <Resumen data={carrito} />
             <div className='mt-5'>
               <Button onClick={handleIngresarCheckout} nombre={"Proceder al Checkout"} />
