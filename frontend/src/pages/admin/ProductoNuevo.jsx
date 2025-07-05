@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { createProduct, getMappedCategories } from "../../services/backendApi";
+import { useDispatch, useSelector } from "react-redux";
+import { addProduct, clearProductStatus } from "../../redux/productos/productosReducer";
+import { getMappedCategories } from "../../services/backendApi";
 
 const ProductoNuevo = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { success, error: reduxError } = useSelector((state) => state.products);
 
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
@@ -17,7 +22,12 @@ const ProductoNuevo = () => {
     getMappedCategories()
       .then(setCategorias)
       .catch(() => setError("No se pudieron cargar las categorías"));
-  }, []);
+
+    // Limpiar estado al montar/desmontar
+    return () => {
+      dispatch(clearProductStatus());
+    };
+  }, [dispatch]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,20 +37,23 @@ const ProductoNuevo = () => {
       return;
     }
 
-    try {
-      await createProduct({
+    setError(""); // Limpiar error local
+
+    dispatch(
+      addProduct({
         nombre,
         description: descripcion,
         precio: parseFloat(precio),
         stock: parseInt(stock),
-        categoriaId: parseInt(categoriaId), // ✅ CORRECTO
-      });
-
-      navigate("/admin/products");
-    } catch (err) {
-      console.error(err);
-      setError("Error al crear el producto");
-    }
+        categoriaId: parseInt(categoriaId),
+      })
+    )
+      .unwrap()
+      .then(() => {
+        // Podés dejarlo un momento en pantalla o redirigir inmediatamente
+        setTimeout(() => navigate("/admin/products"), 1500);
+      })
+      .catch(() => setError("Error al crear el producto"));
   };
 
   return (
@@ -48,6 +61,8 @@ const ProductoNuevo = () => {
       <h2 className="text-xl font-bold mb-4">Crear nuevo producto</h2>
 
       {error && <p className="text-red-600 mb-4">{error}</p>}
+      {reduxError && <p className="text-red-600 mb-4">{reduxError}</p>}
+      {success && <p className="text-green-600 mb-4">Producto creado correctamente 🎉</p>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
@@ -57,14 +72,12 @@ const ProductoNuevo = () => {
           onChange={(e) => setNombre(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded"
         />
-
         <textarea
           placeholder="Descripción"
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded"
         />
-
         <input
           type="number"
           placeholder="Precio"
@@ -72,7 +85,6 @@ const ProductoNuevo = () => {
           onChange={(e) => setPrecio(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded"
         />
-
         <input
           type="number"
           placeholder="Stock"
@@ -80,7 +92,6 @@ const ProductoNuevo = () => {
           onChange={(e) => setStock(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded"
         />
-
         <select
           value={categoriaId}
           onChange={(e) => setCategoriaId(e.target.value)}
@@ -93,7 +104,6 @@ const ProductoNuevo = () => {
             </option>
           ))}
         </select>
-
         <button
           type="submit"
           className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
@@ -106,3 +116,4 @@ const ProductoNuevo = () => {
 };
 
 export default ProductoNuevo;
+

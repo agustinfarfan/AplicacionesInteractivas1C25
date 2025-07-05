@@ -1,46 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BACKEND_CONFIG, deleteProduct, fetchProducts } from "../../services/backendApi";
+import { useDispatch, useSelector } from "react-redux";
+import { loadProducts, removeProduct } from "../../redux/productos/productosReducer";
 
 const ProductsAdmin = () => {
-  const [productos, setProductos] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchProductos = async () => {
-      try {
-        const data = await fetchProducts();
-        setProductos(data);
-      } catch (err) {
-        console.error(err);
-        setError("Error al cargar productos");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { items: productos, loading, error } = useSelector((state) => state.products);
+  const [searchTerm, setSearchTerm] = useState("");
 
-    fetchProductos();
-  }, []);
+  useEffect(() => {
+    dispatch(loadProducts());
+  }, [dispatch]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("¿Estás seguro de que querés eliminar este producto?")) return;
-
-    await deleteProduct({id})
-      .then(async () => {
-        const data = await fetchProducts();
-        setProductos(data);
-      })
-      .catch(async (error) => {
-        if (error) {
-          alert("Error al eliminar el producto: " + error)
-        }
-      }
-    );
-
+    dispatch(removeProduct(id));
   };
 
   const filteredProductos = productos.filter((prod) =>
