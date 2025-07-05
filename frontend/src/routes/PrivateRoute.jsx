@@ -6,7 +6,7 @@ const PrivateRoute = ({children}) => {
 
   const { data: userData, isAuthenticated, loading } = useSelector((state) => state.user);
 
-  if (loading || !userData) {
+  if (loading) {
     return (
       <>
       <div className="pt-60 flex justify-center items-center">

@@ -1,6 +1,4 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { addCoupon, addProduct, finalize, getUserCart, removeProduct } from '../api/carritoApi'
-import { data } from 'react-router-dom';
 import { login, register } from '../api/authApi';
 import { getUserLogged } from '../api/userApi';
 
@@ -14,15 +12,18 @@ export const userLogin = createAsyncThunk("user/auth/login", async ({ email, pas
   return data;
 })
 
-export const fetchUser = createAsyncThunk("user/auth/me", async () => {
-  const data = await getUserLogged();
+export const fetchUser = createAsyncThunk("user/auth/me", async (_, thunkAPI) => {
+  const state = thunkAPI.getState();
+  const token = state.user.token;
+
+  const data = await getUserLogged(token);
   return data;
 })
 
 
 const initialState = {
   data: null,
-  token: localStorage.getItem("token") || null,
+  token: null,
   loading: false,
   error: null,
   isAuthenticated: false,
@@ -62,9 +63,8 @@ export const userSlice = createSlice({
       .addCase(userLogin.fulfilled, (state, action) => {
         state.loading = false;
         state.token = action.payload.access_token;
-        console.log(action.payload.access_token);
-        
-        localStorage.setItem('token', action.payload.access_token);
+        state.isAuthenticated = true;
+        //localStorage.setItem('token', action.payload.access_token);
       })
       .addCase(userLogin.rejected, (state, action) => {
         state.loading = false;
@@ -86,7 +86,7 @@ export const userSlice = createSlice({
         state.token = null;
         state.data = null;
         state.isAuthenticated = false;
-        localStorage.removeItem('token');
+        //localStorage.removeItem('token');
       });
   }
 });

@@ -3,7 +3,6 @@ export const BACKEND_CONFIG = {
   BASE_URL: "http://localhost:4002",
   headers: {
     accept: "application/json",
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
   }
 }
 

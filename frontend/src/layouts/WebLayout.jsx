@@ -7,19 +7,21 @@ import { fetchUser } from '../redux/user/authReducer'
 const WebLayout = () => {
 
   const dispatch = useDispatch();
-  const { data: userData, isAuthenticated } = useSelector((state) => state.user);
+  const { data: userData, isAuthenticated, token } = useSelector((state) => state.user);
 
 
   useEffect(() => {
-    dispatch(fetchUser());
-  }, [dispatch])
+    if (token) {
+      dispatch(fetchUser());
+    }
+  }, [dispatch, token])
   
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && userData) {
       dispatch(fetchCarrito({ id: userData.user_id }));
     }
-  }, [dispatch, isAuthenticated])
+  }, [dispatch, isAuthenticated, userData])
 
   return (
     <>
