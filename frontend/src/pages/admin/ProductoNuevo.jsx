@@ -8,7 +8,7 @@ const ProductoNuevo = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { success, error: reduxError } = useSelector((state) => state.products);
+  const { success, error: reduxError } = useSelector((state) => state.productos);
 
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");

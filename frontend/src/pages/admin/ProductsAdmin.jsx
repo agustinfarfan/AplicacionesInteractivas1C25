@@ -7,11 +7,13 @@ const ProductsAdmin = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { items: productos, loading, error } = useSelector((state) => state.products);
+  const { items: productos, loading, error } = useSelector((state) => state.productos);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    dispatch(loadProducts());
+    if (!productos) {
+      dispatch(loadProducts());
+    }
   }, [dispatch]);
 
   const handleDelete = async (id) => {
