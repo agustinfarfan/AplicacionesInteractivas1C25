@@ -11,7 +11,7 @@ const ProductsAdmin = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    if (!productos) {
+    if (productos.length==0) {
       dispatch(loadProducts());
     }
   }, [dispatch]);
