@@ -9,4 +9,5 @@ public class ProductRequest {
     private Double precio;
     private Integer stock;
     private Long categoriaId;
+    private String nombreImagen;
 }

@@ -56,6 +56,7 @@ public class ProductController {
         producto.setPrecio(request.getPrecio());
         producto.setStock(request.getStock());
         producto.setCategory(categoria);
+        producto.setNombreImagen(request.getNombreImagen());
 
         return productService.crearProducto(producto);
     }
@@ -71,6 +72,7 @@ public class ProductController {
         productoActualizado.setPrecio(request.getPrecio());
         productoActualizado.setStock(request.getStock());
         productoActualizado.setCategory(categoria);
+        productoActualizado.setNombreImagen(request.getNombreImagen());
 
         return productService.actualizarProducto(id, productoActualizado);
     }
