@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { createProducto, deleteProducto, fetchProductos } from "../api/productosApi";
+import { createProducto, deleteProducto, fetchProductos, updateProducto } from "../api/productosApi";
 
 // GET todos los productos
 export const loadProducts = createAsyncThunk("products/load", async () => {
@@ -23,6 +23,17 @@ export const addProduct = createAsyncThunk(
     const token = state.user.token;
 
     return await createProducto(productData, token);
+  }
+);
+
+// PUT editar producto
+export const editProduct = createAsyncThunk(
+  "products/edit",
+  async (productData, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const token = state.user.token;
+    
+    return await updateProducto(token, productData);
   }
 );
 

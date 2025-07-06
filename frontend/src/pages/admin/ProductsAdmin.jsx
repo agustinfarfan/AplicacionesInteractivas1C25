@@ -37,7 +37,7 @@ const ProductsAdmin = () => {
       description: prod.description,
       precio: prod.precio,
       stock: prod.stock,
-      categoriaId: prod.categoria?.id || prod.categoriaId || "",
+      categoriaId: prod.category.id,
     });
   };
 
@@ -87,55 +87,55 @@ const ProductsAdmin = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100">
               <tr>
-                <th className="px-4 py-2 text-center">ID</th>
-                <th className="px-4 py-2 text-center">Nombre</th>
-                <th className="px-4 py-2 text-center">Descripción</th>
-                <th className="px-4 py-2 text-center">Precio</th>
-                <th className="px-4 py-2 text-center">Stock</th>
-                <th className="px-4 py-2 text-center">Categoría</th>
-                <th className="px-4 py-2 text-center">Acciones</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Precio</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Categoría</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredProductos.length > 0 ? (
                 filteredProductos.map((prod) => (
                   <tr key={prod.id}>
-                    <td className="px-4 py-2 text-center align-middle">{prod.id}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700">{prod.id}</td>
                     {editandoId === prod.id ? (
                       <>
-                        <td className="px-4 py-2 text-center align-middle">
+                        <td className="px-6 py-4 text-sm text-gray-700">
                           <input
-                            className="border p-1 w-full"
+                            className="border border-gray-400 text-sm text-gray-700 p-1 w-full rounded-sm"
                             value={formData.nombre}
                             onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                           />
                         </td>
-                        <td className="px-4 py-2 text-center align-middle">
+                        <td className="px-6 py-4 text-sm text-gray-700">
                           <input
-                            className="border p-1 w-full"
+                            className="border border-gray-400 text-sm text-gray-700 p-1 w-full rounded-sm"
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                           />
                         </td>
-                        <td className="px-4 py-2 text-center align-middle">
+                        <td className="px-6 py-4 text-sm text-gray-700">
                           <input
-                            className="border p-1 w-full"
+                            className="border border-gray-400 text-sm text-gray-700 p-1 w-full rounded-sm"
                             type="number"
                             value={formData.precio}
                             onChange={(e) => setFormData({ ...formData, precio: e.target.value })}
                           />
                         </td>
-                        <td className="px-4 py-2 text-center align-middle">
+                        <td className="px-6 py-4 text-sm text-gray-700">
                           <input
-                            className="border p-1 w-full"
+                            className="border border-gray-400 text-sm text-gray-700 p-1 w-full rounded-sm"
                             type="number"
                             value={formData.stock}
                             onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
                           />
                         </td>
-                        <td className="px-4 py-2 text-center align-middle">
+                        <td className="px-6 py-4 text-sm text-gray-700">
                           <select
-                            className="border p-1 w-full"
+                            className="border border-gray-400 text-sm text-gray-700 p-1 w-full rounded-sm"
                             value={formData.categoriaId}
                             onChange={(e) => setFormData({ ...formData, categoriaId: e.target.value })}
                           >
@@ -147,7 +147,7 @@ const ProductsAdmin = () => {
                             ))}
                           </select>
                         </td>
-                        <td className="px-4 py-2 text-center align-middle">
+                        <td className="px-6 py-4 text-sm text-gray-700">
                           <button
                             onClick={() => handleUpdate(prod.id)}
                             className="bg-green-600 text-white px-2 py-1 rounded mr-2"
@@ -164,14 +164,14 @@ const ProductsAdmin = () => {
                       </>
                     ) : (
                       <>
-                        <td className="px-4 py-2 text-center align-middle">{prod.nombre}</td>
-                        <td className="px-4 py-2 text-center align-middle">{prod.description}</td>
-                        <td className="px-4 py-2 text-center align-middle">${prod.precio}</td>
-                        <td className="px-4 py-2 text-center align-middle">{prod.stock}</td>
-                        <td className="px-4 py-2 text-center align-middle">
+                        <td className="px-6 py-4 text-sm text-gray-700">{prod.nombre}</td>
+                        <td className="px-6 py-4 text-sm text-gray-700">{prod.description}</td>
+                        <td className="px-6 py-4 text-sm text-gray-700">${prod.precio}</td>
+                        <td className="px-6 py-4 text-sm text-gray-700">{prod.stock}</td>
+                        <td className="px-6 py-4 text-sm text-gray-700">
                           {prod.category?.name || "Sin categoría"}
                         </td>
-                        <td className="px-4 py-2 text-center align-middle">
+                          <td className="px-6 py-4 text-sm text-gray-700">
                           <button
                             onClick={() => handleEditClick(prod)}
                             className="bg-blue-600 text-white px-2 py-1 rounded mr-2"

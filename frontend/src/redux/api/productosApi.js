@@ -34,8 +34,8 @@ export const deleteProducto = async (id, token) => {
   return response.data;
 };
 
-export const updateProducto = async (id, data) => {
-  const response = await axiosInstance.put(`/productos/${id}`, data, {
+export const updateProducto = async (token, productData) => {
+  const response = await axiosInstance.put(`/productos/${productData.id}`, productData, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
