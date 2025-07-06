@@ -14,8 +14,6 @@ const axiosInstance = axios.create({
 
 
 export const getUserLogged = async () => {
-  console.log(localStorage.getItem("token"));
-  
   const response = await axiosInstance.get(`/user/me`);
   return response.data;
 };

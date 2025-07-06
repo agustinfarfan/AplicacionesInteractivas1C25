@@ -1,8 +1,22 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getCategories } from '../../redux/categories/categoriesReducer';
+
 
 const CategoriasAdmin = () => {
+
+  const dispatch = useDispatch();
+
+  const { items: categorias, loading, error } = useSelector(
+    (state) => state.categories
+  );
+
+  useEffect(() => {
+    dispatch(getCategories());
+  }, [dispatch]);
+
   // —————————— Estados ——————————
-  const [categorias, setCategorias] = useState([]);
+  //const [categorias, setCategorias] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   // (modales, edición, eliminación, etc. siguen igual)
@@ -12,34 +26,6 @@ const CategoriasAdmin = () => {
   const [formDesc, setFormDesc] = useState("");
   const [deleteCat, setDeleteCat] = useState(null);
 
-  // —————————— Cargar categorías al montar ——————————
-  useEffect(() => {
-    const loadCategorias = async () => {
-      try {
-        const resp = await fetch("http://localhost:4002/categories");
-        if (!resp.ok) throw new Error("Error al listar categorías");
-
-        const data = await resp.json();          // por ejemplo: { content: [ {id, name, description}, … ], … }
-        const rawArray = data.content || data;   // si viene con paginación, usamos data.content; sino data es array
-
-        // Mapear cada objeto a la forma { id, nombre, descripcion }
-        const mapped = rawArray.map((c) => ({
-          id: c.id,
-
-
-          nombre: c.name,
-          descripcion: c.description,
-        }));
-
-        setCategorias(mapped);
-        
-      } catch (error) {
-        console.error("No se pudieron cargar categorías:", error);
-      }
-    };
-
-    loadCategorias();
-  }, []);
 
   // —————————— Manejo de creación/edición (igual que antes) ——————————
   const openAddModal = () => {
@@ -60,7 +46,7 @@ const CategoriasAdmin = () => {
     if (formName.trim() === "") {
       alert("El nombre no puede estar vacío");
       return;
-    }
+  }
 
     const token = localStorage.getItem("token");
     const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
@@ -74,8 +60,8 @@ const CategoriasAdmin = () => {
           method: "PUT",
           headers: { "Content-Type": "application/json", ...authHeader },
           body: JSON.stringify({
-            nombre: formName,
-            descripcion: formDesc,
+          nombre: formName,
+          descripcion: formDesc,
           }),
         });
       } else {
@@ -106,7 +92,7 @@ const CategoriasAdmin = () => {
       console.error("Error en guardar categoría:", error);
       alert("Hubo un error al guardar. Revisa la consola.");
     }
-  };
+};
 
   // Función auxiliar para recargar el array de categories tras crear/editar/eliminar
   const loadCategoriasBackend = async () => {
@@ -159,10 +145,11 @@ const CategoriasAdmin = () => {
   }]  
   */
 
+  console.log("Categorias:", categorias);
+
   // —————————— Filtrado local (ya no hay excepción porque `categorias` siempre es array) ——————————
-  const filteredCategorias = categorias.filter((cat) =>
-    cat.nombre.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCategorias = categorias.filter((cat) => cat && cat.nombre &&
+    cat.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <div className="p-6">
