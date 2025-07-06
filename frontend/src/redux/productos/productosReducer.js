@@ -1,10 +1,18 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { createProducto, deleteProducto, fetchProductos, updateProducto } from "../api/productosApi";
+import { createProducto, deleteProducto, fetchProductos, updateProducto, fetchProductoById } from "../api/productosApi";
 
 // GET todos los productos
 export const loadProducts = createAsyncThunk("products/load", async () => {
   return await fetchProductos();
 });
+
+// GET producto por ID
+export const fetchProductByIdThunk = createAsyncThunk(
+  "products/fetchById",
+  async (id) => {
+    return await fetchProductoById(id);
+  }
+);
 
 // DELETE un producto
 export const removeProduct = createAsyncThunk("products/delete", async (id, thunkAPI) => {
@@ -41,6 +49,7 @@ const productSlice = createSlice({
   name: "products",
   initialState: {
     items: [],
+    selectedProduct: null,
     loading: false,
     error: null,
     success: false,
@@ -56,6 +65,19 @@ const productSlice = createSlice({
         state.items = action.payload;
       })
       .addCase(loadProducts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchProductByIdThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.selectedProduct = null;
+      })
+      .addCase(fetchProductByIdThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedProduct = action.payload;
+      })
+      .addCase(fetchProductByIdThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

@@ -13,6 +13,10 @@ export const fetchProductos = async () => {
   const response = await axiosInstance.get("/productos");
   return response.data;
 };
+export const fetchProductoById = async (id) => {
+  const response = await axiosInstance.get(`/productos/${id}`);
+  return response.data;
+};
 
 export const createProducto = async (data, token) => {
   const response = await axiosInstance.post("/productos", data, {
