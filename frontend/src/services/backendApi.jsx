@@ -109,7 +109,7 @@ export const loginAdmin = async (email, password) => {
 };
 
 
-export const createProduct = async (product) => {
+export const createProduct = async (product, token) => {
   const endpoint = `${BACKEND_CONFIG.BASE_URL}/productos`;
 
   const response = await fetch(endpoint, {
@@ -117,6 +117,7 @@ export const createProduct = async (product) => {
     headers: {
       ...BACKEND_CONFIG.headers,
       "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`, // ✅ Agregado
     },
     body: JSON.stringify(product),
   });
@@ -129,22 +130,41 @@ export const createProduct = async (product) => {
   return data;
 };
 
-export const deleteProduct = async ({ id }) => {
+export const deleteProduct = async (id, token) => {
 
+   console.log("TOKEN EN updateProduct:", token);
+   
   const endpoint = `${BACKEND_CONFIG.BASE_URL}/productos/${id}`;
 
   const response = await fetch(endpoint, {
     method: "DELETE",
     headers: {
-      "Authorization": `Bearer ${localStorage.getItem("token")}`
+      accept: "application/json",
+      "Authorization": `Bearer ${token}`, // ✅ Usamos token recibido
     },
   });
 
-  console.log(response);
+  if (!response.ok) {
+    throw new Error("Error al eliminar el producto");
+  }
+};
 
+export const updateProduct = async (product, token) => {
+  const endpoint = `${BACKEND_CONFIG.BASE_URL}/productos/${product.id}`;
 
+  const response = await fetch(endpoint, {
+    method: "PUT",
+    headers: {
+      ...BACKEND_CONFIG.headers,
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(product),
+  });
 
   if (!response.ok) {
-    throw new Error("Error fetching", { cause: response.statusText });
+    throw new Error("Error al actualizar el producto");
   }
-}
+
+  return await response.json();
+};

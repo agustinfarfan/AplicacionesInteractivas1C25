@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchProducts, deleteProduct, createProduct } from "../../services/backendApi";
+import { fetchProducts, deleteProduct, createProduct, updateProduct } from "../../services/backendApi";
 
 // GET todos los productos
 export const loadProducts = createAsyncThunk("products/load", async () => {
@@ -7,15 +7,31 @@ export const loadProducts = createAsyncThunk("products/load", async () => {
 });
 
 // DELETE un producto
-export const removeProduct = createAsyncThunk("products/delete", async (id) => {
-  await deleteProduct({ id });
-  return id;
-});
-
+export const removeProduct = createAsyncThunk(
+  "products/delete",
+  async (id, thunkAPI) => {
+    const token = thunkAPI.getState().user.token;
+    await deleteProduct(id, token);
+    return id;
+  }
+);
 // POST crear producto
-export const addProduct = createAsyncThunk("products/create", async (productData) => {
-  return await createProduct(productData);
-});
+export const addProduct = createAsyncThunk(
+  "products/create",
+  async (productData, thunkAPI) => {
+    const token = thunkAPI.getState().user.token;
+    return await createProduct(productData, token);
+  }
+);
+// PUT editar producto
+export const editProduct = createAsyncThunk(
+  "products/edit",
+  async (productData, thunkAPI) => {
+    const token = thunkAPI.getState().user.token;
+    return await updateProduct(productData, token);
+  }
+);
+
 
 const productSlice = createSlice({
   name: "products",
@@ -49,6 +65,4 @@ const productSlice = createSlice({
   },
 });
 
-
-export const { clearProductStatus } = productSlice.actions;
 export default productSlice.reducer;
