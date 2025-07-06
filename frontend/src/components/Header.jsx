@@ -1,50 +1,39 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from './buttons/Button';
 import ButtonLink from './buttons/ButtonLink';
 import UserProfileSidebar from './UserProfileSidebar';
-import LogoSanaSana from '../assets/SanaSanaTransparenteLogo.png'
-import { fetchCategories } from '../services/backendApi';
+import LogoSanaSana from '../assets/SanaSanaTransparenteLogo.png';
 import { HiUserCircle } from "react-icons/hi";
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCategories } from '../redux/categoria/categoryReducer';
 
 const Header = () => {
+  const dispatch = useDispatch();
+  const { categories, loading, error } = useSelector(state => state.category);
 
   const navigate = useNavigate();
   const { isEmpty, quantity } = useSelector((state) => state.carrito);
   const { isAuthenticated } = useSelector((state) => state.user);
-  
+
   const dropdownRef = useRef(null);
 
   const [current, setCurrent] = useState('Home');
   const [showProfile, setShowProfile] = useState(false);
-  const [categories, setCategories] = useState([]);
   const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false);
-  const [loadingCategories, setLoadingCategories] = useState(false);
-
 
   const tabs = [
     { name: 'Home', href: '/' },
     { name: 'Categorias', href: '#', hasDropdown: true },
     { name: 'Nosotros', href: '/about' },
-    { name: 'Contactanos', href: 'contacto' }
-  ]
+    { name: 'Contactanos', href: '/contacto' }
+  ];
 
   useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        setLoadingCategories(true);
-        const categoriesData = await fetchCategories();
-        setCategories(categoriesData.content);
-      } catch (error) {
-        console.error('Error al cargar categorías:', error);
-      } finally {
-        setLoadingCategories(false);
-      }
-    };
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
-    loadCategories();
-  }, []);
+  console.log('Categorías desde Redux:', categories);
 
   // Cerrar dropdown cuando se hace click fuera
   useEffect(() => {
@@ -60,14 +49,11 @@ const Header = () => {
     };
   }, []);
 
-
-  // Manejar click en categoría
   const handleCategoryClick = (categoryId, categoryName) => {
     setShowCategoriesDropdown(false);
     navigate(`/categoria/${categoryId}`, { state: { categoryName } });
   };
 
-  // Manejar click en tabs
   const handleTabClick = (tab) => {
     if (tab.name === 'Categorias') {
       setShowCategoriesDropdown(!showCategoriesDropdown);
@@ -121,11 +107,10 @@ const Header = () => {
                       </Link>
                     )}
 
-                    {/* Dropdown de categorías */}
                     {tab.name === 'Categorias' && showCategoriesDropdown && (
                       <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-50">
                         <div className="py-1 max-h-64 overflow-y-auto">
-                          {loadingCategories ? (
+                          {loading ? (
                             <div className="px-4 py-2 text-sm text-gray-500">
                               Cargando categorías...
                             </div>
@@ -151,27 +136,23 @@ const Header = () => {
                 ))}
               </div>
             </div>
-            <div className=" items-center">
+
+            <div className="items-center">
               <div className="hidden md:flex md:flex-row md:items-center md:justify-center gap-4 h-full">
                 {isAuthenticated ? (
                   <div className="flex flex-row gap-3 items-center justify-center">
-                      <div className='flex flex-row items-center justify-center bg-neutral-200 rounded-md'>
-                      {!isEmpty ? (
+                    <div className='flex flex-row items-center justify-center bg-neutral-200 rounded-md'>
+                      {!isEmpty && (
                         <span className="px-3 text-sm font-bold text-indigo-600">
                           {quantity}
                         </span>
-                      ) : (<></>)}
-
+                      )}
                       <Link to="/carrito" className="flex items-center justify-center w-full p-2 rounded-md text-white text-sm font-medium bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
                         </svg>
-
                       </Link>
-
                     </div>
-
-
 
                     <button onClick={() => setShowProfile(true)} className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                       <HiUserCircle className="w-10 h-10 text-gray-400" />
@@ -184,48 +165,13 @@ const Header = () => {
                     <ButtonLink href={"/auth/register"} nombre={"Registarse"} />
                   </>
                 )}
-
               </div>
-              <div className="flex items-center h-full md:hidden">
-                <button type="button" className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500" aria-expanded="false">
-                  <span className="sr-only">Open main menu</span>
-                  <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="md:hidden hidden" id="mobile-menu">
-          <div className="pt-2 pb-3 space-y-1">
-            {
-              tabs.map((tab) => (
-                <Link
-                  to={tab.href}
-                  onClick={() => setCurrent(tab.name)}
-                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${current === tab.name
-                    ? 'border-indigo-500 text-gray-900'
-                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                    }`}
-                  key={tab.name}
-                >
-                  {tab.name}
-                </Link>
-              ))
-            }
-
-          </div>
-          <div className="pt-4 pb-3 border-t border-gray-200">
-            <div className="flex items-center px-4">
-              <Button nombre={"Sign Up"} />
             </div>
           </div>
         </div>
       </nav>
     </>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;
