@@ -1,19 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { loadProducts, removeProduct } from "../../redux/productos/productosReducer";
+import { loadProducts, removeProduct, editProduct } from "../../redux/productos/productosReducer";
+import { getMappedCategories } from "../../services/backendApi";
 
 const ProductsAdmin = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-
   const { items: productos, loading, error } = useSelector((state) => state.productos);
+  const token = useSelector((state) => state.user.token);
+
   const [searchTerm, setSearchTerm] = useState("");
+  const [editandoId, setEditandoId] = useState(null);
+  const [formData, setFormData] = useState({
+    nombre: "",
+    description: "",
+    precio: "",
+    stock: "",
+    categoriaId: "",
+  });
+  const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
-    if (productos.length==0) {
-      dispatch(loadProducts());
-    }
+    if (productos.length === 0) dispatch(loadProducts());
+    getMappedCategories().then(setCategorias);
   }, [dispatch]);
 
   const handleDelete = async (id) => {
@@ -21,12 +30,42 @@ const ProductsAdmin = () => {
     dispatch(removeProduct(id));
   };
 
+  const handleEditClick = (prod) => {
+    setEditandoId(prod.id);
+    setFormData({
+      nombre: prod.nombre,
+      description: prod.description,
+      precio: prod.precio,
+      stock: prod.stock,
+      categoriaId: prod.categoria?.id || prod.categoriaId || "",
+    });
+  };
+
+  const handleUpdate = async (id) => {
+    try {
+      await dispatch(
+        editProduct({
+          id,
+          nombre: formData.nombre,
+          description: formData.description,
+          precio: parseFloat(formData.precio),
+          stock: parseInt(formData.stock),
+          categoriaId: parseInt(formData.categoriaId),
+        })
+      ).unwrap();
+      setEditandoId(null);
+    } catch (err) {
+      alert("Error al actualizar el producto");
+    }
+    await dispatch(loadProducts());
+  };
+
   const filteredProductos = productos.filter((prod) =>
     prod.nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="p-6 ">
+    <div className="p-6">
       <h1 className="text-2xl font-semibold mb-6">Administración de Productos</h1>
 
       <div className="mb-4">
@@ -48,41 +87,111 @@ const ProductsAdmin = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Precio</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acción</th>
+                <th className="px-4 py-2 text-center">ID</th>
+                <th className="px-4 py-2 text-center">Nombre</th>
+                <th className="px-4 py-2 text-center">Descripción</th>
+                <th className="px-4 py-2 text-center">Precio</th>
+                <th className="px-4 py-2 text-center">Stock</th>
+                <th className="px-4 py-2 text-center">Categoría</th>
+                <th className="px-4 py-2 text-center">Acciones</th>
               </tr>
             </thead>
-
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredProductos.length > 0 ? (
-                filteredProductos.map((prod, idx) => (
-                  <tr key={prod.id} className={idx % 2 === 0 ? "" : "bg-gray-50"}>
-                    <td className="px-6 py-4 text-sm text-gray-700">{prod.id}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{prod.nombre}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{prod.description}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">${prod.precio}</td>
-                    <td className="px-6 py-4 text-sm font-medium flex gap-2">
-                      <button
-                        onClick={() => navigate(`/admin/products/${prod.id}`)}
-                        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => handleDelete(prod.id)}
-                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                      >
-                        Eliminar
-                      </button>
-                    </td>
+                filteredProductos.map((prod) => (
+                  <tr key={prod.id}>
+                    <td className="px-4 py-2 text-center align-middle">{prod.id}</td>
+                    {editandoId === prod.id ? (
+                      <>
+                        <td className="px-4 py-2 text-center align-middle">
+                          <input
+                            className="border p-1 w-full"
+                            value={formData.nombre}
+                            onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                          />
+                        </td>
+                        <td className="px-4 py-2 text-center align-middle">
+                          <input
+                            className="border p-1 w-full"
+                            value={formData.description}
+                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                          />
+                        </td>
+                        <td className="px-4 py-2 text-center align-middle">
+                          <input
+                            className="border p-1 w-full"
+                            type="number"
+                            value={formData.precio}
+                            onChange={(e) => setFormData({ ...formData, precio: e.target.value })}
+                          />
+                        </td>
+                        <td className="px-4 py-2 text-center align-middle">
+                          <input
+                            className="border p-1 w-full"
+                            type="number"
+                            value={formData.stock}
+                            onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                          />
+                        </td>
+                        <td className="px-4 py-2 text-center align-middle">
+                          <select
+                            className="border p-1 w-full"
+                            value={formData.categoriaId}
+                            onChange={(e) => setFormData({ ...formData, categoriaId: e.target.value })}
+                          >
+                            <option value="">Seleccionar</option>
+                            {categorias.map((cat) => (
+                              <option key={cat.id} value={cat.id}>
+                                {cat.nombre}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-4 py-2 text-center align-middle">
+                          <button
+                            onClick={() => handleUpdate(prod.id)}
+                            className="bg-green-600 text-white px-2 py-1 rounded mr-2"
+                          >
+                            Guardar
+                          </button>
+                          <button
+                            onClick={() => setEditandoId(null)}
+                            className="bg-gray-400 text-white px-2 py-1 rounded"
+                          >
+                            Cancelar
+                          </button>
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td className="px-4 py-2 text-center align-middle">{prod.nombre}</td>
+                        <td className="px-4 py-2 text-center align-middle">{prod.description}</td>
+                        <td className="px-4 py-2 text-center align-middle">${prod.precio}</td>
+                        <td className="px-4 py-2 text-center align-middle">{prod.stock}</td>
+                        <td className="px-4 py-2 text-center align-middle">
+                          {prod.category?.name || "Sin categoría"}
+                        </td>
+                        <td className="px-4 py-2 text-center align-middle">
+                          <button
+                            onClick={() => handleEditClick(prod)}
+                            className="bg-blue-600 text-white px-2 py-1 rounded mr-2"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDelete(prod.id)}
+                            className="bg-red-600 text-white px-2 py-1 rounded"
+                          >
+                            Eliminar
+                          </button>
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-6 py-4 text-sm text-gray-500 text-center">
+                  <td colSpan="7" className="px-4 py-4 text-center text-gray-500">
                     No se encontraron productos.
                   </td>
                 </tr>

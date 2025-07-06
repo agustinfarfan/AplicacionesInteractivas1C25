@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { addProduct, clearProductStatus } from "../../redux/productos/productosReducer";
+import { useDispatch } from "react-redux";
+import { addProduct } from "../../redux/productos/productosReducer";
 import { getMappedCategories } from "../../services/backendApi";
 
 const ProductoNuevo = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const { success, error: reduxError } = useSelector((state) => state.productos);
 
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
@@ -22,12 +20,7 @@ const ProductoNuevo = () => {
     getMappedCategories()
       .then(setCategorias)
       .catch(() => setError("No se pudieron cargar las categorías"));
-
-    // Limpiar estado al montar/desmontar
-    return () => {
-      dispatch(clearProductStatus());
-    };
-  }, [dispatch]);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,8 +29,6 @@ const ProductoNuevo = () => {
       setError("Todos los campos son obligatorios");
       return;
     }
-
-    setError(""); // Limpiar error local
 
     dispatch(
       addProduct({
@@ -49,10 +40,7 @@ const ProductoNuevo = () => {
       })
     )
       .unwrap()
-      .then(() => {
-        // Podés dejarlo un momento en pantalla o redirigir inmediatamente
-        setTimeout(() => navigate("/admin/products"), 1500);
-      })
+      .then(() => navigate("/admin/products"))
       .catch(() => setError("Error al crear el producto"));
   };
 
@@ -61,8 +49,6 @@ const ProductoNuevo = () => {
       <h2 className="text-xl font-bold mb-4">Crear nuevo producto</h2>
 
       {error && <p className="text-red-600 mb-4">{error}</p>}
-      {reduxError && <p className="text-red-600 mb-4">{reduxError}</p>}
-      {success && <p className="text-green-600 mb-4">Producto creado correctamente 🎉</p>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
@@ -116,4 +102,3 @@ const ProductoNuevo = () => {
 };
 
 export default ProductoNuevo;
-

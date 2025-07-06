@@ -58,6 +58,4 @@ const productSlice = createSlice({
   },
 });
 
-
-export const { clearProductStatus } = productSlice.actions;
 export default productSlice.reducer;
