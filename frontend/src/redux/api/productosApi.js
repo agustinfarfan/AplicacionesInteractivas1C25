@@ -10,21 +10,36 @@ const axiosInstance = axios.create({
 });
 
 export const fetchProductos = async () => {
-  const response = await axiosInstance.get("/products");
+  const response = await axiosInstance.get("/productos");
   return response.data;
 };
 
-export const createProduct = async (id, data) => {
-  const response = await axiosInstance.put(`/products/${id}`, data);
+export const createProducto = async (data, token) => {
+  const response = await axiosInstance.post("/productos", data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    withCredentials: true,
+  });
   return response.data;
 };
 
-export const deleteProducto = async (id) => {
-  const response = await axiosInstance.delete(`/products/${id}`);
+export const deleteProducto = async (id, token) => {
+  const response = await axiosInstance.delete(`/productos/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    withCredentials: true,
+  });
   return response.data;
 };
 
 export const updateProducto = async (id, data) => {
-  const response = await axiosInstance.put(`/products/${id}`, data);
+  const response = await axiosInstance.put(`/productos/${id}`, data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    withCredentials: true,
+  });
   return response.data;
 };
