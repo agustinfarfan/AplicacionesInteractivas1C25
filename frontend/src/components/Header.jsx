@@ -27,7 +27,7 @@ const Header = () => {
     { name: 'Home', href: '/' },
     { name: 'Categorias', href: '#', hasDropdown: true },
     { name: 'Nosotros', href: '/about' },
-    { name: 'Contactanos', href: 'contacto' }
+    { name: 'Contactanos', href: '/contacto' }
   ]
 
   useEffect(() => {
