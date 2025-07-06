@@ -57,6 +57,7 @@ const ProductsAdmin = () => {
     } catch (err) {
       alert("Error al actualizar el producto");
     }
+    await dispatch(loadProducts());
   };
 
   const filteredProductos = productos.filter((prod) =>
@@ -168,7 +169,7 @@ const ProductsAdmin = () => {
                         <td className="px-4 py-2 text-center align-middle">${prod.precio}</td>
                         <td className="px-4 py-2 text-center align-middle">{prod.stock}</td>
                         <td className="px-4 py-2 text-center align-middle">
-                          {prod.categoria?.nombre || prod.categoria?.name || "Sin categoría"}
+                          {prod.category?.name || "Sin categoría"}
                         </td>
                         <td className="px-4 py-2 text-center align-middle">
                           <button
