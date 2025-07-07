@@ -1,10 +1,10 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import { useState, useMemo, useEffect } from 'react';
-import { fetchAllPedidos } from '../../services/pedidosService';
 import Loading from '../../components/Loading';
 import { Link } from 'react-router-dom';
 import EstadoPedido from '../../components/EstadoPedido';
 import NoResourceMessage from '../../components/NoResourceMessage';
+import { fetchAllPedidos } from '../../redux/pedidos/pedidoReducer';
 
 function groupOrders(data, mode) {
   const map = {};
@@ -46,19 +46,13 @@ function PedidosAdmin() {
   const chartData = useMemo(() => data ? groupOrders(data, groupBy) : [], [data, groupBy]);
 
   useEffect(() => {
-
-    fetchAllPedidos()
-      .then((data) => {
-        console.log(data);
-        setData(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
-  }, [])
-
+    if (token) {
+      fetchAllPedidos(token)
+        .then(setData)
+        .catch(setError)
+        .finally(() => setLoading(false));
+    }
+  }, [token]);
 
   return (
     <div className='max-w-7xl mx-4 md:mx-auto mt-10'>
