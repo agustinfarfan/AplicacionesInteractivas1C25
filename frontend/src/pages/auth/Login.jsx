@@ -18,9 +18,9 @@ const Login = () => {
 
     dispatch(userLogin({ email, password }))
       .unwrap()
-      .then(() => {
+      .then(() => {s
         navigate("/");
-        window.location.reload();
+        //window.location.reload();
       })
       .catch(() => {
         setError("Credenciales inválidas");

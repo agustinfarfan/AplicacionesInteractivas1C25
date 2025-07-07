@@ -1,7 +1,8 @@
 package com.uade.tpo.demo.controllers.config;
 
-import com.uade.tpo.demo.controllers.auth.CustomAccessDeniedHandler;
+import com.uade.tpo.demo.controllers.auth.CustomAuthenticationEntryPoint;
 import com.uade.tpo.demo.enums.Role;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -30,11 +32,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    @Autowired
     private final JwtAuthenticationFilter jwtAuthFilter;
+    @Autowired
     private final AuthenticationProvider authenticationProvider;
+    @Autowired
+    private CustomAuthenticationEntryPoint authEntryPoint;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomAccessDeniedHandler accessDeniedHandler) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
@@ -82,14 +88,24 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.DELETE, "/clientes/**").hasAnyAuthority(Role.VENDOR.name())
 
 
-                        .requestMatchers("/shipping-addresses/**").permitAll()
-                        // Admin
-                        .requestMatchers("admin/**").hasAnyAuthority(Role.VENDOR.name())
+                    .requestMatchers("/shipping-addresses/**").permitAll()
+
+                    // Admin
+                    .requestMatchers("admin/**").hasAnyAuthority(Role.VENDOR.name())
+
+                    // Images
+                    .requestMatchers(HttpMethod.GET,"images/**").permitAll()
+                    .requestMatchers("images/upload").hasAnyAuthority(Role.VENDOR.name())
+
 
                     .anyRequest().authenticated()
             )
-            .exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandler))
-            .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+            .exceptionHandling(eh -> eh
+                .authenticationEntryPoint(authEntryPoint)
+            )
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
             .authenticationProvider(authenticationProvider)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -99,7 +115,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5176"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true); // if sending cookies or Authorization header

@@ -2,18 +2,20 @@ import axios from 'axios';
 
 
 const BASE_URL = "http://localhost:4002";
-const AUTH_TOKEN = localStorage.getItem("token");
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: {
     accept: "application/json",
-    Authorization: `Bearer ${AUTH_TOKEN}`,
   },
 });
 
-
-export const getUserLogged = async () => {
-  const response = await axiosInstance.get(`/user/me`);
+export const getUserLogged = async (token) => {
+  const response = await axiosInstance.get(`/user/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    withCredentials: true,
+  });
   return response.data;
 };

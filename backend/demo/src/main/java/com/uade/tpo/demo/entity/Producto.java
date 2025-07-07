@@ -25,6 +25,9 @@ public class Producto {
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private Category category;
+
+    @Column(name = "nombre_imagen")
+    private String nombreImagen;
 }
 
 

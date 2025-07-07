@@ -1,30 +1,60 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { addCoupon, addProduct, finalize, getUserCart, removeProduct } from '../api/carritoApi'
 
-export const fetchCarrito = createAsyncThunk("carrito/getCart", async ({ id }) => {
-  const data = await getUserCart(id);
-  return data;
-})
+export const fetchCarrito = createAsyncThunk(
+  "carrito/getCart",
+  async ({ id }, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const token = state.user.token;
 
-export const addProductoToCart = createAsyncThunk("carrito/addProductoToCart", async ({ id, productoId, cantidad }) => {
-  const data = await addProduct(id, productoId, cantidad);
-  return data;
-})
+    const data = await getUserCart(token, id);
+    return data;
+  }
+);
 
-export const removeProductoFromCart = createAsyncThunk("carrito/removeProductoFromCart", async ({ id, productoId, cantidad }) => {
-  const data = await removeProduct(id, productoId, cantidad);
-  return data;
-})
+export const addProductoToCart = createAsyncThunk(
+  "carrito/addProductoToCart",
+  async ({ id, productoId, cantidad }, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const token = state.user.token;
 
-export const addCouponToCart = createAsyncThunk("carrito/addCouponToCart", async ({ id, nombre }) => {
-  const data = await addCoupon(id, nombre);
-  return data;
-})
+    const data = await addProduct(token, id, productoId, cantidad);
+    return data;
+  }
+);
 
-export const finalizeCart = createAsyncThunk("carrito/finalizeCart", async ({ id, info }) => {
-  const data = await finalize(id, info);
-  return data;
-})
+export const removeProductoFromCart = createAsyncThunk(
+  "carrito/removeProductoFromCart",
+  async ({ id, productoId, cantidad }, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const token = state.user.token;
+
+    const data = await removeProduct(token, id, productoId, cantidad);
+    return data;
+  }
+);
+
+export const addCouponToCart = createAsyncThunk(
+  "carrito/addCouponToCart",
+  async ({ id, nombre }, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const token = state.user.token;
+
+    const data = await addCoupon(token, id, nombre);
+    return data;
+  }
+);
+
+export const finalizeCart = createAsyncThunk(
+  "carrito/finalizeCart",
+  async ({ id, info }, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const token = state.user.token;
+
+    const data = await finalize(token, id, info);
+    return data;
+  }
+);
 
 
 const initialState = {

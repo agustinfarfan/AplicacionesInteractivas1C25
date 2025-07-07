@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { createProduct, getMappedCategories } from "../../services/backendApi";
+import { useDispatch } from "react-redux";
+import { addProduct } from "../../redux/productos/productosReducer";
+import { getMappedCategories } from "../../services/backendApi";
 
 const ProductoNuevo = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
@@ -27,20 +30,18 @@ const ProductoNuevo = () => {
       return;
     }
 
-    try {
-      await createProduct({
+    dispatch(
+      addProduct({
         nombre,
         description: descripcion,
         precio: parseFloat(precio),
         stock: parseInt(stock),
-        categoriaId: parseInt(categoriaId), // ✅ CORRECTO
-      });
-
-      navigate("/admin/products");
-    } catch (err) {
-      console.error(err);
-      setError("Error al crear el producto");
-    }
+        categoriaId: parseInt(categoriaId),
+      })
+    )
+      .unwrap()
+      .then(() => navigate("/admin/products"))
+      .catch(() => setError("Error al crear el producto"));
   };
 
   return (
@@ -57,14 +58,12 @@ const ProductoNuevo = () => {
           onChange={(e) => setNombre(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded"
         />
-
         <textarea
           placeholder="Descripción"
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded"
         />
-
         <input
           type="number"
           placeholder="Precio"
@@ -72,7 +71,6 @@ const ProductoNuevo = () => {
           onChange={(e) => setPrecio(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded"
         />
-
         <input
           type="number"
           placeholder="Stock"
@@ -80,7 +78,6 @@ const ProductoNuevo = () => {
           onChange={(e) => setStock(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded"
         />
-
         <select
           value={categoriaId}
           onChange={(e) => setCategoriaId(e.target.value)}
@@ -93,7 +90,6 @@ const ProductoNuevo = () => {
             </option>
           ))}
         </select>
-
         <button
           type="submit"
           className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
