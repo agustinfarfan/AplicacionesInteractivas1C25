@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCategories, addCategory, editCategory } from '../../redux/categories/categoriesReducer';
+import { getCategories, removeCategory } from '../../redux/categories/categoriesReducer';
 
 
 const CategoriasAdmin = () => {
@@ -47,19 +47,43 @@ const CategoriasAdmin = () => {
       alert("El nombre no puede estar vacío");
       return;
     }
-    try {
-      if (activeCat) {
-        console.log("Editando categoria:", activeCat.id);
-        console.log("Datos del formulario:", { id: activeCat.id, nombre: formName, descripcion: formDesc });
 
-        await dispatch(editCategory({ id: activeCat.id, nombre: formName, descripcion: formDesc }));
+    const token = localStorage.getItem("token");
+    const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
+
+
+    try {
+      let resp;
+      if (activeCat) {
+        
+        resp = await fetch(`http://localhost:4002/categories/${activeCat.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", ...authHeader },
+          body: JSON.stringify({
+            nombre: formName,
+            descripcion: formDesc,
+          }),
+        });
       } else {
-        console.log("Creando nueva categoría:", formName);
-        console.log("Datos del formulario:", { nombre: formName, descripcion: formDesc });
-        await dispatch(addCategory({ nombre: formName, descripcion: formDesc }));
+        
+        resp = await fetch("http://localhost:4002/categories", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...authHeader },
+          body: JSON.stringify({
+            nombre: formName,
+            descripcion: formDesc
+          }),
+        });
       }
-      // Refrescar la lista
-      dispatch(getCategories());
+
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw new Error(`Error al guardar: ${text}`);
+      }
+
+      // Despues de crear o editar, recargo la lista
+      await loadCategoriasBackend();
+
       setFormName("");
       setFormDesc("");
       setActiveCat(null);
@@ -87,6 +111,11 @@ const CategoriasAdmin = () => {
       console.error("No se pudieron recargar categorías:", error);
     }
   };
+
+  const handleDelete = async () => {
+      dispatch(removeCategory(deleteCat.id));
+      setDeleteCat(null);
+    };
 
   const confirmDelete = async () => {
 
@@ -120,6 +149,8 @@ const CategoriasAdmin = () => {
     descripcion: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dolor, dignissimos."
   }]  
   */
+
+  console.log(categorias)
 
   // —————————— Filtrado local (ya no hay excepción porque `categorias` siempre es array) ——————————
   const filteredCategorias = categorias.filter((cat) => cat && cat.nombre &&
@@ -313,7 +344,8 @@ const CategoriasAdmin = () => {
                   Cancelar
                 </button>
                 <button
-                  onClick={confirmDelete}
+                  /*onClick={confirmDelete}*/
+                  onClick={handleDelete}
                   className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
                 >
                   Eliminar

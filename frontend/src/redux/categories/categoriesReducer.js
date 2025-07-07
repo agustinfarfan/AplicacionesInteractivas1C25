@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { fetchCategories, createCategory, updateCategory } from '../api/categoriesApi'
+import { fetchCategories, deleteCategories } from '../api/categoriesApi'
 
 export const getCategories = createAsyncThunk("categories/fetchCategories", async () => {
   const data = await fetchCategories()
@@ -11,29 +11,14 @@ export const getCategories = createAsyncThunk("categories/fetchCategories", asyn
     }));
 })
 
-export const addCategory = createAsyncThunk(
-  "categories/addCategory",
-  async ({ nombre, descripcion }, { rejectWithValue }) => {
-    try {
-      const data = await createCategory({ nombre, descripcion });
-      return { id: data.id, nombre: data.name, descripcion: data.description };
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message);
-    }
-  }
-);
+export const removeCategory = createAsyncThunk("category/delete", async (id, thunkAPI) => {
+  const state = thunkAPI.getState();
+  const token = state.user.token;
 
-export const editCategory = createAsyncThunk(
-  "categories/editCategory",
-  async ({ id, nombre, descripcion }, { rejectWithValue }) => {
-    try {
-      const data = await updateCategory({ id, nombre, descripcion });
-      return { id: data.id, nombre: data.name, descripcion: data.description };
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message);
-    }
-  }
-);
+  await deleteCategories(id, token);
+  return id;
+});
+
 
 const initialState = {
   items: [],
@@ -61,22 +46,7 @@ const categoriesSlice = createSlice({
         state.loading = false
         state.error = action.error.message
       })
-      // ADD
-      .addCase(addCategory.fulfilled, (state, action) => {
-        state.items.push(action.payload);
-      })
-      .addCase(addCategory.rejected, (state, action) => {
-        state.error = action.payload || "Error al agregar la categoría";
-      })
-      .addCase(addCategory.pending, state => {
-        state.loading = true;
-        state.error = null;
-      })
-      // EDIT
-      .addCase(editCategory.fulfilled, (state, action) => {
-        const idx = state.items.findIndex(cat => cat.id === action.payload.id);
-        if (idx !== -1) state.items[idx] = action.payload;
-      });
+      
   }
 })
 

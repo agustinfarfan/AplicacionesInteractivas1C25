@@ -2,33 +2,24 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:4002";
 
-const getAuthHeader = () => {
-  const token = localStorage.getItem("token");
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
+const axiosInstance = axios.create({
+  baseURL: BASE_URL,
+  headers: {
+    accept: "application/json",
+  },
+});
 
 export const fetchCategories = async () => {
-  const response = await axios.get(`${BASE_URL}/categories`, {
-    headers: { ...getAuthHeader(), accept: "application/json" },
+  const response = await axiosInstance.get("/categories");
+  return response.data;
+};
+
+export const deleteCategories = async (id, token) => {
+  const response = await axiosInstance.delete(`/categories/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    withCredentials: true,
   });
   return response.data;
 };
-
-export const createCategory = async ({ nombre, descripcion }) => {
-  const response = await axios.post(
-    `${BASE_URL}/categories`,
-    { name: nombre, description: descripcion },
-    { headers: { ...getAuthHeader(), "Content-Type": "application/json" } }
-  );
-  return response.data;
-};
-
-export const updateCategory = async ({ id, nombre, descripcion }) => {
-  const response = await axios.put(
-    `${BASE_URL}/categories/${id}`,
-    { name: nombre, description: descripcion },
-    { headers: { ...getAuthHeader(), "Content-Type": "application/json" } }
-  );
-  return response.data;
-};
-
