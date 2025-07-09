@@ -3,11 +3,13 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loadProducts, removeProduct, editProduct } from "../../redux/productos/productosReducer";
 import { getMappedCategories } from "../../services/backendApi";
+import { uploadImage } from "../../redux/api/imageApi";
+import { FileUp } from "lucide-react";
 
 const ProductsAdmin = () => {
   const dispatch = useDispatch();
   const { items: productos, loading, error } = useSelector((state) => state.productos);
-  const token = useSelector((state) => state.user.token);
+  const { token } = useSelector((state) => state.user);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [editandoId, setEditandoId] = useState(null);
@@ -17,8 +19,12 @@ const ProductsAdmin = () => {
     precio: "",
     stock: "",
     categoriaId: "",
+    nombreImagen: ""
   });
   const [categorias, setCategorias] = useState([]);
+  const [imagenUrl, setImagenUrl] = useState(null);
+  const [imagen, setImagen] = useState(null);
+
 
   useEffect(() => {
     if (productos.length === 0) dispatch(loadProducts());
@@ -37,12 +43,25 @@ const ProductsAdmin = () => {
       description: prod.description,
       precio: prod.precio,
       stock: prod.stock,
-      categoriaId: prod.category.id,
+      categoriaId: prod.category.id
     });
+    
+    if (prod.nombreImagen) {
+      setImagenUrl(`http://localhost:4002/images/${prod.nombreImagen}`)
+    } else {
+      setImagenUrl(null);
+    }
   };
 
   const handleUpdate = async (id) => {
     try {
+
+      let url = null;
+      if (imagen) {
+        url = await uploadImage(imagen, token)
+          .catch(() => setError("Error al crear el producto"));
+      }
+
       await dispatch(
         editProduct({
           id,
@@ -51,18 +70,27 @@ const ProductsAdmin = () => {
           precio: parseFloat(formData.precio),
           stock: parseInt(formData.stock),
           categoriaId: parseInt(formData.categoriaId),
+          nombreImagen: url
         })
       ).unwrap();
       setEditandoId(null);
     } catch (err) {
       alert("Error al actualizar el producto");
     }
-    await dispatch(loadProducts());
+    dispatch(loadProducts());
   };
 
   const filteredProductos = productos.filter((prod) =>
     prod.nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleImageChange = (event) => {
+    if (event.target.files[0]) {
+      const url = URL.createObjectURL(event.target.files[0])
+      setImagenUrl(url);
+      setImagen(event.target.files[0]);
+    }
+  }
 
   return (
     <div className="p-6">
@@ -88,6 +116,7 @@ const ProductsAdmin = () => {
             <thead className="bg-gray-100">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Imagen</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Precio</th>
@@ -103,6 +132,22 @@ const ProductsAdmin = () => {
                     <td className="px-6 py-4 text-sm text-gray-700">{prod.id}</td>
                     {editandoId === prod.id ? (
                       <>
+                        <td className="px-6 py-4 text-sm text-gray-700">
+                          <label
+                            htmlFor="file"
+                            className="mt-4 flex w-full gap-2 flex-col text-sm leading-6 items-center text-gray-600"
+                          >
+                            {imagenUrl == null ? (
+                              <div className="flex items-center size-32 rounded-md border-dashed border  border-gray-300">
+                                <FileUp className="mx-auto size-12 stroke-gray-300" aria-hidden="true" />
+                              </div>
+                            ) : (
+                              <img className="size-32 max-h-20 w-fit rounded-md" src={imagenUrl} alt=""></img>
+                            )}
+                            <span className="hover:text-black">Subir imagen del producto</span>
+                            <input id="file" name="file" accept="image/jpeg,image/png" onChange={handleImageChange} type="file" className="sr-only" />
+                          </label>
+                        </td>
                         <td className="px-6 py-4 text-sm text-gray-700">
                           <input
                             className="border border-gray-400 text-sm text-gray-700 p-1 w-full rounded-sm"
@@ -164,6 +209,13 @@ const ProductsAdmin = () => {
                       </>
                     ) : (
                       <>
+                        <td className="p-3">
+                          <img
+                            className="size-32 max-h-20 max-w-20 w-full object-cover rounded-md"
+                            src={`http://localhost:4002/images/${prod.nombreImagen}`}
+                            alt={"imagen"}
+                          />
+                        </td>
                         <td className="px-6 py-4 text-sm text-gray-700">{prod.nombre}</td>
                         <td className="px-6 py-4 text-sm text-gray-700">{prod.description}</td>
                         <td className="px-6 py-4 text-sm text-gray-700">${prod.precio}</td>
@@ -171,7 +223,7 @@ const ProductsAdmin = () => {
                         <td className="px-6 py-4 text-sm text-gray-700">
                           {prod.category?.name || "Sin categoría"}
                         </td>
-                          <td className="px-6 py-4 text-sm text-gray-700">
+                        <td className="px-6 py-4 text-sm text-gray-700">
                           <button
                             onClick={() => handleEditClick(prod)}
                             className="bg-blue-600 text-white px-2 py-1 rounded mr-2"
