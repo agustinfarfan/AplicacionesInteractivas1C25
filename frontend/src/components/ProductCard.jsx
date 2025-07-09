@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { getImage } from '../redux/api/imageApi';
 
 const ProductCard = ({ product }) => {
     const navigate = useNavigate();
@@ -8,7 +9,7 @@ const ProductCard = ({ product }) => {
             state: { product } 
         });
     };
-
+    
     return (
         <div 
             className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
@@ -17,11 +18,11 @@ const ProductCard = ({ product }) => {
             <div className="aspect-w-1 aspect-h-1 w-full">
                 <img
                     className="w-full h-48 object-cover"
-                    src={product.image || product.imagen || '/placeholder-product.jpg'}
+                    src={product.nombreImagen 
+                        ? `http://localhost:4002/images/${product.nombreImagen}` 
+                        : `http://localhost:4002/images/no-image-available-icon-vector.jpg`
+                    }
                     alt={product.name || product.nombre}
-                    // onError={(e) => {
-                    //     e.target.src = '/placeholder-product.jpg';
-                    // }}
                 />
             </div>
             <div className="p-4">

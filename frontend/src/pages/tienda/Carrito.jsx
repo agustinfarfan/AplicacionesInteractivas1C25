@@ -83,7 +83,15 @@ const Carrito = () => {
                 carrito.carritoDetalle.map(product => (
                   <div key={product.producto_id} className='border rounded-lg shadow-lg bg-white border-gray-200 mb-4 flex h-32 flex-row items-center justify-between'>
                     <div className='flex flex-row items-center p-4 h-full'>
-                      <img onClick={() => navigate(`/producto/${product.producto_id}`)} src='https://via.placeholder.com/150?text=Hello' alt={product.nombre_producto} className='w-24 h-24 w-min-24 border border-gray-300 object-cover mr-4 rounded-md' />
+                      <img
+                        className="w-24 h-24 w-min-24 object-cover mr-4 rounded-md"
+                        src={product.nombre_imagen
+                          ? `http://localhost:4002/images/${product.nombre_imagen}`
+                          : `http://localhost:4002/images/no-image-available-icon-vector.jpg`
+                        }
+                        alt={product.name || product.nombre}
+                        onClick={() => navigate(`/producto/${product.producto_id}`)}
+                      />
                       <div className='flex flex-col gap-2 h-full'>
                         <h2 className='md:text-xl font-semibold'>{product.nombre_producto}</h2>
                         <p className='hidden md:block'>{product.descripcion}</p>

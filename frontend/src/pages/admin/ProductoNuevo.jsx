@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addProduct } from "../../redux/productos/productosReducer";
 import { getMappedCategories } from "../../services/backendApi";
+import { uploadImage } from "../../redux/api/imageApi";
+import { FileUp } from "lucide-react";
 
 const ProductoNuevo = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const { token } = useSelector((state) => state.user);
+
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
+  const [imagen, setImagen] = useState(null);
+  const [imagenUrl, setImagenUrl] = useState(null);
   const [precio, setPrecio] = useState("");
   const [stock, setStock] = useState("");
   const [categoriaId, setCategoriaId] = useState("");
@@ -30,6 +36,12 @@ const ProductoNuevo = () => {
       return;
     }
 
+    let url = null;
+    if (imagen) {
+      url = await uploadImage(imagen, token)
+        .catch(() => setError("Error al crear el producto"));
+    }
+
     dispatch(
       addProduct({
         nombre,
@@ -37,12 +49,23 @@ const ProductoNuevo = () => {
         precio: parseFloat(precio),
         stock: parseInt(stock),
         categoriaId: parseInt(categoriaId),
+        nombreImagen: url
       })
     )
       .unwrap()
       .then(() => navigate("/admin/products"))
       .catch(() => setError("Error al crear el producto"));
   };
+
+  const handleImageChange = (event) => {
+    if (event.target.files[0]) {
+      const url = URL.createObjectURL(event.target.files[0])
+      console.log(event.target.files);
+
+      setImagen(event.target.files[0]);
+      setImagenUrl(url);
+    }
+  }
 
   return (
     <div className="p-6 max-w-xl mx-auto bg-white rounded shadow-md mt-10">
@@ -58,6 +81,23 @@ const ProductoNuevo = () => {
           onChange={(e) => setNombre(e.target.value)}
           className="w-full p-2 border border-gray-300 rounded"
         />
+        <div className="flex flex-col items-center ">
+          <label
+            htmlFor="file"
+            className="mt-4 flex w-full gap-2 flex-col text-sm leading-6 items-center text-gray-600"
+          >
+            {imagenUrl == null ? (
+              <div className="flex items-center w-full h-72 rounded-md border-dashed border  border-gray-300">
+                <FileUp className="mx-auto size-12 stroke-gray-300" aria-hidden="true" />
+              </div>
+            ) : (
+              <img className="max-h-80 w-fit rounded-md" src={imagenUrl} alt=""></img>
+            )}
+            <span className="hover:text-black">Subir imagen del producto</span>
+            <input id="file" name="file" accept="image/jpeg,image/png" onChange={handleImageChange} type="file" className="sr-only" />
+          </label>
+          <p className="text-xs leading-5 text-gray-600">PNG, JPG hasta 10MB</p>
+        </div>
         <textarea
           placeholder="Descripción"
           value={descripcion}
@@ -81,7 +121,7 @@ const ProductoNuevo = () => {
         <select
           value={categoriaId}
           onChange={(e) => setCategoriaId(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded"
+          className="w-full p-2 border border-gray-300 rounded text-gray-500"
         >
           <option value="">Seleccionar categoría</option>
           {categorias.map((cat) => (

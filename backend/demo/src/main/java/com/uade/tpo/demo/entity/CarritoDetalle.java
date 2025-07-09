@@ -48,6 +48,7 @@ public class CarritoDetalle {
                 .producto_id(producto.getId())
                 .nombre_producto(producto.getNombre())
                 .descripcion(producto.getDescription())
+                .nombre_imagen(producto.getNombreImagen())
                 .cantidad(this.cantidad)
                 .precio_unitario(producto.getPrecio())
                 .subtotal(this.obtenerSubTotal())

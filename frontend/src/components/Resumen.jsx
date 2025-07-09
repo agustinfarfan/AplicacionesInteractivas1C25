@@ -12,7 +12,7 @@ const Resumen = ({ data, activo = true }) => {
               {data.carritoDetalle.map(product => (
                 <div key={product.producto_id} className='flex items-center flex-row justify-between pl-2'>
                   <p className='text-md font-normal text-neutral-600'>{product.nombre_producto}</p>
-                  <p className='text-md font-normal text-neutral-600'>${product.subtotal}</p>
+                  <p className='text-md font-normal text-neutral-600'>${Number(product.subtotal).toFixed(2)}</p>
                 </div>
               ))}
 

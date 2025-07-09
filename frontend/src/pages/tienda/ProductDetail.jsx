@@ -139,11 +139,11 @@ const ProductDetail = () => {
                         <div className="md:w-1/2">
                             <img
                                 className="w-full h-96 md:h-full object-cover"
-                                src={product.image || product.imagen || '/placeholder-product.jpg'}
+                                src={product.nombreImagen
+                                    ? `http://localhost:4002/images/${product.nombreImagen}`
+                                    : `http://localhost:4002/images/no-image-available-icon-vector.jpg`
+                                }
                                 alt={product.name || product.nombre}
-                                onError={(e) => {
-                                    e.target.src = '/placeholder-product.jpg';
-                                }}
                             />
                         </div>
 
