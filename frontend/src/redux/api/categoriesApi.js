@@ -53,3 +53,8 @@ export const createCategory = async (token, nombre, descripcion) => {
   });
   return response.data;
 };
+
+export const fetchProductsByCategory = async (categoryId) => {
+  const res = await axiosInstance.get(`/productos/categoria/${categoryId}`);
+  return res.data;
+};

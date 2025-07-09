@@ -8,7 +8,7 @@ const CategoriasAdmin = () => {
   const dispatch = useDispatch();
 
   const { items: categorias, loading, error } = useSelector(
-    (state) => state.categories
+    (state) => state.category
   );
 
   useEffect(() => {

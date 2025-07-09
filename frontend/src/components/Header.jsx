@@ -6,11 +6,11 @@ import UserProfileSidebar from './UserProfileSidebar';
 import LogoSanaSana from '../assets/SanaSanaTransparenteLogo.png';
 import { HiUserCircle } from "react-icons/hi";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCategories } from '../redux/categoria/categoryReducer';
+import { getCategories } from '../redux/categories/categoriesReducer';
 
 const Header = () => {
   const dispatch = useDispatch();
-  const { categories, loading, error } = useSelector(state => state.category);
+  const { items: categories, loading, error } = useSelector(state => state.category);
 
   const navigate = useNavigate();
   const { isEmpty, quantity } = useSelector((state) => state.carrito);
@@ -30,7 +30,7 @@ const Header = () => {
   ];
 
   useEffect(() => {
-    dispatch(fetchCategories());
+    dispatch(getCategories());
   }, [dispatch]);
 
   console.log('Categorías desde Redux:', categories);
@@ -114,14 +114,14 @@ const Header = () => {
                             <div className="px-4 py-2 text-sm text-gray-500">
                               Cargando categorías...
                             </div>
-                          ) : categories.length > 0 ? (
+                          ) : categories && categories.length > 0 ? (
                             categories.map((category) => (
                               <button
                                 key={category.id}
-                                onClick={() => handleCategoryClick(category.id, category.name)}
+                                onClick={() => handleCategoryClick(category.id, category.nombre)}
                                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors"
                               >
-                                {category.name}
+                                {category.nombre}
                               </button>
                             ))
                           ) : (

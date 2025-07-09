@@ -3,13 +3,18 @@ import { useParams, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import ProductList from '../../components/ProductList';
-import { getProductsByCategory } from '../../redux/categoria/categoryProductsReducer';
+import { getProductsByCategory } from '../../redux/categories/categoriesProductReducer';
 
 
 const CategoryProducts = () => {
   const { categoryId } = useParams();
   const location = useLocation();
-  const categoryName = location.state?.categoryName || 'Categoría';
+
+  const { items: categorias } = useSelector(
+      (state) => state.category
+    );
+
+  const categoryName = categorias.find(cat => cat.id === parseInt(categoryId)) || "Categoría";
 
   const dispatch = useDispatch();
   const { products, loading, error } = useSelector(state => state.categoryProducts);
@@ -57,7 +62,7 @@ const CategoryProducts = () => {
     <div className="min-h-screen pt-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-4">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{categoryName}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{categoryName.nombre}</h1>
           <p className="text-gray-600">
             {products.length} {products.length === 1 ? 'producto encontrado' : 'productos encontrados'}
           </p>
