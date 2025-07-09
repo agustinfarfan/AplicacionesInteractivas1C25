@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { fetchCategories, deleteCategories, updateCategory } from '../api/categoriesApi'
+import { fetchCategories, deleteCategories, updateCategory, createCategory } from '../api/categoriesApi'
 
 export const getCategories = createAsyncThunk("categories/fetchCategories", async () => {
   const data = await fetchCategories()
@@ -25,6 +25,16 @@ export const editCategory = createAsyncThunk(
     const state = thunkAPI.getState();
     const token = state.user.token;
     const data = await updateCategory(token, nombre, descripcion, id);
+    return data;
+  }
+);
+
+export const addCategory = createAsyncThunk(
+  "category/add",
+  async ({nombre,descripcion}, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const token = state.user.token;
+    const data = await createCategory(token, nombre, descripcion);
     return data;
   }
 );
@@ -88,6 +98,24 @@ const categoriesSlice = createSlice({
         state.loading = false
         state.error = action.error.message
       })
+      // CREATE
+      .addCase(addCategory.pending, state => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(addCategory.fulfilled, (state, action) => {
+        state.loading = false
+        state.items.push({
+          id: action.payload.id,
+          nombre: action.payload.name,
+          descripcion: action.payload.description
+        });
+      })
+      .addCase(addCategory.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message
+      })
+      
       
   }
 })

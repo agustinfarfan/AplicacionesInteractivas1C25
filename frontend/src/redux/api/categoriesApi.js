@@ -38,3 +38,18 @@ export const updateCategory = async (token, nombre, descripcion, id) => {
   });
   return response.data;
 };
+
+export const createCategory = async (token, nombre, descripcion) => {
+  const response = await axiosInstance.post(`/categories`, 
+    {
+      nombre: nombre,
+      descripcion: descripcion,
+    }, 
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+  });
+  return response.data;
+};

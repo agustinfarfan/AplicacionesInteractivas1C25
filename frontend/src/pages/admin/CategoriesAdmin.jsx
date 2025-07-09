@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCategories, removeCategory, editCategory } from '../../redux/categories/categoriesReducer';
+import { getCategories, removeCategory, editCategory, addCategory } from '../../redux/categories/categoriesReducer';
 
 
 const CategoriasAdmin = () => {
@@ -58,24 +58,9 @@ const CategoriasAdmin = () => {
         
         resp = await dispatch(editCategory({ id: activeCat.id, nombre: formName, descripcion: formDesc }));
       } else {
-        
-        resp = await fetch("http://localhost:4002/categories", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", ...authHeader },
-          body: JSON.stringify({
-            nombre: formName,
-            descripcion: formDesc
-          }),
-        });
-      }
+        resp = await dispatch(addCategory({ nombre: formName, descripcion: formDesc }));
 
-      if (!resp.ok) {
-        const text = await resp.text();
-        throw new Error(`Error al guardar: ${text}`);
       }
-
-      // Despues de crear o editar, recargo la lista
-      await loadCategoriasBackend();
 
       setFormName("");
       setFormDesc("");
@@ -84,24 +69,6 @@ const CategoriasAdmin = () => {
     } catch (error) {
       console.error("Error en guardar categoría:", error);
       alert("Hubo un error al guardar. Revisa la consola.");
-    }
-  };
-
-  // Función auxiliar para recargar el array de categories tras crear/editar/eliminar
-  const loadCategoriasBackend = async () => {
-    try {
-      const resp = await fetch("http://localhost:4002/categories");
-      if (!resp.ok) throw new Error("Error al listar categorías");
-      const data = await resp.json();
-      const rawArray = data.content || data;
-      const mapped = rawArray.map((c) => ({
-        id: c.id,
-        nombre: c.name,
-        descripcion: c.description,
-      }));
-      setCategorias(mapped);
-    } catch (error) {
-      console.error("No se pudieron recargar categorías:", error);
     }
   };
 
