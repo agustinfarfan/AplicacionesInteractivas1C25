@@ -25,10 +25,6 @@ export const deleteCategories = async (id, token) => {
 };
 
 export const updateCategory = async (token, nombre, descripcion, id) => {
-
-  console.log("Infor recibida en updateCategory de la API:", nombre, descripcion, id);
-
-
   const response = await axiosInstance.put(`/categories/${id}`, 
     {
       nombre: nombre,

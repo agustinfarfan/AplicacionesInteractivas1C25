@@ -57,7 +57,6 @@ const CategoriasAdmin = () => {
       if (activeCat) {
         
         resp = await dispatch(editCategory({ id: activeCat.id, nombre: formName, descripcion: formDesc }));
-        console.log("Categoría actualizada:", resp);
       } else {
         
         resp = await fetch("http://localhost:4002/categories", {
@@ -122,7 +121,6 @@ const CategoriasAdmin = () => {
         headers:{...authHeader}
       });
       if (resp.status === 204) {
-        console.log("Categoría eliminada:", deleteCat.id);
         alert("Categoría eliminada correctamente");
       } else {
         const text = await resp.text();

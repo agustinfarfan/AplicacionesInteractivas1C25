@@ -24,9 +24,6 @@ export const editCategory = createAsyncThunk(
   async ({nombre,descripcion,id}, thunkAPI) => {
     const state = thunkAPI.getState();
     const token = state.user.token;
-    
-    console.log("Infor recibida en editCategory del Reducer:", nombre, descripcion, id);
-
     const data = await updateCategory(token, nombre, descripcion, id);
     return data;
   }
