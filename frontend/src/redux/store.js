@@ -5,6 +5,7 @@ import categoryReducer from './categories/categoriesReducer'
 import pedidoReducer from './pedidos/pedidoReducer';
 import productosReducer from './productos/productosReducer' 
 import categoryProductsReducer from './categories/categoriesProductReducer'
+import cuponesReducer from './cupones/cuponesReducer' 
 
 export const store = configureStore({
   reducer: {
@@ -13,6 +14,7 @@ export const store = configureStore({
     productos: productosReducer,
     category: categoryReducer,
     categoryProducts: categoryProductsReducer,
-    pedido: pedidoReducer
+    pedido: pedidoReducer,
+    cupones: cuponesReducer
   },
 })
