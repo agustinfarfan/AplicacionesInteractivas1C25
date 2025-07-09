@@ -22,6 +22,9 @@ export const getAllPedidos = async (token) => {
 
 
 export const getPedidoById = async (token, id) => {
+  console.log(id);
+  
+
   const response = await axiosInstance.get(`/orders/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,

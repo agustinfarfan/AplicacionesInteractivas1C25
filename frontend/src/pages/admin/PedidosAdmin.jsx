@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import EstadoPedido from '../../components/EstadoPedido';
 import NoResourceMessage from '../../components/NoResourceMessage';
 import { fetchAllPedidos } from '../../redux/pedidos/pedidoReducer';
+import { useDispatch, useSelector } from 'react-redux';
 
 function groupOrders(data, mode) {
   const map = {};
@@ -39,18 +40,19 @@ function groupOrders(data, mode) {
 function PedidosAdmin() {
 
   const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   const [groupBy, setGroupBy] = useState("hora");
-  const chartData = useMemo(() => data ? groupOrders(data, groupBy) : [], [data, groupBy]);
+
+  const dispatch = useDispatch();
+
+  const { token } = useSelector((state) => state.user);
+  const { pedidos, loading, error } = useSelector((state) => state.pedido);
+
+  const chartData = useMemo(() => pedidos ? groupOrders(pedidos, groupBy) : [], [pedidos, groupBy]);
 
   useEffect(() => {
     if (token) {
-      fetchAllPedidos(token)
-        .then(setData)
-        .catch(setError)
-        .finally(() => setLoading(false));
+      dispatch(fetchAllPedidos(token))
     }
   }, [token]);
 
@@ -98,7 +100,7 @@ function PedidosAdmin() {
               <p>{JSON.stringify(error)}</p>
             </div>
           </>
-        ) : data && data.length === 0 ? (
+        ) : pedidos && pedidos.length === 0 ? (
           <NoResourceMessage texto={"No tienes pedidos"} />
         ) : (
           <div className="overflow-x-auto overflow-y-auto h-fit max-h-screen bg-white shadow-md rounded-lg">
@@ -117,8 +119,8 @@ function PedidosAdmin() {
               </thead>
 
               <tbody className="bg-white divide-y divide-gray-200">
-                {data.length > 0 ? (
-                  [...data]
+                {pedidos.length > 0 ? (
+                  [...pedidos]
                     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // newest first
                     .map((pedido, idx) => (
                       <tr key={pedido.orderId} className={idx % 2 === 0 ? "" : "bg-gray-50"}>

@@ -5,17 +5,20 @@ import { createPedido, deletePedido, getAllPedidos, getPedidoById, getPedidosByU
 // Thunks
 export const fetchAllPedidos = createAsyncThunk(
   'pedido/fetchAll',
-  async () => await getAllPedidos()
+  async (token) => await getAllPedidos(token)
 );
 
 export const fetchPedidosByUser = createAsyncThunk(
   'pedido/fetchByUser',
-  async (userId) => await getPedidosByUserId(userId)
+  async ({token, userId}) => await getPedidosByUserId(token, userId)
 );
 
 export const fetchPedido = createAsyncThunk(
   'pedido/fetchById',
-  async (id) => await getPedidoById(id)
+  async ({token, id}) => {
+
+   return await getPedidoById(token, id);
+  }
 );
 
 export const createNewPedido = createAsyncThunk(

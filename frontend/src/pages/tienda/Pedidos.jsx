@@ -16,7 +16,7 @@ const Pedidos = () => {
 
   useEffect(() => {
     if (!userLoading && userData && token) {
-      dispatch(fetchPedidosByUser({ token, userId: userData.user_id }));
+      dispatch(fetchPedidosByUser({ token: token, userId: userData.user_id }));
     }
   }, [userData, userLoading, token]);
 
