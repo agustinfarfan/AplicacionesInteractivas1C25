@@ -110,30 +110,6 @@ const CategoriasAdmin = () => {
       setDeleteCat(null);
     };
 
-  const confirmDelete = async () => {
-
-    const token = localStorage.getItem("token");
-    const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
-
-    try {
-      const resp = await fetch(`http://localhost:4002/categories/${deleteCat.id}`, {
-        method: "DELETE",
-        headers:{...authHeader}
-      });
-      if (resp.status === 204) {
-        alert("Categoría eliminada correctamente");
-      } else {
-        const text = await resp.text();
-        throw new Error(`Error al eliminar: ${text}`);
-      }
-    } catch (error) {
-      console.error("Error en eliminar categoría:", error);
-      alert("Hubo un error al eliminar. Revisa la consola.");
-    } finally {
-      setDeleteCat(null);
-    }
-  };
-
   /*
   const categoriasMock = [{
     id: 1,
