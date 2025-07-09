@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCategories, removeCategory } from '../../redux/categories/categoriesReducer';
+import { getCategories, removeCategory, editCategory } from '../../redux/categories/categoriesReducer';
 
 
 const CategoriasAdmin = () => {
@@ -56,14 +56,8 @@ const CategoriasAdmin = () => {
       let resp;
       if (activeCat) {
         
-        resp = await fetch(`http://localhost:4002/categories/${activeCat.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json", ...authHeader },
-          body: JSON.stringify({
-            nombre: formName,
-            descripcion: formDesc,
-          }),
-        });
+        resp = await dispatch(editCategory({ id: activeCat.id, nombre: formName, descripcion: formDesc }));
+        console.log("Categoría actualizada:", resp);
       } else {
         
         resp = await fetch("http://localhost:4002/categories", {
@@ -128,8 +122,8 @@ const CategoriasAdmin = () => {
         headers:{...authHeader}
       });
       if (resp.status === 204) {
-        // Después de borrar, recargamos lista
-        await loadCategoriasBackend();
+        console.log("Categoría eliminada:", deleteCat.id);
+        alert("Categoría eliminada correctamente");
       } else {
         const text = await resp.text();
         throw new Error(`Error al eliminar: ${text}`);
@@ -149,8 +143,6 @@ const CategoriasAdmin = () => {
     descripcion: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dolor, dignissimos."
   }]  
   */
-
-  console.log(categorias)
 
   // —————————— Filtrado local (ya no hay excepción porque `categorias` siempre es array) ——————————
   const filteredCategorias = categorias.filter((cat) => cat && cat.nombre &&

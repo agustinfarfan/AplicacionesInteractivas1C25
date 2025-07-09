@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { fetchCategories, deleteCategories } from '../api/categoriesApi'
+import { fetchCategories, deleteCategories, updateCategory } from '../api/categoriesApi'
 
 export const getCategories = createAsyncThunk("categories/fetchCategories", async () => {
   const data = await fetchCategories()
@@ -19,6 +19,18 @@ export const removeCategory = createAsyncThunk("category/delete", async (id, thu
   return id;
 });
 
+export const editCategory = createAsyncThunk(
+  "category/edit",
+  async ({nombre,descripcion,id}, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const token = state.user.token;
+    
+    console.log("Infor recibida en editCategory del Reducer:", nombre, descripcion, id);
+
+    const data = await updateCategory(token, nombre, descripcion, id);
+    return data;
+  }
+);
 
 const initialState = {
   items: [],
@@ -43,6 +55,39 @@ const categoriesSlice = createSlice({
         state.items = action.payload
       })
       .addCase(getCategories.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message
+      })
+      // DELETE
+      .addCase(removeCategory.pending, state => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(removeCategory.fulfilled, (state, action) => {
+        state.loading = false
+        state.items = state.items.filter(c => c.id !== action.payload)
+      })
+      .addCase(removeCategory.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message
+      })
+      // EDIT
+      .addCase(editCategory.pending, state => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(editCategory.fulfilled, (state, action) => {
+        state.loading = false
+        const index = state.items.findIndex(c => c.id === action.payload.id);
+        if (index !== -1) {
+          state.items[index] = {
+            ...state.items[index],
+            nombre: action.payload.name,
+            descripcion: action.payload.description
+          };
+        }
+      })
+      .addCase(editCategory.rejected, (state, action) => {
         state.loading = false
         state.error = action.error.message
       })
