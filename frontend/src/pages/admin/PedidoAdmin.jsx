@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom';
-import { fetchPedidoById } from '../../services/pedidosService';
 import Loading from '../../components/Loading';
 import EstadoPedido from '../../components/EstadoPedido';
+import { fetchPedido } from '../../redux/pedidos/pedidoReducer';
 
 const PedidoAdmin = () => {
     const { id } = useParams();
@@ -12,17 +12,13 @@ const PedidoAdmin = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-
-        fetchPedidoById({ id })
-            .then((data) => {
-                setData(data);
-                setLoading(false);
-            })
-            .catch((err) => {
-                setError(err);
-                setLoading(false);
-            });
-    }, []);
+    if (token && id) {
+      fetchPedido({ token, id })
+        .then(setData)
+        .catch(setError)
+        .finally(() => setLoading(false));
+    }
+  }, [token, id]);
 
     if (loading) {
         return (

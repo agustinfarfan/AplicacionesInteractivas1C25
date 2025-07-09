@@ -4,31 +4,21 @@ import Loading from '../../components/Loading';
 import { useNavigate } from 'react-router-dom';
 import EstadoPedido from '../../components/EstadoPedido';
 import NoResourceMessage from '../../components/NoResourceMessage';
-import { useSelector } from 'react-redux';
+import { useDispatch,useSelector } from 'react-redux';
+import { fetchPedidosByUser } from '../../redux/pedidos/pedidoReducer';
 
 const Pedidos = () => {
-
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  
-  const { data: userData, loading: userLoading } = useSelector((state) => state.user);
 
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { data: userData, loading: userLoading, token } = useSelector(state => state.user);
+  const { pedidos: data, loading, error } = useSelector(state => state.pedido);
 
   useEffect(() => {
-    if (!userLoading && userData) {
-      fetchPedidosByUserId({ id: userData.user_id })
-        .then((data) => {
-          setData(data);
-          setLoading(false);
-        })
-        .catch((err) => {
-          setError(err);
-          setLoading(false);
-        });
+    if (!userLoading && userData && token) {
+      dispatch(fetchPedidosByUser({ token, userId: userData.user_id }));
     }
-  }, [userData, userLoading])
+  }, [userData, userLoading, token]);
 
 
   return (
