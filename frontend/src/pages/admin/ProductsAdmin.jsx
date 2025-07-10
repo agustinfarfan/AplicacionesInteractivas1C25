@@ -13,8 +13,6 @@ const ProductsAdmin = () => {
   const productosError = useSelector((state) => state.productos.error);
 
   const categorias = useSelector((state) => state.category?.items || []);
-  const categoriasLoading = useSelector((state) => state.category?.loading);
-  const categoriasError = useSelector((state) => state.category?.error);
 
   const token = useSelector((state) => state.user.token);
 
