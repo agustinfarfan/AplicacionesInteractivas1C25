@@ -41,6 +41,8 @@ const ProductsAdmin = () => {
 
   const handleEditClick = (prod) => {
     setEditandoId(prod.id);
+    setImagen(null);
+    setImagenUrl(null);
     setFormData({
       nombre: prod.nombre,
       description: prod.description,
