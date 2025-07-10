@@ -22,7 +22,7 @@ const useTiendaRoute = () => {
     <Route element={<TiendaLayout />}>
       <Route path="/" element={<Home />} />
 
-      <Route path="address" element={<Address />} />
+      <Route path="address" element={<PrivateRoute> <Address /> </PrivateRoute>} />
 
       <Route path="carrito">
         <Route index element={<PrivateRoute> <Carrito/> </PrivateRoute>} />

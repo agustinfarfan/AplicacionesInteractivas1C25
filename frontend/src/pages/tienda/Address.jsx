@@ -1,12 +1,15 @@
 // src/pages/tienda/Direcciones.jsx
 import { useState, useEffect } from "react";
 import { getUserIdFromToken } from "../../utils/auth";
+import { useDispatch, useSelector } from "react-redux";
+import { createUserAddress, deleteUserAddress, editUserAddress } from "../../redux/user/authReducer";
 
 const Address = () => {
 
-  const userId = localStorage.getItem("token") ? getUserIdFromToken(localStorage.getItem("token")) : null;
+  const dispatch = useDispatch();
 
-  const [list, setList] = useState([]);
+  const { data: userData, isAuthenticated, token } = useSelector((state) => state.user);
+
   const [showModal, setShowModal] = useState(false);
 
   const [active, setActive] = useState(null);
@@ -20,27 +23,16 @@ const Address = () => {
   });
   const [toDelete, setToDelete] = useState(null);
 
-  // 1) Cargar direcciones al montar
-  useEffect(() => {
-
-    console.log("Cargando direcciones para el usuario:", userId);
-
-    if (!userId) return;
-    fetch(`http://localhost:4002/shipping-addresses/user/${userId}`)
-      .then(r => r.json())
-      .then(data => setList(data))
-      .catch(console.error);
-  }, [userId]);
-
   // 2) Abrir modal para nueva o editar
   const openNew = () => {
     setActive(null);
     setForm({ alias: "", calle: "", altura: "", codigoPostal: "", localidad: "", provincia: "" });
     setShowModal(true);
   };
+
   const openEdit = addr => {
     setActive(addr);
-    setForm({ 
+    setForm({
       alias: addr.alias,
       calle: addr.calle,
       altura: addr.altura,
@@ -51,102 +43,37 @@ const Address = () => {
     setShowModal(true);
   };
 
-  // 3) Guardar (POST o PUT)
-  const handleSave = async () => {
-  const token = localStorage.getItem("token");
-  const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
+  const handleSaveAddress = (e) => {
 
-  try {
-    let resp;
     if (active) {
-      // --- MODO “EDITAR”: usamos el id de la dirección ---
-      resp = await fetch(
-        `http://localhost:4002/shipping-addresses/${active.id}`, 
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            ...authHeader,
-          },
-          body: JSON.stringify(form),
-        }
-      );
+      dispatch(editUserAddress({
+        id: active.id,
+        dataAddress: form
+      }))
     } else {
-      // --- MODO “CREAR”: aquí sí usamos el userId o /me ---
-      resp = await fetch(
-        `http://localhost:4002/shipping-addresses/user/${userId}`, 
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...authHeader,
-          },
-          body: JSON.stringify(form),
-        }
-      );
+      dispatch(createUserAddress({
+        id: userData.user_id,
+        dataAddress: form
+      }));
     }
 
-    if (!resp.ok) {
-      const text = await resp.text();
-      throw new Error(`Error guardando: ${text}`);
-    }
-
-    // Una vez OK, recargamos la lista exacta igual que en load
-    const lista = await fetch(
-      `http://localhost:4002/shipping-addresses/user/${userId}`, 
-      // o `/me` si lo usas para listar
-      { headers: { ...authHeader } }
-    );
-    const data = await lista.json();
-    setList(data);
-
-    // Cerrar modal / reset
     setShowModal(false);
     setActive(null);
-  } catch (err) {
-    console.error("Error en handleSave:", err);
-    alert("Hubo un error al guardar la dirección.");
   }
-};
 
-  // 4) Eliminar
- // Función para confirmar/ejecutar la eliminación
-const confirmDelete = async () => {
+  const confirmDelete = async () => {
 
-
-  const token = localStorage.getItem("token");
-  const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
-
-  try {
-    const resp = await fetch(
-      `http://localhost:4002/shipping-addresses/${toDelete.id}`, // usa el ID de la dirección
-      {
-        method: "DELETE",
-        headers: {
-          ...authHeader
-        },
-      }
-    );
-
-    console.log("Respuesta de eliminar:", resp);
-
-    if (resp.ok) {
-      // Si borró bien, filtramos la dirección eliminada del state
-      setList((current) => current.filter((addr) => addr.id !== toDelete.id));
-    } else {
-      // Si no es 200, leemos texto para mostrar error
-      const text = await resp.text();
-      throw new Error(text || "Error al eliminar");
+    try {
+      dispatch(deleteUserAddress({ id: toDelete.id }))
+    } catch (err) {
+      console.error("Error en confirmDelete:", err);
+      alert("No se pudo eliminar la dirección: " + err.message);
+    } finally {
+      setToDelete(null);
     }
-  } catch (err) {
-    console.error("Error en confirmDelete:", err);
-    alert("No se pudo eliminar la dirección: " + err.message);
-  } finally {
-    setToDelete(null);
-  }
-};
+  };
 
-  // 5) Filtrar / Render
+
   return (
     <div className="p-6 ">
       <h1 className="text-2xl font-semibold mb-6">Mis Direcciones de Envío</h1>
@@ -160,13 +87,13 @@ const confirmDelete = async () => {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-100">
             <tr>
-              {["Alias","Calle","Altura","CP","Localidad","Provincia","Acción"].map((h) => (
+              {["Alias", "Calle", "Altura", "CP", "Localidad", "Provincia", "Acción"].map((h) => (
                 <th key={h} className="px-4 py-2 text-left text-sm font-medium text-gray-500">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {list.map((addr, idx) => (
+            {userData.direcciones.map((addr, idx) => (
               <tr key={addr.id} className={idx % 2 ? "bg-gray-50" : ""}>
                 <td className="px-4 py-2 text-sm">{addr.alias}</td>
                 <td className="px-4 py-2 text-sm">{addr.calle}</td>
@@ -186,7 +113,7 @@ const confirmDelete = async () => {
                 </td>
               </tr>
             ))}
-            {list.length === 0 && (
+            {userData.direcciones.length === 0 && (
               <tr><td colSpan={7} className="px-4 py-2 text-center text-gray-500">Sin direcciones.</td></tr>
             )}
           </tbody>
@@ -227,7 +154,7 @@ const confirmDelete = async () => {
                   className="px-4 py-2 bg-gray-300 rounded"
                 >Cancelar</button>
                 <button
-                  onClick={handleSave}
+                  onClick={handleSaveAddress}
                   className="px-4 py-2 bg-indigo-600 text-white rounded"
                 >Guardar</button>
               </div>
@@ -263,5 +190,6 @@ const confirmDelete = async () => {
     </div>
   );
 };
+
 
 export default Address;
