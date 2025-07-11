@@ -15,8 +15,6 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Aquí podrías hacer un fetch/post a tu backend o usar EmailJS
     console.log("Mensaje enviado:", form);
 
     setEnviado(true);

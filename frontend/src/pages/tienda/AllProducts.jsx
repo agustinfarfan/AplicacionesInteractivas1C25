@@ -1,15 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from "react-redux";
 import { fetchCategories, fetchProducts, fetchProductsByCategory } from '../../services/backendApi';
 import ProductList from '../../components/ProductList';
+import { loadProducts, removeProduct, editProduct } from "../../redux/productos/productosReducer";
+import { getCategories, removeCategory, editCategory, addCategory } from '../../redux/categories/categoriesReducer';
+
 
 const AllProducts = () => {
-    
+
     const navigate = useNavigate();
-    
+
+    const dispatch = useDispatch();
+    const { items: productos, loading, error } = useSelector((state) => state.productos);
+
+    const { items: categorias } = useSelector(
+        (state) => state.category
+    );
+
     const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
     const [searchTerm, setSearchTerm] = useState("");
 
@@ -18,39 +27,13 @@ const AllProducts = () => {
 
 
     useEffect(() => {
-        const loadProducts = async () => {
-            try {
-                setLoading(true);
-                const allProducts = await fetchProducts();
-                setProducts(allProducts);
-            } catch (err) {
-                console.error('Error al cargar productos:', err);
-                setError('Error al cargar los productos');
-            } finally {
-                setLoading(false);
-            }
-        };
+        dispatch(loadProducts());
 
-        const loadCategories = async () => {
-            try {
-                setLoadingCategories(true);
-                const categoriesData = await fetchCategories();
-                console.log(categoriesData.content);
+        dispatch(getCategories())
 
-                setCategories(categoriesData.content);
-            } catch (error) {
-                console.error('Error al cargar categorías:', error);
-            } finally {
-                setLoadingCategories(false);
-            }
-        };
+    }, [dispatch]);
 
-        loadProducts();
-        loadCategories();
-
-    }, []);
-
-    const filteredProducts = products.filter((cat) =>
+    const filteredProducts = productos.filter((cat) =>
         cat.nombre.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -82,31 +65,31 @@ const AllProducts = () => {
     }
 
     return (
-        <div className="min-h-screen pt-16 bg-gray-50">
+        <div className="pt-10">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-4">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
                         Productos
                     </h1>
                     <p className="text-gray-600">
-                        {products.length} {products.length === 1 ? 'producto encontrado' : 'productos encontrados'}
+                        {productos.length} {productos.length === 1 ? 'producto encontrado' : 'productos encontrados'}
                     </p>
                 </div>
 
                 <div className="mb-8">
                     <h2 className="text-xl font-semibold mb-2">Categorías</h2>
                     <div className="flex overflow-x-auto gap-4 pb-2">
-                        {categories.map((cat) => (
+                        {categorias.map((cat) => (
                             <button
                                 key={cat.id}
-                                className="min-w-[180px] bg-white border border-indigo-200 rounded-lg shadow hover:bg-indigo-50 transition flex-shrink-0 px-6 py-4 text-left"
+                                className="min-w-[200px] max-w-[300px] bg-white border border-indigo-200 rounded-lg shadow hover:bg-indigo-50 transition flex-shrink-0 px-6 py-4 text-left"
                                 onClick={() => {
-                                    navigate(`/categoria/${cat.id}`)
+                                    navigate(`/categoria/${cat.id }`)
                                 }}
                             >
-                                <div className="font-bold text-indigo-700">{cat.name}</div>
-                                {cat.description && (
-                                    <div className="text-gray-500 text-sm mt-1">{cat.description}</div>
+                                <div className="font-bold text-indigo-700">{cat.nombre}</div>
+                                {cat.descripcion && (
+                                    <p className="text-gray-500 text-sm mt-1 line-clamp-3">{cat.descripcion}</p>
                                 )}
                             </button>
                         ))}

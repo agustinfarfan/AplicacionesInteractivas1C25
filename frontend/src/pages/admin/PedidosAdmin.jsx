@@ -1,11 +1,11 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
-import React, { useState, useMemo, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { fetchAllPedidos, fetchPedidosByUserId } from '../../services/pedidosService';
+import { useState, useMemo, useEffect } from 'react';
 import Loading from '../../components/Loading';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import EstadoPedido from '../../components/EstadoPedido';
 import NoResourceMessage from '../../components/NoResourceMessage';
+import { fetchAllPedidos } from '../../redux/pedidos/pedidoReducer';
+import { useDispatch, useSelector } from 'react-redux';
 
 function groupOrders(data, mode) {
   const map = {};
@@ -32,38 +32,29 @@ function groupOrders(data, mode) {
   });
   // Ordenar por clave (fecha/hora/mes)
   return Object.entries(map)
-    .sort(([a], [b]) => a.localeCompare(b))
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .map(([name, count]) => ({ name, count }));
 }
 
 
 function PedidosAdmin() {
-  const { user, loadingUser } = useAuth();
-  const navigate = useNavigate();
 
   const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   const [groupBy, setGroupBy] = useState("hora");
-  const chartData = useMemo(() => data ? groupOrders(data, groupBy) : [], [data, groupBy]);
+
+  const dispatch = useDispatch();
+
+  const { token } = useSelector((state) => state.user);
+  const { pedidos, loading, error } = useSelector((state) => state.pedido);
+
+  const chartData = useMemo(() => pedidos ? groupOrders(pedidos, groupBy) : [], [pedidos, groupBy]);
 
   useEffect(() => {
-    if (!loadingUser && user) {
-      fetchAllPedidos()
-        .then((data) => {
-          console.log(data);
-          setData(data);
-          setLoading(false);
-        })
-        .catch((err) => {
-          setError(err);
-          setLoading(false);
-        });
+    if (token) {
+      dispatch(fetchAllPedidos(token))
     }
-
-  }, [user, loadingUser])
-
+  }, [token]);
 
   return (
     <div className='max-w-7xl mx-4 md:mx-auto mt-10'>
@@ -109,7 +100,7 @@ function PedidosAdmin() {
               <p>{JSON.stringify(error)}</p>
             </div>
           </>
-        ) : data && data.length === 0 ? (
+        ) : pedidos && pedidos.length === 0 ? (
           <NoResourceMessage texto={"No tienes pedidos"} />
         ) : (
           <div className="overflow-x-auto overflow-y-auto h-fit max-h-screen bg-white shadow-md rounded-lg">
@@ -119,7 +110,7 @@ function PedidosAdmin() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Orden ID</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Comprador</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Comprador</th>
 
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Productos</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
@@ -128,8 +119,8 @@ function PedidosAdmin() {
               </thead>
 
               <tbody className="bg-white divide-y divide-gray-200">
-                {data.length > 0 ? (
-                  [...data]
+                {pedidos.length > 0 ? (
+                  [...pedidos]
                     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // newest first
                     .map((pedido, idx) => (
                       <tr key={pedido.orderId} className={idx % 2 === 0 ? "" : "bg-gray-50"}>

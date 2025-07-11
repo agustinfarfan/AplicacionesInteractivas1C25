@@ -1,23 +1,22 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Button from '../../components/buttons/Button'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import Resumen from '../../components/Resumen';
-import { useAuth } from '../../context/AuthContext';
-import { fetchCart, finalizeCart } from '../../services/carritoService';
 import Loading from '../../components/Loading';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCarrito, finalizeCart } from '../../redux/carrito/carritoReducer';
 
 const Checkout = () => {
 
   const navigate = useNavigate();
-  const { user, loadingUser } = useAuth();
+  const dispatch = useDispatch();
 
-  const [loading, setLoading] = useState(true);
-  const [data, setCart] = useState(null);
-  const [error, setError] = useState(null);
-
+  const { carrito, loading, error, isEmpty } = useSelector((state) => state.carrito);
+  const { data: userData } = useSelector((state) => state.user);
 
   const [resumenActivo, setResumenActivo] = useState(true);
 
+  const [addresses, setAddresses] = useState(null);
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [email, setEmail] = useState('');
@@ -28,21 +27,33 @@ const Checkout = () => {
   const [CVV, setCVV] = useState('')
   const [pasoActivo, setPaso] = useState(1);
 
-
   useEffect(() => {
-    if (!loadingUser && user) {
-      fetchCart({ id: user.user_id })
-        .then((data) => {
-          setCart(data);
-          setLoading(false);
-        })
-        .catch((err) => {
-          setError(err);
-          setLoading(false);
-        });
+    if (!loading && userData) {
+      setAddresses(userData.direcciones);
+      setNombre(userData.first_name);
+      setApellido(userData.last_name);
+      setEmail(userData.email);
     }
 
-  }, [user, loadingUser])
+  }, [userData])
+  
+
+  const handleExpirationChange = (e) => {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length > 2) {
+      value = value.slice(0, 2) + '/' + value.slice(2, 4);
+    }
+    if (value.length > 5) {
+      value = value.slice(0, 5);
+    }
+    setexpirationDate(value);
+  };
+
+  const handleCardNumberChange = (e) => {
+    let value = e.target.value.replace(/\D/g, '').slice(0, 16); // Solo 16 dígitos
+    value = value.replace(/(.{4})/g, '$1 ').trim(); // Agrupa en bloques de 4
+    setTarjeta(value);
+  }
 
   // Funciones de validación por paso
   const validarPaso1 = () => {
@@ -70,18 +81,7 @@ const Checkout = () => {
     return true;
   };
 
-  const handleExpirationChange = (e) => {
-    let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-    if (value.length > 2) {
-      value = value.slice(0, 2) + '/' + value.slice(2, 4);
-    }
-    if (value.length > 5) {
-      value = value.slice(0, 5);
-    }
-    setexpirationDate(value);
-  };
-
-  const handleCheckoutFormulario = (e) => {
+  const handleCheckoutFormulario = async (e) => {
     e.preventDefault();
 
 
@@ -117,21 +117,14 @@ const Checkout = () => {
         email: email
       }
 
-      setLoading(true);
-      // Se crea orden en base de datos.
-      finalizeCart({ userId: user.user_id, informacion: informacion })
-        .then((data) => {
-          setLoading(false);
-
-          // Si todo está bien, navegar a success
-          navigate("success");
-        })
-        .catch((err) => {
-          setError(err);
-          setLoading(false);
-          navigate("failure");
-        });
-
+      try {
+        await dispatch(finalizeCart({ id: userData.user_id, info: informacion })).unwrap();
+        dispatch(fetchCarrito({ id: userData.user_id }));
+        navigate("success");
+      } catch (err) {
+        console.error("Payment failed:", err);
+        navigate("failure");
+      }
     }
   }
 
@@ -171,7 +164,7 @@ const Checkout = () => {
         <p>{JSON.stringify(error)}</p>
       </div>
     </>
-  ) : data && data.carritoDetalle.length === 0 ? (
+  ) : isEmpty ? (
     <Navigate to={"/carrito"} />
   ) : (
     <>
@@ -179,7 +172,7 @@ const Checkout = () => {
         <h1 className='text-3xl font-bold mb-5'>Checkout</h1>
 
         <div className='flex flex-col-reverse md:flex-row gap-3'>
-          <div className='md:w-2/3 w-full rounded-lg shadow-lg bg-gray-50 border-gray-100 border-2 p-4'>
+                <div className='md:w-2/3 w-full rounded-lg shadow-lg bg-white border-gray-100 border-2 p-4'>
 
             {/* Pasos */}
             <div className="mb-10">
@@ -275,9 +268,17 @@ const Checkout = () => {
                       className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     >
                       <option value="">Seleccione una dirección</option>
-                      <option value={"Av. Corrientes 1234, CABA"}>Av. Corrientes 1234, CABA</option>
-                      <option value={"Ruta 8 Km 45, Pilar, Buenos Aires"}>Ruta 8 Km 45, Pilar, Buenos Aires</option>
-                      <option value={"España 456, Córdoba Capital"}>España 456, Córdoba Capital</option>
+
+                      {addresses.length === 0 ? (
+                        <option value="">No hay direcciones asociadas</option>
+                      ) : (
+                        addresses.map((addr) => (
+                          <option key={addr.id} value={addr.id}>
+                            {`${addr.alias}: ${addr.calle} ${addr.altura}, ${addr.localidad}`}
+                          </option>
+                        ))
+                      )}
+
                     </select>
                   </div>
 
@@ -317,7 +318,7 @@ const Checkout = () => {
                     <label className="block text-gray-800 font-bold mb-2" htmlFor="card_number">
                       Número de tarjeta
                     </label>
-                    <input value={tarjeta} onChange={(e) => setTarjeta(e.target.value)} className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="card_number" type="text" placeholder="**** **** **** 1234" />
+                    <input value={tarjeta} onChange={handleCardNumberChange} className="appearance-none border border-gray-400 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="card_number" type="text" placeholder="**** **** **** 1234" />
                   </div>
 
                   <div className='flex flex-row gap-3 mb-6'>
@@ -348,9 +349,9 @@ const Checkout = () => {
             </form>
           </div>
 
-                <div className={`md:w-1/3 w-full h-60 rounded-lg shadow-lg bg-gray-50 border-gray-100 p-4 border-2 justify-between ${resumenActivo ? "flex flex-col" : "flex flex-row"
+                <div className={`md:w-1/3 w-full min-h-[22rem] max-h-[23rem] rounded-lg shadow-lg bg-white border-gray-100 p-4 border-2 justify-between ${resumenActivo ? "flex flex-col" : "flex flex-row"
             }`}>
-            <Resumen data={data} activo={resumenActivo} />
+            <Resumen data={carrito} activo={resumenActivo} />
             <button className='block md:hidden border' onClick={() => setResumenActivo(!resumenActivo)}>
               cerrar
             </button>

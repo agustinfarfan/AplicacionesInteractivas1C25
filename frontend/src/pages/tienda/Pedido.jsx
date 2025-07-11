@@ -1,33 +1,23 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import { fetchPedidoById } from '../../services/pedidosService';
 import Loading from '../../components/Loading';
 import EstadoPedido from '../../components/EstadoPedido';
+import { useDispatch,useSelector } from 'react-redux';
+import { fetchPedido } from '../../redux/pedidos/pedidoReducer';
 
 const Pedido = () => {
   const { id } = useParams();
-  const { user, loadingUser } = useAuth();
+  const dispatch = useDispatch();
 
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { token } = useSelector(state => state.user);
+  const { pedidoSeleccionado: data, loading, error } = useSelector(state => state.pedido);
 
   useEffect(() => {
-    if (!loadingUser && user) {
-      fetchPedidoById({ id })
-        .then((data) => {
-          console.log(data);
-
-          setData(data);
-          setLoading(false);
-        })
-        .catch((err) => {
-          setError(err);
-          setLoading(false);
-        });
+    if (token) {
+      dispatch(fetchPedido({ token, id }));
     }
-  }, [user, loadingUser, id]);
+  }, [id, token]);
 
   if (loading) {
     return (

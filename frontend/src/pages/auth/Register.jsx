@@ -1,8 +1,14 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import { userRegister } from "../../redux/user/authReducer";
 
 const Register = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { isAuthenticated } = useSelector((state) => state.user);
+
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [email, setEmail] = useState("");
@@ -14,32 +20,28 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    setLastname(firstname);
-
-    console.log(firstname, lastname, email, password, cuil, razonSocial);
-    
-
-    await fetch("http://localhost:4002/api/v1/auth/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        firstname: firstname,
-        lastname: lastname,
-        email: email,
-        password: password,
-        role: "USER",
-        cuil: cuil,
-        razonSocial: razonSocial
-      }),
-    })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Error al registrar");
+    dispatch(userRegister({
+      firstname: firstname,
+      lastname: lastname,
+      email: email,
+      password: password,
+      role: "USER",
+      cuil: cuil,
+      razonSocial: razonSocial
+    }))
+      .unwrap()
+      .then(() => {
         navigate("/auth/login");
+        window.location.reload();
       })
-      .catch((err) => setError(err.message));
-  };
+      .catch(() => {
+        setError("Error al registrar");
+      });
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center py-12 px-4">
@@ -60,7 +62,17 @@ const Register = () => {
                 required
               />
             </div>
-
+            <div className="flex-1">
+              <label className="block text-gray-700 font-semibold mb-1">Apellido</label>
+              <input
+                type="text"
+                placeholder="Apellido"
+                value={lastname}
+                onChange={(e) => setLastname(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                required
+              />
+            </div>
           </div>
           <div>
             <label className="block text-gray-700 font-semibold mb-1">Correo</label>

@@ -1,8 +1,22 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getCategories, removeCategory, editCategory, addCategory } from '../../redux/categories/categoriesReducer';
+
 
 const CategoriasAdmin = () => {
+
+  const dispatch = useDispatch();
+
+  const { items: categorias, loading, error } = useSelector(
+    (state) => state.category
+  );
+
+  useEffect(() => {
+    dispatch(getCategories());
+  }, [dispatch]);
+
   // —————————— Estados ——————————
-  const [categorias, setCategorias] = useState([]);
+  //const [categorias, setCategorias] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   // (modales, edición, eliminación, etc. siguen igual)
@@ -12,34 +26,6 @@ const CategoriasAdmin = () => {
   const [formDesc, setFormDesc] = useState("");
   const [deleteCat, setDeleteCat] = useState(null);
 
-  // —————————— Cargar categorías al montar ——————————
-  useEffect(() => {
-    const loadCategorias = async () => {
-      try {
-        const resp = await fetch("http://localhost:4002/categories");
-        if (!resp.ok) throw new Error("Error al listar categorías");
-
-        const data = await resp.json();          // por ejemplo: { content: [ {id, name, description}, … ], … }
-        const rawArray = data.content || data;   // si viene con paginación, usamos data.content; sino data es array
-
-        // Mapear cada objeto a la forma { id, nombre, descripcion }
-        const mapped = rawArray.map((c) => ({
-          id: c.id,
-
-
-          nombre: c.name,
-          descripcion: c.description,
-        }));
-
-        setCategorias(mapped);
-        
-      } catch (error) {
-        console.error("No se pudieron cargar categorías:", error);
-      }
-    };
-
-    loadCategorias();
-  }, []);
 
   // —————————— Manejo de creación/edición (igual que antes) ——————————
   const openAddModal = () => {
@@ -70,33 +56,11 @@ const CategoriasAdmin = () => {
       let resp;
       if (activeCat) {
         
-        resp = await fetch(`http://localhost:4002/categories/${activeCat.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json", ...authHeader },
-          body: JSON.stringify({
-            nombre: formName,
-            descripcion: formDesc,
-          }),
-        });
+        resp = await dispatch(editCategory({ id: activeCat.id, nombre: formName, descripcion: formDesc }));
       } else {
-        
-        resp = await fetch("http://localhost:4002/categories", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", ...authHeader },
-          body: JSON.stringify({
-            nombre: formName,
-            descripcion: formDesc
-          }),
-        });
-      }
+        resp = await dispatch(addCategory({ nombre: formName, descripcion: formDesc }));
 
-      if (!resp.ok) {
-        const text = await resp.text();
-        throw new Error(`Error al guardar: ${text}`);
       }
-
-      // Despues de crear o editar, recargo la lista
-      await loadCategoriasBackend();
 
       setFormName("");
       setFormDesc("");
@@ -108,48 +72,10 @@ const CategoriasAdmin = () => {
     }
   };
 
-  // Función auxiliar para recargar el array de categories tras crear/editar/eliminar
-  const loadCategoriasBackend = async () => {
-    try {
-      const resp = await fetch("http://localhost:4002/categories");
-      if (!resp.ok) throw new Error("Error al listar categorías");
-      const data = await resp.json();
-      const rawArray = data.content || data;
-      const mapped = rawArray.map((c) => ({
-        id: c.id,
-        nombre: c.name,
-        descripcion: c.description,
-      }));
-      setCategorias(mapped);
-    } catch (error) {
-      console.error("No se pudieron recargar categorías:", error);
-    }
-  };
-
-  const confirmDelete = async () => {
-
-    const token = localStorage.getItem("token");
-    const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
-
-    try {
-      const resp = await fetch(`http://localhost:4002/categories/${deleteCat.id}`, {
-        method: "DELETE",
-        headers:{...authHeader}
-      });
-      if (resp.status === 204) {
-        // Después de borrar, recargamos lista
-        await loadCategoriasBackend();
-      } else {
-        const text = await resp.text();
-        throw new Error(`Error al eliminar: ${text}`);
-      }
-    } catch (error) {
-      console.error("Error en eliminar categoría:", error);
-      alert("Hubo un error al eliminar. Revisa la consola.");
-    } finally {
+  const handleDelete = async () => {
+      dispatch(removeCategory(deleteCat.id));
       setDeleteCat(null);
-    }
-  };
+    };
 
   /*
   const categoriasMock = [{
@@ -160,12 +86,11 @@ const CategoriasAdmin = () => {
   */
 
   // —————————— Filtrado local (ya no hay excepción porque `categorias` siempre es array) ——————————
-  const filteredCategorias = categorias.filter((cat) =>
-    cat.nombre.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCategorias = categorias.filter((cat) => cat && cat.nombre &&
+    cat.nombre.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6">
       <h1 className="text-2xl font-semibold mb-6">Administración de Categorías</h1>
 
       {/* Barra de búsqueda */}
@@ -185,6 +110,12 @@ const CategoriasAdmin = () => {
           {/* Encabezado */}
           <thead className="bg-gray-100">
             <tr>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Id
+              </th>
               <th
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -211,6 +142,9 @@ const CategoriasAdmin = () => {
             {filteredCategorias.length > 0 ? (
               filteredCategorias.map((cat, idx) => (
                 <tr key={cat.id} className={idx % 2 === 0 ? "" : "bg-gray-50"}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    {cat.id}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                     {cat.nombre}
                   </td>
@@ -343,7 +277,7 @@ const CategoriasAdmin = () => {
                   Cancelar
                 </button>
                 <button
-                  onClick={confirmDelete}
+                  onClick={handleDelete}
                   className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
                 >
                   Eliminar

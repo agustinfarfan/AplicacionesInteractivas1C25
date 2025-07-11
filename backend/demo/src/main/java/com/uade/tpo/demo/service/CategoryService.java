@@ -1,6 +1,7 @@
 package com.uade.tpo.demo.service;
 
 import com.uade.tpo.demo.entity.Category;
+import com.uade.tpo.demo.entity.dto.CategoriesRequest;
 import com.uade.tpo.demo.exceptions.CategoryNotFoundException;
 import com.uade.tpo.demo.exceptions.CategoryDuplicatedException;
 
@@ -15,7 +16,7 @@ public interface CategoryService {
 
     Optional<Category> getCategoriasById(Long categoryId);
 
-    Category createCategoria(String nombre, String description) throws CategoryDuplicatedException;
+    Category createCategoria(CategoriesRequest request) throws CategoryDuplicatedException;
 
     void delCategoriaById(Long categoryId) throws CategoryNotFoundException;
 

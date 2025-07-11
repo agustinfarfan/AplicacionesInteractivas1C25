@@ -5,7 +5,7 @@ const Success = () => {
   return (
     <>
       <div className='flex max-w-3xl h-screen mx-4 md:mx-auto'>
-        <div className='w-full h-4/5 p-2 shadow-md rounded-md bg-white border-gray-100 border-2 gap-10 flex flex-col items-center justify-top'>
+        <div className='w-full p-2 shadow-md rounded-md bg-white border-gray-100 border-2 gap-10 flex flex-col items-center justify-top'>
           
           <div className='w-full bg-emerald-400 rounded-md py-10 flex flex-col justify-center items-center '>
             <div className="flex items-center justify-center w-24 h-24 mx-auto mb-8 bg-green-100 rounded-full">

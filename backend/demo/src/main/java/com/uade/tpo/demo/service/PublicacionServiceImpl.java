@@ -25,12 +25,12 @@ public class PublicacionServiceImpl implements PublicacionService {
 
     @Override
     public Publicacion updateEstado(Long id, String nuevoEstado) {
-        Optional<Publicacion> publicacion = publicacionRepository.findById(id);
-        if (publicacion.isPresent()) {
-            Publicacion updated = publicacion.get();
-            updated.setEstado(nuevoEstado);
-            return publicacionRepository.save(updated);
-        }
+//        Optional<Publicacion> publicacion = publicacionRepository.findById(id);
+//        if (publicacion.isPresent()) {
+//            Publicacion updated = publicacion.get();
+//            updated.setEstado(nuevoEstado);
+//            return publicacionRepository.save(updated);
+//        }
         return null;
     }
 

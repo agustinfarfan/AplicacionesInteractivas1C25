@@ -3,3 +3,7 @@
 @theme {
   --color-primary: oklch(0.7342 0.1743 134.62);
 }
+
+@utility no-scrollbar {
+  @apply [scrollbar-width:none] [&::-webkit-scrollbar]:hidden;
+}

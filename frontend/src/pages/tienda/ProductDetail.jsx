@@ -1,84 +1,70 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { addProductoToCart } from '../../services/carritoService';
-import { useAuth } from '../../context/AuthContext';
-import { fetchProductById } from '../../services/backendApi';
+import { useDispatch, useSelector } from 'react-redux';
+import { addProductoToCart } from '../../redux/carrito/carritoReducer';
+import { fetchProductByIdThunk } from '../../redux/productos/productosReducer';
 
 const ProductDetail = () => {
     const { productId } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
-    const { user } = useAuth(); // Asumiendo que tienes el usuario en el contexto
-    
-    const [product, setProduct] = useState(location.state?.product || null);
+    const dispatch = useDispatch();
+
+    const { data: userData, isAuthenticated } = useSelector((state) => state.user);
+    const selectedProduct = useSelector((state) => state.productos.selectedProduct);
+    const productLoading = useSelector((state) => state.productos.loading);
+
     const [cantidad, setCantidad] = useState(1);
-    const [loading, setLoading] = useState(false);
     const [addingToCart, setAddingToCart] = useState(false);
     const [message, setMessage] = useState('');
 
-    // Si no tenemos el producto en el state, podrías hacer fetch aquí
+    const product = location.state?.product || selectedProduct;
+
     useEffect(() => {
-        if (!product && productId) {
-            fetchProductById({id: productId})
-            .then((response) => {
-                setProduct(response);
-            })
+        if (!location.state?.product && productId) {
+            dispatch(fetchProductByIdThunk(productId));
         }
-    }, [product, productId]);
+    }, [dispatch, productId, location.state?.product]);
 
-    const handleAddToCart = async () => {
-        // // Verificar si el usuario está logueado
-        // if (!isLoggedIn()) {
-        //     setMessage('Debes iniciar sesión para agregar productos al carrito');
-        //     setTimeout(() => {
-        //         navigate('/auth/login');
-        //     }, 2000);
-        //     return;
-        // }
-
-        // Verificar si tenemos el user
-        if (!user) {
+    const handleAddToCart = () => {
+        if (!isAuthenticated) {
             setMessage('Debes iniciar sesión para agregar productos al carrito');
-            setTimeout(() => {
-                navigate('/auth/login');
-            }, 2000);
+            setTimeout(() => navigate('/auth/login'), 2000);
             return;
         }
 
         try {
             setAddingToCart(true);
-            await addProductoToCart({
-                userId: user.user_id,
+            dispatch(addProductoToCart({
+                id: userData.user_id,
                 productoId: product.id,
-                cantidad: cantidad
-            });
-            
+                cantidad
+            }));
+
             setMessage('Producto agregado al carrito exitosamente!');
-            
-            // Opcional: limpiar el mensaje después de unos segundos
-            setTimeout(() => {
-                setMessage('');
-            }, 3000);
-            
+            setTimeout(() => setMessage(''), 3000);
         } catch (error) {
             console.error('Error al agregar al carrito:', error);
             setMessage('Error al agregar el producto al carrito');
-            
-            setTimeout(() => {
-                setMessage('');
-            }, 3000);
+            setTimeout(() => setMessage(''), 3000);
         } finally {
             setAddingToCart(false);
         }
     };
 
-    const incrementCantidad = () => {
-        setCantidad(prev => prev + 1);
-    };
+    const incrementCantidad = () => setCantidad(prev => prev + 1);
+    const decrementCantidad = () => setCantidad(prev => prev > 1 ? prev - 1 : 1);
 
-    const decrementCantidad = () => {
-        setCantidad(prev => prev > 1 ? prev - 1 : 1);
-    };
+    if (productLoading && !product) {
+        return (
+            <div className="min-h-screen pt-16 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Cargando producto...</p>
+                </div>
+            </div>
+        );
+    }
 
     if (!product) {
         return (
@@ -97,7 +83,7 @@ const ProductDetail = () => {
     }
 
     return (
-        <div className="min-h-screen pt-16 bg-gray-50">
+        <div className="min-h-screen pt-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Breadcrumb */}
                 <nav className="flex mb-8" aria-label="Breadcrumb">
@@ -153,11 +139,11 @@ const ProductDetail = () => {
                         <div className="md:w-1/2">
                             <img
                                 className="w-full h-96 md:h-full object-cover"
-                                src={product.image || product.imagen || '/placeholder-product.jpg'}
+                                src={product.nombreImagen
+                                    ? `http://localhost:4002/images/${product.nombreImagen}`
+                                    : `http://localhost:4002/images/no-image-available-icon-vector.jpg`
+                                }
                                 alt={product.name || product.nombre}
-                                onError={(e) => {
-                                    e.target.src = '/placeholder-product.jpg';
-                                }}
                             />
                         </div>
 
@@ -166,7 +152,7 @@ const ProductDetail = () => {
                             <h1 className="text-3xl font-bold text-gray-900 mb-4">
                                 {product.name || product.nombre}
                             </h1>
-                            
+
                             <div className="mb-6">
                                 <span className="text-3xl font-bold text-indigo-600">
                                     ${product.price || product.precio}
@@ -182,7 +168,6 @@ const ProductDetail = () => {
                                 </p>
                             </div>
 
-                            {/* Stock info */}
                             {(product.stock || product.stock === 0) && (
                                 <div className="mb-6">
                                     <span className={`text-sm font-medium ${
@@ -193,7 +178,6 @@ const ProductDetail = () => {
                                 </div>
                             )}
 
-                            {/* Selector de cantidad */}
                             <div className="mb-6">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Cantidad
@@ -221,7 +205,6 @@ const ProductDetail = () => {
                                 </div>
                             </div>
 
-                            {/* Botón agregar al carrito */}
                             <button
                                 onClick={handleAddToCart}
                                 disabled={addingToCart || (product.stock === 0)}
@@ -243,7 +226,6 @@ const ProductDetail = () => {
                                 )}
                             </button>
 
-                            {/* Botón secundario */}
                             <button
                                 onClick={() => navigate('/carrito')}
                                 className="w-full mt-3 py-3 px-6 rounded-lg font-semibold text-indigo-600 border border-indigo-600 hover:bg-indigo-50 transition-colors"

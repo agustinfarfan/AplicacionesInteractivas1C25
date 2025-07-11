@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 
 public interface PublicacionRepository extends JpaRepository<Publicacion, Long> {
-    List<Publicacion> findByVendedorId(Long vendedorId);
+    //List<Publicacion> findByVendedorId(Long vendedorId);
     List<Publicacion> findByProductoId(Long productoId);
 }

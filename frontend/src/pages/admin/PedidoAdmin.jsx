@@ -1,33 +1,25 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { fetchPedidoById } from '../../services/pedidosService';
 import Loading from '../../components/Loading';
 import EstadoPedido from '../../components/EstadoPedido';
+import { fetchPedido } from '../../redux/pedidos/pedidoReducer';
+import { useDispatch, useSelector } from 'react-redux';
 
 const PedidoAdmin = () => {
     const { id } = useParams();
-    const { user, loadingUser } = useAuth();
+    console.log(id);
+    
 
     const [data, setData] = useState(null);
-    const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(true);
+
+    const dispatch = useDispatch();
+
+    const { token } = useSelector((state) => state.user);
+    const { pedidoSeleccionado, loading, error } = useSelector((state) => state.pedido);
 
     useEffect(() => {
-        if (!loadingUser && user) {
-            fetchPedidoById({ id })
-                .then((data) => {
-                    console.log(data);
-
-                    setData(data);
-                    setLoading(false);
-                })
-                .catch((err) => {
-                    setError(err);
-                    setLoading(false);
-                });
-        }
-    }, [user, loadingUser, id]);
+        dispatch(fetchPedido({token: token, id: id}));
+  }, []);
 
     if (loading) {
         return (
@@ -37,7 +29,7 @@ const PedidoAdmin = () => {
         );
     }
 
-    if (error || !data) {
+    if (error && !pedidoSeleccionado) {
         return (
             <div className='flex h-full w-full justify-center items-center flex-col'>
                 <h1 className='text-3xl font-bold mb-5'>Error al cargar el pedido</h1>
@@ -47,24 +39,24 @@ const PedidoAdmin = () => {
         );
     }
 
-    return (
+    return pedidoSeleccionado && (
         <div className="max-w-3xl mx-auto mt-10 bg-white shadow-md rounded-lg p-8">
             <div className='flex flex-col md:flex-row md:justify-between md:items-center mb-4'>
-                <h1 className="text-3xl font-bold">Detalle del Pedido #{data.orderId}</h1>
-                <EstadoPedido estado={data.estado} />
+                <h1 className="text-3xl font-bold">Detalle del Pedido #{pedidoSeleccionado.orderId}</h1>
+                <EstadoPedido estado={pedidoSeleccionado.estado} />
             </div>
             <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
                 <div>
-                    <p className="text-gray-700"><span className="font-semibold">Fecha:</span> {new Date(data.createdAt).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
-                    <p className="text-gray-700"><span className="font-semibold">Cliente:</span> {data.nombre} {data.apellido}</p>
-                    <p className="text-gray-700"><span className="font-semibold">Email:</span> {data.email}</p>
+                    <p className="text-gray-700"><span className="font-semibold">Fecha:</span> {new Date(pedidoSeleccionado.createdAt).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                    <p className="text-gray-700"><span className="font-semibold">Cliente:</span> {pedidoSeleccionado.nombre} {pedidoSeleccionado.apellido}</p>
+                    <p className="text-gray-700"><span className="font-semibold">Email:</span> {pedidoSeleccionado.email}</p>
                 </div>
             </div>
 
             <div className="mb-6">
                 <h2 className="text-xl font-semibold mb-2">Envío</h2>
-                <p className="text-gray-700"><span className="font-semibold">Método:</span> {data.metodoDeEnvio}</p>
-                <p className="text-gray-700"><span className="font-semibold">Dirección:</span> {data.direccion}</p>
+                <p className="text-gray-700"><span className="font-semibold">Método:</span> {pedidoSeleccionado.metodoDeEnvio}</p>
+                <p className="text-gray-700"><span className="font-semibold">Dirección:</span> {pedidoSeleccionado.direccion}</p>
             </div>
 
             <div className="mb-6">
@@ -79,7 +71,7 @@ const PedidoAdmin = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {data.detalleOrder.map((prod) => (
+                        {pedidoSeleccionado.detalleOrder.map((prod) => (
                             <tr key={prod.producto_id}>
                                 <td className="px-4 py-2">{prod.nombre_producto}</td>
                                 <td className="px-4 py-2">{prod.descripcion}</td>
@@ -94,11 +86,11 @@ const PedidoAdmin = () => {
             <div className="flex flex-col md:flex-row md:justify-between md:items-center border-t border-neutral-300 pt-4">
                 <div>
                     <p className="text-gray-700">
-                        <span className="font-semibold">Pagado con tarjeta terminada en:</span> {data.ultimosCuatroDigitos}
+                        <span className="font-semibold">Pagado con tarjeta terminada en:</span> {pedidoSeleccionado.ultimosCuatroDigitos}
                     </p>
                 </div>
                 <div>
-                    <span className="text-xl font-bold text-indigo-700 px-3">Total: ${data.total.toLocaleString('es-AR')}</span>
+                    <span className="text-xl font-bold text-indigo-700 px-3">Total: ${pedidoSeleccionado.total.toLocaleString('es-AR')}</span>
                 </div>
             </div>
 
