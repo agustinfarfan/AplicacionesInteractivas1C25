@@ -159,6 +159,4 @@ Con Actuator habilitado, el mapa completo de endpoints está en `http://localhos
 
 Trabajo Práctico Obligatorio — Aplicaciones Interactivas, Ingeniería en Informática, UADE (1C 2025). Grupo 8.
 
----
 
-*Proyecto desarrollado en equipo. Mi contribución: `<completar>`.*
